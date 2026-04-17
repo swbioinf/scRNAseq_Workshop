@@ -4,11 +4,9 @@
 
 There are many different methods for calculating differential expression between groups in scRNAseq data. There are a number of review papers worth consulting on this topic.
 
-There is the [Seurat differential expression Vignette](https://satijalab.org/seurat/archive/v3.1/de_vignette.html) which walks through the variety implemented in Seurat. 
-
 There is also a good discussion of useing [pseudobulk approaches](http://bioconductor.org/books/3.15/OSCA.multisample/multi-sample-comparisons.html#creating-pseudo-bulk-samples) which is worth checking out if youre planning differential expression analyses.
 
-
+We will be using a pseudobulk approach with limma. 
 
 ```{r }
 head(seurat_object@meta.data)
@@ -83,96 +81,6 @@ DimPlot(seurat_object_celltype, reduction = "umap_harmony")
 ```
 
 
-
-
-##  Default Wilcox test
-
-To run this test, we change the Idents to the factor(column) we want to test. In this case, that's 'stim'.
-
-```{r}
-# Change Ident to Condition
-Idents(seurat_object_celltype) <- seurat_object_celltype$stim
-
-# default, wilcox test
-de_result_wilcox <- FindMarkers(seurat_object_celltype, 
-            ident.1 = 'stim',
-            ident.2 = 'ctrl',
-            logfc.threshold = 0, # Give me ALL results
-            min.pct = 0
-            )
-
-# Add average expression for plotting
-de_result_wilcox$AveExpr<- rowMeans(seurat_object_celltype[rownames(de_result_wilcox),])
-```
-
-Look at the top differentially expressed genes.
-```{r}
-head(de_result_wilcox)
-```
-
-```{r}
-p1 <- ggplot(de_result_wilcox, aes(x=AveExpr, y=avg_log2FC, col=p_val_adj < 0.05)) +
-  geom_point() +
-  scale_colour_manual(values=c('TRUE'="red",'FALSE'="black")) + 
-  theme_bw() +
-  ggtitle("Wilcox Test")
-
-
-p2 <- ggplot(de_result_wilcox, aes(x=avg_log2FC, y=-log10(p_val), col=p_val_adj < 0.05)) +
-  geom_point() +
-  scale_colour_manual(values=c('TRUE'="red",'FALSE'="black")) + 
-  theme_bw() +
-  ggtitle("Wilcox Test (Volcano)")
-
-p1 + p2
-```
-
-
-## Seurat Negative binomial
-
-Negative binonial test is run almost the same way - just need to specify it under 'test.use'
-
-```{r results='hide', warning=FALSE, message=FALSE}
-
-# Change Ident to Condition
-Idents(seurat_object_celltype) <- seurat_object_celltype$stim
-
-# default, wilcox test
-de_result_negbinom <- FindMarkers(seurat_object_celltype, 
-            test.use="negbinom", # Choose a different test.
-            ident.1 = 'stim',
-            ident.2 = 'ctrl',
-            logfc.threshold = 0, # Give me ALL results
-            min.pct = 0
-)
-
-# Add average expression for plotting
-de_result_negbinom$AveExpr<- rowMeans(seurat_object_celltype[rownames(de_result_negbinom),])
-```
-
-
-
-Look at the top differentially expressed genes.
-```{r}
-head(de_result_negbinom)
-```
-
-```{r}
-p1 <- ggplot(de_result_negbinom, aes(x=AveExpr, y=avg_log2FC, col=p_val_adj < 0.05)) +
-  geom_point() +
-  scale_colour_manual(values=c('TRUE'="red",'FALSE'="black")) + 
-  theme_bw() +
-  ggtitle("Negative Bionomial Test")
-
-
-p2 <- ggplot(de_result_negbinom, aes(x=avg_log2FC, y=-log10(p_val), col=p_val_adj < 0.05)) +
-  geom_point() +
-  scale_colour_manual(values=c('TRUE'="red",'FALSE'="black")) + 
-  theme_bw() +
-  ggtitle("Negative Bionomial Test (Volcano)")
-
-p1 + p2
-```
 
 
 ## Pseudobulk
@@ -257,3 +165,17 @@ p1 + p2
 These methods give different results. How would you decide which to use? How could you check an individual gene?
 
 #### {-}
+
+
+
+#### What about FindMarkers? {- .rational}
+
+If you look at the seurat [differnetial expression vignette](https://satijalab.org/seurat/articles/de_vignette), you might have seen code that uses 'FindMarkers()' method to look for differential expression between groups.
+
+By default, that fundtion uses a 'wilcox' test to look for differences in gene 
+expression, treating _each individual cell as a replicate_.  In cases where biolocial replicates are simply not available this can be useful (e.g. pilot study, old public dataset or rare sample). 
+
+However, when biological replicates are available, they should be used! 
+
+#### {-}
+
