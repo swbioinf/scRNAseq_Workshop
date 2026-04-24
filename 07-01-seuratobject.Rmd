@@ -113,7 +113,7 @@ GetAssayData(seurat_object)[1:15,1:2]
 
 But the raw counts data is accessible too.
 ```{r}
-GetAssayData(seurat_object, slot='counts')[1:15,1:2]
+GetAssayData(seurat_object, layer='counts')[1:15,1:2]
 ```
 
 

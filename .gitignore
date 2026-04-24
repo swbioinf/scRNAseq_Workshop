@@ -1,4 +1,5 @@
 docs/
+docs/*
 /_bookdown_files
 /data.tar
 /data
@@ -8,3 +9,5 @@ docs/
 renv/*
 .Rproj.user
 .Rprofile
+*rds
+*RDS

@@ -38,7 +38,7 @@ We include several tools for visualizing marker expression. `VlnPlot()` (shows e
 ```{r}
 VlnPlot(seurat_object, features = c("MS4A1", "CD79A"))
 # you can plot raw counts as well
-VlnPlot(seurat_object, features = c("NKG7", "PF4"), slot = 'counts', log = TRUE)
+VlnPlot(seurat_object, features = c("NKG7", "PF4"), layer = 'counts', log = TRUE)
 ```
 
 ```{r markerplots}

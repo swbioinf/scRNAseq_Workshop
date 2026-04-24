@@ -38,7 +38,7 @@ devtools::install_github('immunogenomics/presto@1.0.0')
 
 ## Raw Data
 
-```{r }
+```{r eval=FALSE}
 # where are you? what folder are you working in
 
 getwd()

@@ -1,5 +1,10 @@
 # Differential Expression {#de2}
 
+```{r}
+library(tidyverse)
+```
+
+
 [Slides](https://docs.google.com/presentation/d/1iTfkc2KgGy3d6yT9zCALZzk993pWwT9D/edit#slide=id.p1)
 
 There are many different methods for calculating differential expression between groups in scRNAseq data. There are a number of review papers worth consulting on this topic.
@@ -228,7 +233,7 @@ It is customary to log2 transform expresison data -
 ```{r}
 dge <- DGEList(pseudobulk_matrix.allcelltypes) 
 dge <- calcNormFactors(dge) 
-norm_matrix <- cpm(dge)                 # Get normalised matrix according to normalisation factors.
+norm_matrix <- edgeR::cpm(dge)                 # Get normalised matrix according to normalisation factors.
 lognorm_matrix <- log2(norm_matrix + 1) # add 1 so that zero counts can be logged to 0. 
 lognorm_matrix[1:4,1:5]
 ```
