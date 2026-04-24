@@ -11,3 +11,5 @@ renv/*
 .Rprofile
 *rds
 *RDS
+scRNAseqInR_ABACBS_2024_Doc*
+renv.lock
