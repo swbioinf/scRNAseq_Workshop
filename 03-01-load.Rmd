@@ -4,20 +4,25 @@
 
 [Let's get started with a single cell introduction](https://docs.google.com/presentation/d/1yKxSWL_sYto-alC-1BXIk1WbSnIGxnky/edit#slide=id.p1)
 
-## Setup the Seurat Object
-
-## The data set
-
-The dataset used in this workshop is a *modified* version derived from this study ([see here](https://pubmed.ncbi.nlm.nih.gov/29227470/)). It has been adapted to introduce additional complexity for instructional purposes. *Please refrain from drawing any biological conclusions from this data as it does not represent real experimental results*.
-
-This dataset represents human peripheral blood mononuclear cells (PBMCs), pooled from eight individual donors. Genetic differences among donors enable the identification of some cell doublets, enhancing data complexity. It includes two single-cell sequencing batches, one of which was stimulated with IFN-beta. Additionally, mitochondrial expression levels have been introduced to demonstrate how to interpret and apply mitochondrial thresholds for filtering purposes.
+## The example experiment data
 
 
+For today's workshop, we'll be using some data from [Kang et al 2018 - Multiplexed droplet single-cell RNA-sequencing using natural genetic variation](https://pubmed.ncbi.nlm.nih.gov/29227470/).
+
+This dataset represents human peripheral blood mononuclear cells (PBMCs), pooled from eight individual donors. There were two conditions for the samples, one of which was stimulated with IFN-beta, and a unstimulated control.
+
+They used the genetic differences among donors enable the identification of the individual for each cell, and to identify some cell doublets. 
+
+For the purposes of today's workshop, we will load the individual IDs, stimulation condition and doublet status for this data from a separate metadata table. 
 
 
-#### Note: What does the data look like? { - .challenge}
+PLEAST NOTE: The dataset used in this workshop is a *modified* version derived from this study ([see here](https://pubmed.ncbi.nlm.nih.gov/29227470/)). It has been adapted to introduce additional complexity for instructional purposes. (Mitochondrial expression levels have been introduced to demonstrate how to interpret and apply mitochondrial thresholds for filtering purposes.) *Please refrain from drawing any biological conclusions from this data as it does not represent real experimental results*.
 
-What do the input files look like? It varies, but this is the output of the CellRanger pipleine, described [here](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/gex-outputs)
+
+
+## What does the raw data look like? 
+
+What do the input files look like? It varies, but this is the output of the CellRanger pipeline, described [here](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/gex-outputs)
 
 ```
 ├── analysis
@@ -44,9 +49,8 @@ What do the input files look like? It varies, but this is the output of the Cell
 └── web_summary.html
 ```
 
-### { - }
 
-
+## Setup the Seurat Object
 
 We start by reading in the data. There are several options for loading the data. The `Read10X()` function reads in the output of the [cellranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) pipeline from 10X, returning a unique molecular identified (UMI) count matrix. The values in this matrix represent the number of molecules for each feature (i.e. gene; row) that are detected in each cell (column).
 
@@ -62,18 +66,26 @@ library(patchwork)
 
 ## Different ways of loading the data
 
-Example 1. Load your data using the path to the folder: ```filtered_feature_bc_matrix``` that is in the output folder of your cellranger run using the ```Read10X``` function.
+We'll use method 3 today.
 
-```{}
+### Example 1: From the whole data folder
+
+Load your data using the path to the folder
+
+```filtered_feature_bc_matrix``` that is in the output folder of your cellranger run using the ```Read10X``` function.
+
+```{r eval=FALSE}
 # Load the PBMC dataset
  pbmc.data <- Read10X(data.dir = "outs/filtered_feature_bc_matrix")
 # Initialize the Seurat object with the raw (non-normalized data).
  seurat_object <- CreateSeuratObject(counts = pbmc.data, min.cells = 3, min.features = 200)
 ```
 
-Example 2. Load your data directing the ```ReadMtx``` function to each of the relevant files in the ```filtered_feature_bc_matrix``` folder in the outputs from your cellranger run. MTX is a simple text format for sparse matrices.
+### Example 2: From filtered_feature_bc_matrix folder
 
-```{}
+Load your data directing the ```ReadMtx``` function to each of the relevant files in the ```filtered_feature_bc_matrix``` folder in the outputs from your cellranger run. MTX is a simple text format for sparse matrices.
+
+```{r eval=FALSE}
 expression_matrix <- ReadMtx(
   mtx = "outs/filtered_feature_bc_matrix/count_matrix.mtx.gz", features = "outs/filtered_feature_bc_matrix/features.tsv.gz",
   cells = "outs/filtered_feature_bc_matrix/barcodes.tsv.gz"
@@ -82,8 +94,12 @@ seurat_object <- CreateSeuratObject(counts = expression_matrix)
 ```
 
 
-Example 3. Load your data using the ```Read10X_h5``` function to each of the relevant HDF5 files. HDF5 is an efficient binary format.
+### Example 3:  From .h5 files
 
+Load your data using the ```Read10X_h5``` function to each of the relevant HDF5 files. HDF5 is an efficient binary format.
+
+
+For this workshop, we also have a text file with some of the metadata from the original study, which we add with AddMetaData.
 
 ```{r}
 pbmc.data <- Read10X_h5("data/filtered_feature_bc_matrix.h5")
@@ -95,6 +111,51 @@ seurat_object <- CreateSeuratObject(counts = pbmc.data ,
 # Use AddMetaData to add new meta data to object
 seurat_object  <- AddMetaData(object = seurat_object, metadata = metadata)
 ```
+
+
+## What does the seurat object look like?
+
+
+```{r}
+seurat_object 
+```
+
+Lets examine a few genes in the first thirty cells. 
+
+The `.` values in the matrix represent 0s (no molecules detected). Since most values in an scRNA-seq matrix are 0,  Seurat uses a sparse-matrix representation whenever possible. This results in significant memory and speed savings for Drop-seq/inDrop/10x data.
+
+```{r}
+seurat_object[c("CD3D","TCL1A","MS4A1"), 1:30]
+```
+
+And the cell metadata for the first 10 cells (most of these columns come from the original paper, we'll get into them later.)
+
+```{r}
+seurat_object@meta.data
+```
+
+
+
+#### What about Multiple sampes? {- .rational}
+
+In the real world, you'll probably want to load multiple samples, and join them together into one big data object before analysis.
+
+This is described in the [seurat merge vignette](https://satijalab.org/seurat/archive/v4.3/merge)
+
+```{r eval=FALSE}
+
+#so.sample1 <- # load it
+#so.sample1$sample_name <- "S1" # label it 
+#so.sample1$group       <- "control" 
+# ...
+# # load the other samples
+# Join them
+seurat_object.all <- merge(so.sample1, y = c(so.sample2, so.sample3), add.cell.ids = c("S1", "S2", "S3"), project = "Someproject")
+
+```
+
+#### {-}
+
 
 
 

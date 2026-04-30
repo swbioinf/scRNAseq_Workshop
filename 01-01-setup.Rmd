@@ -4,6 +4,31 @@
 
 **IMPORTANT: If you have an M1 Mac - Make sure you have [gfortan](https://mac.r-project.org/tools/).**
 
+
+## Recommended Computer Requirements:
+
+System Requirements:
+
+*Windows:*
+
+* Windows 8.1 (64-bit) or later
+* 4GB RAM
+* SSD storage highly recommended
+* Updated video/display drivers recommended
+
+
+*macOS:*
+
+* macOS 10.15 (Catalina) or later
+* 4GB RAM
+* SSD storage highly recommended
+
+Install latest versions of:
+
+* R
+* RStudio
+
+
 ## Get the workshop material and data
 
 In RStudio **create a new project**. This ensures all the files for this workshop are placed in their own folder.
@@ -31,17 +56,22 @@ BiocManager::install(c('SingleR', 'celldex',
                        'SummarizedExperiment','edgeR' ),
                      update=FALSE)
 
-
+# And the presto package from its github page using devtools
+install.packages("devtools")
 devtools::install_github('immunogenomics/presto@1.0.0')
 
 ```
 
 ## Raw Data
 
+Raw data is provided on supplied VMs already.
+
 ```{r eval=FALSE}
 # where are you? what folder are you working in
-
 getwd()
+
+# Navigate to the working directory
+setwd("/your/R/project/directory")
 
 ## Download and untar the data
 options(timeout=3600)

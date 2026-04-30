@@ -1,23 +1,28 @@
 # Differential Expression {#de2}
 
-```{r}
-library(tidyverse)
-```
-
-
-[Slides](https://docs.google.com/presentation/d/1iTfkc2KgGy3d6yT9zCALZzk993pWwT9D/edit#slide=id.p1)
 
 There are many different methods for calculating differential expression between groups in scRNAseq data. There are a number of review papers worth consulting on this topic.
 
-There is also a good discussion of useing [pseudobulk approaches](http://bioconductor.org/books/3.15/OSCA.multisample/multi-sample-comparisons.html#creating-pseudo-bulk-samples) which is worth checking out if youre planning differential expression analyses.
 
-We will be using a pseudobulk approach with limma. 
+We will be using a pseudobulk approach with limma. There is also a good discussion of using [pseudobulk approaches here](http://bioconductor.org/books/3.15/OSCA.multisample/multi-sample-comparisons.html#creating-pseudo-bulk-samples), which is worth checking out if you're planning differential expression analyses.
 
-```{r }
-head(seurat_object@meta.data)
-```
 
-How cells from each condition do we have?
+## Experimental question and annnotation
+
+In this (NB: modified!) experimental data taken from [Kang et al 2018 - Multiplexed droplet single-cell RNA-sequencing using natural genetic variation](https://pubmed.ncbi.nlm.nih.gov/29227470/), there are IFN-beta stimulated and unstimulated control PBMCs from 8 different lupus patient samples.
+
+For this example, we'd like to look at the gene expression changes that occur with IFN-beta stimulation in the CD14+ Monocytes.
+
+To recap the annotation in our object
+
+*  **ind** identifies a cell as coming from one of 8 individuals.
+* **stim** identifies a cell as control or stimulated with IFN-beta.
+* **cell** contains the cell types identified by the creators of this data set.
+
+
+
+So - How many cells from each condition do we have?
+
 ```{r}
 table(seurat_object$stim)
 ```
@@ -33,7 +38,7 @@ table(paste(seurat_object$ind,seurat_object$stim), seurat_object$cell)
 ```
 
 
-Lets add some columns to our metadata - with a unique value per sample and per sample+celltype
+Lets add some columns to our metadata - with a unique value per sample and per sample+celltype.
 
 ```{r}
 seurat_object$sample_name          <- paste(seurat_object$stim, seurat_object$ind, sep=".")
@@ -96,10 +101,10 @@ DimPlot(seurat_object_celltype, reduction = "umap_harmony")
 
 ## Pseudobulk
 
-Pseudobulk analysis is an option where you have biological replicates. It is essentially pooling the individual cell counts and treating your expreiment like a bulk RNAseq.
+Pseudobulk analysis is an option where you have biological replicates. It is essentially pooling the individual cell counts and treating your experiment like a bulk RNAseq.
 
 
-First, you need to build a pseudobulk matrix - the `AggregateExpression()` function can do this, once you set the 'Idents' of your seurat object to your grouping factor (here, thats a combination of individual+treatment called 'sample', instead of the 'stim' treatment column).
+First, you need to build a pseudobulk matrix - the `AggregateExpression()` function can do this, once you set the 'Idents' of your seurat object to your grouping factor (here, that's that combination of individual+treatment called 'sample', instead of the 'stim' treatment column).
 
 ```{r}
 # Tools for bulk differential expression
@@ -108,26 +113,22 @@ library(edgeR)
 
 
 # Pull out a table of our sample information - the sample, individual, stim condition and celltype
-pseudobulk_annotation_table <- FetchData(seurat_object_celltype, vars = c('sample_name', 'ind', 'stim', 'cell', 'sample_celltype_name')) %>% 
-  as_tibble() %>%
-  group_by(across()) %>% 
-  summarise(n_cells=n())
-
-
-
-
+pseudobulk_annotation_table <- FetchData(seurat_object_celltype, vars = c('sample_name', 'ind', 'stim', 'cell', 'sample_celltype_name')) |> 
+  as_tibble()  |>
+  group_by(across(everything()))  |> # group by unique row combinations
+  summarise(n_cells=n())             # and count the number of cells
 
 # Change idents to our samples for grouping.
 Idents(seurat_object_celltype) <- seurat_object_celltype$sample_name
 
-# THen pool together counts in those groups
-# AggregateExperssion returns a list of matricies - one for each assay requested (even just requesting one)
+# Then pool together counts in those groups
+# AggregateExperssion returns a list of matrices - one for each assay requested (even just requesting one)
 pseudobulk_matrix_list <- AggregateExpression( seurat_object_celltype,  slot = 'counts', assays='RNA' )
 pseudobulk_matrix      <- pseudobulk_matrix_list[['RNA']]
 pseudobulk_matrix[1:5,1:4]
 
 
-# Match the order of the matrix with the annotation. It did already match in htis case, but a mismatch would cause silent swapping of the data!
+# Match the order of the matrix with the annotation. It did already match in this case, but a mismatch would cause silent swapping of the data!
 pseudobulk_matrix <- pseudobulk_matrix[,pseudobulk_annotation_table$sample_name]
 # And double check our annotation matches our data
 # Ie. check that all pseudobulk matrix column labels match in the same order of the 'sample_name' column of the annotation table. 
@@ -193,7 +194,15 @@ p1 + p2
 
 Its always a good idea to look at the data. Lets plot the expression of a differentially expressed gene, across all celltypes.
 
-This code will build anothecounts matrix - but this one with a 'sample' for every combination of sample + celltype.
+
+We will build another expression matrix for this for two reasons: 
+
+1) Need normalised counts: We used counts for the differential expression. But counts are unnormalised, so we need a normalised version for visually comparing samples.
+2) Plot all celltypes: We used just monocytes for the comparison, but we'd like to plot all the celltypes. 
+
+
+This code will build another counts matrix with a 'sample' for every combination of sample + celltype. Plus a table of annotation to go with it. 
+
 
 
 ```{r}
@@ -212,7 +221,6 @@ pseudobulk_annotation_table.allcelltypes <- filter(pseudobulk_annotation_table.a
 ```
 
 
-
 ```{r}
 ## And all celltype counts matrix
 Idents(seurat_object) <- seurat_object$sample_celltype_name
@@ -220,15 +228,14 @@ Idents(seurat_object) <- seurat_object$sample_celltype_name
 pseudobulk_matrix_list.allcelltypes <- AggregateExpression( seurat_object,  slot = 'counts', assays='RNA' )
 pseudobulk_matrix.allcelltypes      <- pseudobulk_matrix_list.allcelltypes[['RNA']]
 
-# Match the order of the matrix with the annotation. It did already match in htis case, but a mismatch would cause silent swapping of the data!
-#pseudobulk_matrix <- pseudobulk_matrix[,pseudobulk_annotation_table$sample_celltype_name]
+# Match the order of the matrix with the annotation. It did already match in this case, but a mismatch would cause silent swapping of the data!
+pseudobulk_matrix.allcelltypes <- pseudobulk_matrix.allcelltypes[,pseudobulk_annotation_table.allcelltypes$sample_celltype_name]
 pseudobulk_matrix.allcelltypes[1:5,1:4]
 ```
 
 
 
-This code builds a quick TMM normalised matrix. The limma-voom method we used for differential expression worked directly with counts data - but we need something normalised for examining expression!
-It is customary to log2 transform expresison data - 
+This code builds a quick TMM normalised matrix. The limma-voom method we used for differential expression worked directly with counts data - but we need something normalised for examining expression! It is customary to log2 transform expression data.
 
 ```{r}
 dge <- DGEList(pseudobulk_matrix.allcelltypes) 
@@ -261,11 +268,7 @@ ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=
 
 #### Discussion {- .challenge}
 
-
-1) Look at the expression of some other genes (differntially expressed or not). Are they globally changing or just in that celltype?  Share an interesting example.
-2) [If time permits] Try plotting the raw counts - what do you notice?
-  
-
+Look at the expression of some other genes (differentially expressed or not). Are they globally changing or just in that celltype?  Share an interesting example.
 
 #### {-}
 
@@ -275,8 +278,8 @@ ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=
 
 If you look at the seurat [differnetial expression vignette](https://satijalab.org/seurat/articles/de_vignette), you might have seen code that uses 'FindMarkers()' method to look for differential expression between groups.
 
-By default, that fundtion uses a 'wilcox' test to look for differences in gene 
-expression, treating _each individual cell as a replicate_.  In cases where biolocial replicates are simply not available this can be useful (e.g. pilot study, old public dataset or rare sample). 
+By default, that function uses a 'wilcox' test to look for differences in gene 
+expression, treating _each individual cell as a replicate_.  In cases where biological replicates are simply not available this can be useful (e.g. pilot study, old public dataset or rare sample). 
 
 However, when biological replicates are available, they should be used! 
 
