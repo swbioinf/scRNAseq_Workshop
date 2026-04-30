@@ -13,3 +13,4 @@ renv/*
 *RDS
 scRNAseqInR_ABACBS_2024_Doc*
 renv.lock
+*.Rproj

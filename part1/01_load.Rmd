@@ -1,3 +1,9 @@
+# (PART) Single Cell Analysis {-}  
+
+## Learning outcomes
+
+- Be able to load raw single cell RNAseq into a Seurat object
+- Understand the basic structure of a Seurat object, how to get counts and cell annotations
 
 
 # Load data {#load}
@@ -16,7 +22,7 @@ They used the genetic differences among donors enable the identification of the 
 For the purposes of today's workshop, we will load the individual IDs, stimulation condition and doublet status for this data from a separate metadata table. 
 
 
-PLEAST NOTE: The dataset used in this workshop is a *modified* version derived from this study ([see here](https://pubmed.ncbi.nlm.nih.gov/29227470/)). It has been adapted to introduce additional complexity for instructional purposes. (Mitochondrial expression levels have been introduced to demonstrate how to interpret and apply mitochondrial thresholds for filtering purposes.) *Please refrain from drawing any biological conclusions from this data as it does not represent real experimental results*.
+PLEASE NOTE: The dataset used in this workshop is a *modified* version derived from this study ([see here](https://pubmed.ncbi.nlm.nih.gov/29227470/)). It has been adapted to introduce additional complexity for instructional purposes. (Mitochondrial expression levels have been introduced to demonstrate how to interpret and apply mitochondrial thresholds for filtering purposes.) *Please refrain from drawing any biological conclusions from this data as it does not represent real experimental results*.
 
 
 

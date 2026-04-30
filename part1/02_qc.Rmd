@@ -1,16 +1,10 @@
-# (PART) Single Cell Analysis {-}  
-
-
 # QC Filtering {#qc}
 
+## Learning outcomes
 
-<!-- Discuss counts per cell/gene and make plots -->
-<!-- Discuss that there's no one threshold -->
-<!-- everyone pick a threshold and go filter -->
-<!-- check numbers of cells. -->
-<!-- save your object -->
-<!-- (other qc metrics = Mt gene content, cell cycle assignment, low seq diversity e.t.c) -->
-
+- Be able to visualise common QC metrics in scRNAseq
+- Understand the biological and technical factors affecting these metrics and their impacts.
+- Understand how to choose and apply filtering thresholds to your own datasets.
 
 
 

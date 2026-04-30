@@ -1,5 +1,12 @@
 # PCAs and UMAPs {#reducedims}
 
+## Learning outcomes
+
+- Have a conceptual understanding of the relationship between gene expression, principal components (PCs) and UMAP 'dimensional reductions', and why we need them.
+- Be able to produce a useful UMAP visualisation for a given dataset.
+
+
+
 [Slides](https://docs.google.com/presentation/d/17-AYqsosmKnJFgv_7DHYNbMQFIXrGAP4/edit#slide=id.p1)
 <!-- why pca -->
 <!-- how to pick genes for pca -->

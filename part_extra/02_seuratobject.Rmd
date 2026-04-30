@@ -1,9 +1,3 @@
-# (PART) Seurat Object {-}  
-
-
-
-
-
 
 # Structure {#structure}
 

@@ -1,5 +1,10 @@
 # Normalisation {#norm}
 
+## Learning outcomes
+
+- Understand the importance of normalisation
+- Be able to normalise a Seurat object
+
 [slides](https://docs.google.com/presentation/d/1YAZPpgHyA6VhIWa4VeyyvfYYHnvaLt1b/edit#slide=id.p1)
 
 #### Why do we need to do this? {- .rational}
