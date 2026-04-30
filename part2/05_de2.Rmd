@@ -1,9 +1,18 @@
-# Differential Expression {#de2}
+# Differential Expression
+
+## Learning outcomes
+
+- Explain why pseudobulk approaches treat each cell identity and condition as the unit of analysis, rather than each cell 
+- Interpret differential expression (DE) results to identify genes that change in response to a condition
+- Assess whether DE results are cell-type specific or broadly shared across the dataset 
+
+## Overview
+
+**Why do we need to do this?**
 
 ```{r}
 library(tidyverse)
 ```
-
 
 [Slides](https://docs.google.com/presentation/d/1iTfkc2KgGy3d6yT9zCALZzk993pWwT9D/edit#slide=id.p1)
 
@@ -280,5 +289,4 @@ expression, treating _each individual cell as a replicate_.  In cases where biol
 
 However, when biological replicates are available, they should be used! 
 
-#### {-}
 

@@ -1,15 +1,23 @@
 # Cluster Markers {#clustermarkers}
 
+## Learning outcomes
 
-#### Why do we need to do this?  {- .rational}
+- Explain how differentially expressed genes can be used as markers to characterise the biological identity of a cluster
+- Run `FindAllMarkers` to identify positive markers for each cluster and visualise them
+- Label clusters to known cell types using canonical marker genes
 
-Single cell data helps to segragate cell types. Use markers to identify cell types. warning: In this example the cell types/markers are well known and making this step easy, but in reality this step needs the experts curation.
+## Overview
 
+**Why do we need to do this?**
 
-####  {-}
+Single cell data helps to segregate cell types. Use markers to identify cell types. warning: In this example the cell types/markers are well known and making this step easy, but in reality this step needs the experts curation.
 
 
 ## Finding differentially expressed features (cluster biomarkers)
+
+TODO: These settings filter out genes that are rarely expressed,
+or do not vary considerably between groups. It helps us focus on the most
+informative ones.
 
 Seurat can help you find markers that define clusters via differential expression. By default, it identifies positive and negative markers of a single cluster (specified in `ident.1`), compared to all other cells.  `FindAllMarkers()` automates this process for all clusters, but you can also test groups of clusters vs. each other, or against all cells.
 
@@ -35,25 +43,29 @@ cluster0.markers <- FindMarkers(seurat_object, ident.1 = 0, logfc.threshold = 0.
 
 We include several tools for visualizing marker expression. `VlnPlot()` (shows expression probability distributions across clusters), and `FeaturePlot()` (visualizes feature expression on a tSNE or PCA plot) are our most commonly used visualizations. We also suggest exploring `RidgePlot()`, `CellScatter()`, and `DotPlot()` as additional methods to view your dataset.
 
+TODO: Consider moving these to a later or bonus section on visualisation.
+
 ```{r}
 VlnPlot(seurat_object, features = c("MS4A1", "CD79A"))
 # you can plot raw counts as well
 VlnPlot(seurat_object, features = c("NKG7", "PF4"), layer = 'counts', log = TRUE)
 ```
+ive ones.
 
 ```{r markerplots}
 FeaturePlot(seurat_object, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A"))
 FeaturePlot(seurat_object, features = c("FCGR3A", "LYZ", "PPBP", "CD8A"))
 ```
 
-<details>
-  <summary>**Other useful plots**</summary>
+**Other useful plots**
+
 These are ridgeplots, cell scatter plots and dotplots. Replace `FeaturePlot` with the other functions.
 
 ```{r ridgeplots}
 RidgePlot(seurat_object, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A"))
 RidgePlot(seurat_object, features = c("FCGR3A", "LYZ", "PPBP", "CD8A"))
 ```
+
 For CellScatter plots, will need the cell id of the cells you want to look at. You can get this from the cell metadata (`seurat_object@meta.data`).
 ```{r}
 head( seurat_object@meta.data )
@@ -61,9 +73,6 @@ head( seurat_object@meta.data )
 CellScatter(seurat_object, cell1 = "AGGGCGCTATTTCC-1", cell2 = "GGAGACGATTCGTT-1")
 
 CellScatter(seurat_object, cell1 = "GGAGACGATTCGTT-1", cell2 = "TACGAGACCTATTC-1")
-
-
-
 ```
 
 DotPlots
@@ -71,9 +80,6 @@ DotPlots
 ```{r}
 DotPlot(seurat_object, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP", "CD8A"))
 ```
-
-</details>
-
 
 `DoHeatmap()` generates an expression heatmap for given cells and features. In this case, we are plotting the top 10 markers (or all markers if less than 10) for each cluster.
 
@@ -84,18 +90,17 @@ DoHeatmap(subset(seurat_object, downsample = maxcells), features = top10$gene) +
 
 ```
 
-
-## Use makers to label or find a cluster
-
+## Use markers to label or find a cluster
 
 If you know markers for your cell types, use AddModuleScore to label them.
+
+TODO: How do you find these?
 
 ```{r}
 genes_markers <- list(Naive_CD4_T = c("IL7R", "CCR7"))
 
 seurat_object <- AddModuleScore(object = seurat_object, features = genes_markers, ctrl = 5, name = "Naive_CD4_T",
     search = TRUE)
-
 
 # notice the name of the cluster has a 1 at the end
 names(seurat_object@meta.data)
@@ -110,11 +115,11 @@ Idents(seurat_object) = seurat_object$cell_label
 FeaturePlot(seurat_object, features = "Naive_CD4_T1", label = TRUE, repel = TRUE, reduction = "umap_harmony") + scale_colour_gradientn(colours = c("lightblue","beige","red"))
 ```
 
-
-
 ## Assigning cell type identity to clusters
 
 Fortunately in the case of this dataset, we can use canonical markers to easily match the unbiased clustering to known cell types:
+
+TODO: Where can you look for this?
 
 | Markers       | Cell Type
 |---------------|----------
@@ -133,8 +138,7 @@ Fortunately in the case of this dataset, we can use canonical markers to easily 
 DimPlot(seurat_object,group.by = "RNA_snn_res.0.5",reduction = "umap_harmony")|FeaturePlot(seurat_object, features = c( "MS4A1"),reduction = "umap_harmony")
 ```
 
-
-#### Challenge: Match cluster numbers with cell labels  {- .challenge}
+## Exercise: Match cluster numbers with cell labels
 
 Use the markers provided and the resolution 0.5 to identity the cell labels
 
@@ -152,12 +156,7 @@ seurat_object <- RenameIdents(seurat_object, new.cluster.ids)
 DimPlot(seurat_object, reduction = 'umap_harmony', label = TRUE, pt.size = 0.5) + NoLegend()
 ```
 
-#### {-}
-
-
-
-#### save the plots
-
+## save the plots
 
 ```{r save.img , eval=FALSE}
 
@@ -167,7 +166,7 @@ plot <- DimPlot(seurat_object, reduction = 'umap_harmony', label = TRUE, label.s
 ggsave(filename = "seurat_object3k_umap.jpg", height = 7, width = 12, plot = plot, quality = 50)
 ```
 
-#### save the seurat object
+## save the seurat object
 
 ```{r save.rds, eval=FALSE}
 saveRDS(seurat_object, file = "seurat_object3k_final.rds")

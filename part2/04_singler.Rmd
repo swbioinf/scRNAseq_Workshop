@@ -1,11 +1,16 @@
-# (PART) Futher Analysis {-} 
+# SingleR
 
+## Learning outcomes
 
-# SingleR {#singler}
+- Apply bioconductor packages to automate cell type annotations
+- Evaluate the trade-offs between reference-based and marker-based annotation
+
+## Overview
+
+**Why do we need to do this?**
+
 
 ```{r results='hide', message=FALSE, warning=FALSE}
-#install.packages("BiocManager")
-#BiocManager::install(c("SingleCellExperiment","SingleR","celldex"),ask=F)
 library(SingleCellExperiment)
 library(SingleR)
 library(celldex)
@@ -25,6 +30,9 @@ We will now use a package called SingleR to label each cell.  SingleR uses a ref
 ```{r}
 ls('package:celldex')
 ```
+
+TODO: Why do we use HPCA?
+
 In this example, we'll use the `HumanPrimaryCellAtlasData` set, which contains high-level, and fine-grained label types. Lets download the reference dataset
 
 ```{r}
@@ -52,9 +60,6 @@ pred.cnts <- SingleR::SingleR(test = sce, ref = ref.set, labels = ref.set$label.
 
 Keep any types that have more than 10 cells to the label, and put those labels back on our Seurat object and plot our on our umap.
 
-<!-- previously this used first.lables, which no longer seems to exist in pred.cnts -->
-<!-- labels and pruned labels are identical in this data --> 
-
 ```{r}
 lbls.keep <- table(pred.cnts$labels)>10
 seurat_object$SingleR.labels <- ifelse(lbls.keep[pred.cnts$labels], pred.cnts$labels, 'Other')
@@ -65,9 +70,5 @@ Compare cell labels by different annotation methods:
 
 ```{r}
 DimPlot(seurat_object,group.by = "RNA_snn_res.0.5",reduction = "umap_harmony")
-
 DimPlot(seurat_object,group.by = "cell",reduction = "umap_harmony")
-
-
-
 ```

@@ -1,20 +1,20 @@
 # Clustering {#clustering}
 
+## Learning outcomes
+
+- Explain how clustering groups cells with similar gene expression profiles, and how the resolution parameter controls how broadly or finely those clusters are defined
+- Run the `FindNeighbors` and `FindClusters` functions to cluster cells
+- Evaluate a clustree to distinguish resolutions that capture the variability of the data from those that over-cluster
+
+## Overview
+
 [Slides](https://docs.google.com/presentation/d/1erfD1gJAZwpyh2l8wkWBGzUiVStQCyL_/edit#slide=id.p33)
 
-#### Why do we need to do this?  {- .rational}
+**Why do we need to do this?**
 
 Clustering the cells will allow you to visualise the variability of your data, can help to segregate cells into cell types.   
 
-####  {-}
-
 ## Cluster cells
-
-<!-- Do clustering -->
-<!-- Choose a resolution -->
-<!-- What are the clusters? -->
-<!-- Find cluster markers -->
-<!-- Name some. -->
 
 Seurat v3 applies a graph-based clustering approach, building upon initial strategies in ([Macosko *et al*](http://www.cell.com/abstract/S0092-8674(15)00549-8)). Importantly, the *distance metric* which drives the clustering analysis (based on previously identified PCs) remains the same. However, our approach to partitioning the cellular distance matrix into clusters has dramatically improved. Our approach was heavily inspired by recent manuscripts which applied graph-based clustering approaches to scRNA-seq data [[SNN-Cliq, Xu and Su, Bioinformatics, 2015]](http://bioinformatics.oxfordjournals.org/content/early/2015/02/10/bioinformatics.btv088.abstract) and CyTOF data [[PhenoGraph, Levine *et al*., Cell, 2015]](http://www.ncbi.nlm.nih.gov/pubmed/26095251). Briefly, these methods embed cells in a graph structure - for example a K-nearest neighbor (KNN) graph, with edges drawn between cells with similar feature expression patterns, and then attempt to partition this graph into highly interconnected 'quasi-cliques' or 'communities'. 
 
@@ -39,18 +39,17 @@ DimPlot(seurat_object,reduction = "umap_harmony")
 # DimPlot(seurat_object,reduction="umap", group.by="RNA_snn_res.0.5")
 ```
 
-***
+TODO: prompt for what the plots display in regards to cell identities and gene expression differences
 
-
-#### Challenge: Try different cluster settings {- .challenge}
+## Exercise: Try different cluster settings
 
 Run `FindNeighbours` and `FindClusters` again, with a different number of dimensions or with a different resolution. Examine the resulting clusters using `DimPlot`.
 
 To maintain the flow of this tutorial, please put the output of this exploration in a different variable, such as `seurat_object2`!
 
-
-####  {-}
-
+```{r}
+#TODO
+```
 
 ## Choosing a cluster resolution
 
@@ -86,3 +85,5 @@ Plot the UMAP with colored clusters with Dimplot
 ```{r}
 DimPlot(seurat_object, reduction = "umap_harmony", label = TRUE, repel = TRUE, label.box = TRUE) + NoLegend()
 ```
+
+TODO: Do we have enough information to confirm whether these are clustering by biology and reflect geniune cell types?
