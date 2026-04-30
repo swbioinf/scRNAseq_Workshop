@@ -119,7 +119,11 @@ FeaturePlot(seurat_object, features = "Naive_CD4_T1", label = TRUE, repel = TRUE
 
 Fortunately in the case of this dataset, we can use canonical markers to easily match the unbiased clustering to known cell types:
 
-TODO: Where can you look for this?
+TODO: Where can you look for this? e.g.
+
+- literature
+- https://panglaodb.se/index.html
+- https://www.proteinatlas.org/
 
 | Markers       | Cell Type
 |---------------|----------
@@ -133,6 +137,7 @@ TODO: Where can you look for this?
 | FCER1A, CST3  | DC
 | PPBP          | Platelet
 
+TODO: Potential exercise to identify a single (platelet) marker
 
 ```{r labelplot}
 DimPlot(seurat_object,group.by = "RNA_snn_res.0.5",reduction = "umap_harmony")|FeaturePlot(seurat_object, features = c( "MS4A1"),reduction = "umap_harmony")
