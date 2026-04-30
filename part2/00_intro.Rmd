@@ -1,0 +1,3 @@
+
+TODO: recap samples, experiment, seurat object e.g. where is
+ind and stim
