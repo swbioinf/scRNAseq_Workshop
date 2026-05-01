@@ -1,5 +1,6 @@
 # Schedule {#schedule}
 
+
 | **Day 1**                |
 |----------------------------------|
 | Welcome and Housekeeping         |

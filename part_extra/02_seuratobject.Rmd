@@ -1,16 +1,7 @@
 
-# Structure {#structure}
+# The Seurat object {#structure}
 
 ## Load an existing Seurat object
-
-The data we're working with today is a small dataset of about 5000 PBMCs (peripheral blood mononuclear cells) from a healthy donor.  
-
-
-First, load Seurat package.
-```{r libloader, results='hide', message=FALSE, warning=FALSE} 
-library(Seurat)
-```
-
 
 And here's the one we prepared earlier. Seurat objects are usually saved as '.rds' files, which is an R format for storing binary data (not-text or human-readable). The functions `readRDS()` can load it.
 
@@ -45,11 +36,12 @@ Classes are pre-defined and can contain multiple data tables and metadata. For S
 </details>
 
 <details>
-<summary>**Slots**</summary>
+<summary>**Layer**</summary>
 
-Slots are parts within a class that contain specific data. These can be lists, data tables and vectors and can be accessed with conventional R methods.
- 
+A layer is part of the assay that contains a table of data. E.g. The RNA assay will typically have a 'counts' layer for raw counts and a 'data' layer for normalised counts. 
+
 </details>
+
 
 
 <details>

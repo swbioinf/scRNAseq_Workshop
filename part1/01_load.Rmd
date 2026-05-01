@@ -1,14 +1,14 @@
-# (PART) Single Cell Analysis {-}  
+# (PART) Single Cell Analysis {-}
+
+# Load data {#load}
+
+[Let's get started with a single cell introduction](https://docs.google.com/presentation/d/1yKxSWL_sYto-alC-1BXIk1WbSnIGxnky/edit#slide=id.p1)
 
 ## Learning outcomes
 
 - Be able to load raw single cell RNAseq into a Seurat object
 - Understand the basic structure of a Seurat object, how to get counts and cell annotations
 
-
-# Load data {#load}
-
-[Let's get started with a single cell introduction](https://docs.google.com/presentation/d/1yKxSWL_sYto-alC-1BXIk1WbSnIGxnky/edit#slide=id.p1)
 
 ## The example experiment data
 
@@ -131,13 +131,13 @@ Lets examine a few genes in the first thirty cells.
 The `.` values in the matrix represent 0s (no molecules detected). Since most values in an scRNA-seq matrix are 0,  Seurat uses a sparse-matrix representation whenever possible. This results in significant memory and speed savings for Drop-seq/inDrop/10x data.
 
 ```{r}
-seurat_object[c("CD3D","TCL1A","MS4A1"), 1:30]
+GetAssayData(seurat_object, layer='counts')[c("CD3D","TCL1A","MS4A1"), 1:30]
 ```
 
 And the cell metadata for the first 10 cells (most of these columns come from the original paper, we'll get into them later.)
 
 ```{r}
-seurat_object@meta.data
+head(seurat_object@meta.data)
 ```
 
 
@@ -166,14 +166,7 @@ seurat_object.all <- merge(so.sample1, y = c(so.sample2, so.sample3), add.cell.i
 
 
 <details>
-  <summary>**What does data in a count matrix look like?**</summary>
-
-```{r, warning=FALSE}
-# Lets examine a few genes in the first thirty cells
-pbmc.data[c("CD3D","TCL1A","MS4A1"), 1:30]
-```
-
-The `.` values in the matrix represent 0s (no molecules detected). Since most values in an scRNA-seq matrix are 0,  Seurat uses a sparse-matrix representation whenever possible. This results in significant memory and speed savings for Drop-seq/inDrop/10x data.
+  <summary>**How much RAM does the sparse matrix save?**</summary>
 
 ```{r}
 dense.size <- object.size(as.matrix(pbmc.data))

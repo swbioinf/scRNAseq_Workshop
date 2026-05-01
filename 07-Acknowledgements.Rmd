@@ -2,12 +2,9 @@
 
 # Acknowledgements
 
-This material is mostly based on the [Seurat introductory tutorial.](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html)
+This material is mostly based on the [Seurat introductory tutorial.](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html), adapted to use multiple-sample data from [Kang et al 2018 - Multiplexed droplet single-cell RNA-sequencing using natural genetic variation](https://pubmed.ncbi.nlm.nih.gov/29227470/), and extended and updated with commonly applied methods. 
 
-It also draws from material for a [workshop provided by QCIF](https://swbioinf.github.io/scRNAseqInR_Doco/index.html) developed by Sarah Williams and Ahmed Mehdi for the Australian Biocommons.
+It has been collaboatively developed and delivered as a hands on workshop by many current and previous members of [Monash Genomics and Bioinformatics Platform](https://monashbioinformaticsplatform.github.io/), [QCIF (bioinformatics)](https://www.qcif.edu.au/capabilities/bioinformatics), [Sydney Informatics Hub](https://www.sydney.edu.au/research/facilities/sydney-informatics-hub.html) and the [Australian Biocommons](https://www.biocommons.org.au/). 
+It has been further refined by facilitators via the  [Bioinformatics Training Cooperative](https://www.biocommons.org.au/training-cooperative) and attendee feedback from multiple organisations. 
 
-                  
-                                                                                                                                                         
-                                                                                                                                                         
-                                                                                                                                                         
-                                                                                                                                                         
+
