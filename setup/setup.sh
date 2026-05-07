@@ -99,4 +99,3 @@ case "$1" in
   clean) cmd_clean ;;
   *) echo "Usage: $0 {install|prep_data|clean}" ;;
 esac
-
