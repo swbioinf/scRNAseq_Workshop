@@ -1,15 +1,8 @@
 docs/
 docs/*
 /_bookdown_files
-/data.tar
-/workshop.R
-/scRNAseqInR_ABACBS_2024_Doco_files
-/seurat_object3k_umap.jpg
-renv/*
 .Rproj.user
 .Rprofile
-*rds
-*RDS
-scRNAseqInR_ABACBS_2024_Doc*
+renv/*
 renv.lock
 *.Rproj
