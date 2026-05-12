@@ -9,6 +9,9 @@
 
 **Why do we need to do this?**
 
+In the previous section we annotated clusters manually using canonical marker genes. This works well for well-characterised cell types, but it is slow, subjective, and depends on the analyst's domain knowledge. Different researchers may reach different conclusions from the same data.
+
+Reference-based annotation automates this process by comparing each cell's expression profile against a curated reference dataset of known cell types. This is faster, reproducible, and less dependent on prior knowledge, making it easier to annotate large datasets or cell types you are less familiar with.
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 library(SingleCellExperiment)
@@ -18,22 +21,24 @@ library(celldex)
 
 In this workshop we have focused on the Seurat package.  However, there is another whole ecosystem of R packages for single cell analysis within Bioconductor.  We won't go into any detail on these packages in this workshop, but there is good material describing the object type online : [OSCA](https://robertamezquita.github.io/orchestratingSingleCellAnalysis/data-infrastructure.html).
 
-For now, we'll just convert our Seurat object into an object called SingleCellExperiment.  Some popular packages from Bioconductor that work with this type are Slingshot, Scran, Scater.
+For now, we'll just convert our Seurat object into an object called SingleCellExperiment. This allows us to utilise the Bioconductor packages.
 
 ```{r}
 sce <- as.SingleCellExperiment(seurat_object)
 sce
 ```
 
-We will now use a package called SingleR to label each cell.  SingleR uses a reference data set of cell types with expression data to infer the best label for each cell.  A convenient collection of cell type reference is in the `celldex` package which currently contains the follow sets:
+We will now use a package called SingleR to label each cell.  SingleR uses a reference data set of cell types with expression data to infer the best label for each cell. A convenient collection of cell type reference is in the `celldex` package which currently contains the follow sets:
 
 ```{r}
 ls('package:celldex')
 ```
 
-TODO: Why do we use HPCA?
+We will use `HumanPrimaryCellAtlasData` because our dataset is human PBMCs - broad, well-characterised immune cell types that are well represented in this atlas. It provides both high-level (`label.main`) and fine-grained (`label.fine`) annotations.
 
-In this example, we'll use the `HumanPrimaryCellAtlasData` set, which contains high-level, and fine-grained label types. Lets download the reference dataset
+This reference would be a poor choice if your data came from a specific tissue (e.g. brain, liver), a non-human species, or contained rare or novel cell types not present in the atlas (e.g. tumour cells). In those cases, you would need a more appropriate reference. For example a tissue-specific atlas or one built from your own annotated data.
+
+Let's download the reference dataset:
 
 ```{r}
 # This too is a sce object,
@@ -41,7 +46,8 @@ In this example, we'll use the `HumanPrimaryCellAtlasData` set, which contains h
 ref.set <- celldex::HumanPrimaryCellAtlasData()
 ```
 
-The "main" labels.
+HPCA contains two categories of labels at different granularities, `main` and `fine`. Display the `main` labels.
+
 ```{r}
 unique(ref.set$label.main)
 ```
@@ -58,7 +64,7 @@ Now we'll label our cells using the SingleCellExperiment object, with the above 
 pred.cnts <- SingleR::SingleR(test = sce, ref = ref.set, labels = ref.set$label.main)
 ```
 
-Keep any types that have more than 10 cells to the label, and put those labels back on our Seurat object and plot our on our umap.
+Labels assigned to fewer than 10 cell are likely low-confidence predictions - too few cells to represent a genuine population. We collapse these into an "Other" category and transfer the remaining labels back to the Seurat object.
 
 ```{r}
 lbls.keep <- table(pred.cnts$labels)>10
@@ -66,9 +72,39 @@ seurat_object$SingleR.labels <- ifelse(lbls.keep[pred.cnts$labels], pred.cnts$la
 DimPlot(seurat_object, reduction='umap_harmony', group.by='SingleR.labels')
 ```
 
-Compare cell labels by different annotation methods:
+### Comparing annotation methods
+
+Before comparing, it is worth summarising what each approach offers:
+
+| | Reference-based (SingleR) | Marker-based (manual) |
+|---|---|---|
+| Speed | Fast, automated | Slow, manual |
+| Objectivity | Reproducible | Analyst-dependent |
+| Flexibility | Bounded by reference | Uses any domain knowledge |
+| Limitations | Misses cell types absent from reference | Subjective, error-prone |
+
+The `$cell` column in our metadata contains the cell type labels provided by the original dataset authors, we can use these as a ground truth to assess both of our annotation approaches.
 
 ```{r}
-DimPlot(seurat_object,group.by = "RNA_snn_res.0.5",reduction = "umap_harmony")
-DimPlot(seurat_object,group.by = "cell",reduction = "umap_harmony")
+DimPlot(seurat_object, group.by = "RNA_snn_res.0.5", reduction = "umap_harmony")
+DimPlot(seurat_object, group.by = "cell",            reduction = "umap_harmony")
 ```
+
+Compare the three plots:
+
+1. SingleR labels
+2. cluster numbers, and;
+3. The ground truth.
+
+ANSWER IN SLACK: Where do SingleR and the ground truth agree? Where do they differ? What might explain any discrepancies?
+
+## Exercise: Fine-grained annotation
+
+Rerun SingleR using `label.fine` instead of `label.main` and plot the results.
+
+```{r eval=FALSE}
+# Add your code here
+
+```
+
+DISCUSS: How does the granularity of the labels change? Does finer annotation make the results easier or harder to interpret? What trade-off does this introduce?
