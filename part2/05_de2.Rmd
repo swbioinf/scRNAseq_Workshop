@@ -297,12 +297,21 @@ The interactive plot below steps through a set of genes using the slider. Use th
 library(plotly)
 
 gene_list <- c(
-  # Broadly upregulated ISGs (reference comparators)
+  # Broad ISGs — positive controls showing the global IFN-beta response
   "ISG15", "MX1",
-  # Monocyte-enriched upregulation under IFN-beta
-  "APOBEC3A", "CXCL10", "GBP1", "CCL8",
-  # Monocyte-specific downregulation under IFN-beta
-  "S100A8", "S100A9"
+  # Monocyte-specific upregulation: IFN-beta strongly induces FCGR1A (CD64, high-affinity
+  # Fc gamma receptor) in monocytes but not in T, B, or NK cells
+  "FCGR1A",
+  # Monocyte/DC-specific: IDO1 (indoleamine 2,3-dioxygenase) is an IFN-induced immunosuppressive
+  # enzyme expressed primarily by myeloid cells; minimal induction expected in lymphocytes
+  "IDO1",
+  # Monocyte-specific downregulation: S100A8/S100A9 are classical monocyte identity genes
+  # suppressed by IFN-beta in monocytes; other cell types express little baseline so the
+  # drop is monocyte-specific
+  "S100A8", "S100A9",
+  # NK cell-enriched: granzyme B is a cytotoxic granule protein; IFN-beta activates NK cells
+  # and may specifically increase GZMB in that compartment
+  "GZMB"
 )
 gene_list <- gene_list[gene_list %in% rownames(lognorm_matrix)]
 
