@@ -58,7 +58,7 @@ An example of the types of "fine" labels.
 head(unique(ref.set$label.fine))
 ```
 
-Now we'll label our cells using the SingleCellExperiment object, with the above reference set.
+Now we'll label our cells using the SingleCellExperiment object, with the above reference set. This will take a minute.
 
 ```{r}
 pred.cnts <- SingleR::SingleR(test = sce, ref = ref.set, labels = ref.set$label.main)
@@ -104,6 +104,7 @@ Rerun SingleR using `label.fine` instead of `label.main` and plot the results.
 
 ```{r eval=FALSE}
 # Add your code here
+
 
 ```
 
