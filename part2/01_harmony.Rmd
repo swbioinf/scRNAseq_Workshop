@@ -3,6 +3,7 @@
 ## Learning outcomes
 
 By the end of this session, you will be able to:
+
 - Recognise when differences between samples or conditions in a UMAP reflect technical variation rather than true biology
 - Apply batch correction to produce cell clusters that reflect cell identity rather than experimental batch or conditions
 - Assess whether integration has been successful by comparing UMAP plots before and after correction
@@ -15,23 +16,29 @@ By the end of this session, you will be able to:
 
 You can have data coming from different samples, batches or experiments and you will need to combine them.  
 
-* `ind` identifies a cell as coming from one of 8 individuals.
-* `stim` identifies a cell as control or stimulated with IFN-beta.
-* `cell` contains the cell types identified by the creators of this data set.
-* `multiplets` classifies cells as singlet or doublet.
+First we will inspect how our cells are clustering by inspecting how they group my the different annotations available.
 
 ```{r harmony1}
 DimPlot(seurat_object, reduction="umap", group.by="ind")
-DimPlot(seurat_object, reduction="umap", group.by="stim")
+DimPlot(seurat_object, reduction="umap", group.by="multiplets")
+```
 
-seurat_object<- FindNeighbors(seurat_object, reduction="pca", dims=1:10)
+```{r}
+seurat_object <- FindNeighbors(seurat_object, reduction="pca", dims=1:10)
 seurat_object <- FindClusters(seurat_object, resolution=0.5)
 seurat_object$pca_clusters <- seurat_object$seurat_clusters
 
 DimPlot(seurat_object, reduction="umap", group.by="pca_clusters")
 ```
 
-TODO: prompt for what is wrong with this plot? How are cells being grouped?
+EXERCISE: Use `DimPlot(seurat_object, reduction="umap", group.by=<metadata>)` to see how they group by control vs. stimulation condition. 
+
+Tip: replace `<metadata>` with `stim`.
+
+```{r}
+# Add your code here
+DimPlot(seurat_object, reduction="umap", group.by="stim")
+```
 
 There is a big difference between unstimulated and stimulated cells. This has split cells of the same type into pairs of clusters. If the difference was simply uniform, we could regress it out (e.g. using `ScaleData(..., vars.to.regress="stim")`). However, as can be seen in the PCA plot, the difference is not uniform and we need to do something cleverer.
 
@@ -58,15 +65,19 @@ We can use `harmony` the same way we used the `pca` reduction to compute a UMAP 
 seurat_object <- RunUMAP(seurat_object, reduction="harmony", dims=1:10, reduction.name="umap_harmony")
 
 DimPlot(seurat_object, reduction="umap_harmony", group.by="stim")
+```
 
+```{r}
 seurat_object <- FindNeighbors(seurat_object, reduction="harmony", dims=1:10)
 seurat_object <- FindClusters(seurat_object, resolution=0.5)
 seurat_object$harmony_clusters <- seurat_object$seurat_clusters
+```
 
+```{r}
 DimPlot(seurat_object, reduction="umap_harmony", group.by="harmony_clusters")
 DimPlot(seurat_object, reduction="umap", group.by="harmony_clusters")
 ```
 
-TODO: Are the cells now identifiable by cell type rather than by stimulation status? Are the clusters the same as before?
+ANSWER IN SLACK: Compare the UMAP and UMAP Harmony plots. Describe the differences in how cells are clustering between the two. Have batch effects been corrected? 
 
 Having found a good set of clusters, we would usually perform differential expression analysis on the original data and include batches/runs/individuals as predictors in the linear model. In this example we could now compare un-stimulated and stimulated cells within each cluster. A particularly nice statistical approach that is possible here would be to convert the counts to pseudo-bulk data for the eight individuals, and then apply a bulk RNA-Seq differential expression analysis method. However there is still the problem that unstimulated and stimulated cells were processed in separate batches.

@@ -12,8 +12,9 @@
 
 [Slides](https://docs.google.com/presentation/d/1iTfkc2KgGy3d6yT9zCALZzk993pWwT9D/edit#slide=id.p1)
 
-There are many different methods for calculating differential expression between groups in scRNAseq data. There are a number of review papers worth consulting on this topic.
+Differential expression (DE) analysis is the payoff for all the preprocessing steps: clustering, integration, and annotation have prepared us to ask a specific biological question. Here, we want to know which genes change in response to IFN-beta stimulation, and whether those changes are specific to particular cell types or broadly shared.
 
+There are many methods for DE analysis in scRNA-seq. We will use a **pseudobulk** approach, which is currently considered best practice when biological replicates are available.
 
 We will be using a pseudobulk approach with limma. There is also a good discussion of using [pseudobulk approaches here](http://bioconductor.org/books/3.15/OSCA.multisample/multi-sample-comparisons.html#creating-pseudo-bulk-samples), which is worth checking out if you're planning differential expression analyses.
 
@@ -22,15 +23,13 @@ We will be using a pseudobulk approach with limma. There is also a good discussi
 
 In this (NB: modified!) experimental data taken from [Kang et al 2018 - Multiplexed droplet single-cell RNA-sequencing using natural genetic variation](https://pubmed.ncbi.nlm.nih.gov/29227470/), there are IFN-beta stimulated and unstimulated control PBMCs from 8 different lupus patient samples.
 
-For this example, we'd like to look at the gene expression changes that occur with IFN-beta stimulation in the CD14+ Monocytes.
+For this example, we'd like to look at the gene expression changes that occur with IFN-beta stimulation in the CD14+ Monocytes. IFN-beta is a type I interferon is a key mediator of the innate antiviral immune response. In monocytes, IFN-beta signalling is expected to strongly upregulate interferon-stimulated genes (ISGs) such as *IFIT1*, *MX1*, *OAS1*, and *ISG15*, as documented in the original Kang et al. 2018 paper and the broader interferon signalling literature. We will test whether our DE results recover these known targets.
 
 To recap the annotation in our object
 
 *  **ind** identifies a cell as coming from one of 8 individuals.
 * **stim** identifies a cell as control or stimulated with IFN-beta.
 * **cell** contains the cell types identified by the creators of this data set.
-
-
 
 So - How many cells from each condition do we have?
 
@@ -39,61 +38,64 @@ table(seurat_object$stim)
 ```
 
 How many cells per individuals per group?
+
 ```{r}
 table(seurat_object$ind, seurat_object$stim)
 ```
+
 And for each sample, how many of each cell type has been classified?
 
 ```{r}
 table(paste(seurat_object$ind,seurat_object$stim), seurat_object$cell)
 ```
 
-
-Lets add some columns to our metadata - with a unique value per sample and per sample+celltype.
+The pseudobulk step requires a unique identifier for each biological sample and for each cell type within each sample. We create these now so we can use them as grouping factors when aggregating counts.
 
 ```{r}
 seurat_object$sample_name          <- paste(seurat_object$stim, seurat_object$ind, sep=".")
 seurat_object$sample_celltype_name <- paste(gsub(" ","",seurat_object$cell), seurat_object$ind, seurat_object$stim, sep=".")
 ```
 
-## Prefiltering
+## Pre-filtering minimally expressed genes
 
 #### Why do we need to do this? {- .rational}
 
-If expression is below a certain level, it will be almost impossible to see any differential expression.
+In scRNA-seq data, the majority of genes have zero or near-zero counts in most cells. This is just a combination of genuine biological absence and technical dropout. Genes with very low total counts across the dataset cannot be reliably detected and will not produce meaningful DE results regardless of the statistical method used.
+
+Removing them has three benefits:
+
+1. Noisy data is removed, and biological signals are amplified
+2. Computation is sped up
+3. The number of multiple hypotheses being tested simultaneously is reduced, which makes multiple testing correction less stringent and increases power to detect real effects.
 
 #### {-}
 
-
-When doing differential expression, you generally ignore genes with low expression.
-In single cell datasets, there are many genes like this. Filtering here to make our dataset smaller so it runs quicker, and there is less aggressive correction for multiple hypotheses.
-
 How many genes before filtering?
+
 ```{r}
 seurat_object
 ```
-
 
 How many copies of each gene are there?
+
 ```{R}
 total_per_gene <- rowSums(GetAssayData(seurat_object, assay='RNA', layer='counts'))
-hist(log10(total_per_gene))
+hist(log10(total_per_gene), breaks = seq(0, 8, by = 0.1))
 ```
-
-
 
 Lets keep only those genes with at least 50 copies across the entire experiment.
+
+The threshold is somewhat flexible — the histogram x axis is log10(total counts), so the cut-off of 50 sits at log10(50) ≈ 1.7. Look for the point where the sparse left tail separates from the main distribution of expressed genes and choose a threshold in that gap. For a dataset of this size (~3,000 cells, 16 samples), 50 counts is a reasonable minimum: it ensures a gene is detected at an average of roughly 3 counts per sample, which is the lower bound for reliable DE testing. Anywhere from 10 to 100 (log10 ≈ 1.0–2.0) is defensible, but let the histogram guide you toward a natural break.
+
 ```{r}
-seurat_object<- seurat_object[total_per_gene >= 50, ] 
+seurat_object <- seurat_object[total_per_gene >= 50, ] 
 ```
 
-
 How many genes after filtering?
+
 ```{r}
 seurat_object
 ```
-
-
 
 We might like to see the effect of IFN-beta stimulation on each cell type individually. For the purposes of this workshop, just going to test one cell type; CD14+ Monocytes 
 
@@ -107,13 +109,13 @@ seurat_object_celltype <- seurat_object[, seurat_object$cell == "CD14+ Monocytes
 DimPlot(seurat_object_celltype, reduction = "umap_harmony")
 ```
 
+## Pseudobulking
 
+A naive approach to DE in scRNA-seq would be to treat each cell as an independent replicate and compare thousands of stimulated cells against thousands of control cells. This is **pseudoreplication**: cells from the same individual share correlated gene expression patterns and are not independent observations.
 
+Treating them as if they are inflates the effective sample size turning 8 biological replicates into thousands, and lead to many false positives.
 
-## Pseudobulk
-
-Pseudobulk analysis is an option where you have biological replicates. It is essentially pooling the individual cell counts and treating your experiment like a bulk RNAseq.
-
+Pseudobulk analysis addresses this by first aggregating (summing) counts for all cells of the same cell type from the same individual into a single "pseudo-sample". We then test for DE between these pseudo-samples — so our true unit of analysis is the individual (n = 8), not the cell. This is essentially treating the experiment as bulk RNA-seq after aggregation, which is well-validated statistically.
 
 First, you need to build a pseudobulk matrix - the `AggregateExpression()` function can do this, once you set the 'Idents' of your seurat object to your grouping factor (here, that's that combination of individual+treatment called 'sample', instead of the 'stim' treatment column).
 
@@ -129,34 +131,45 @@ pseudobulk_annotation_table <- FetchData(seurat_object_celltype, vars = c('sampl
   group_by(across(everything()))  |> # group by unique row combinations
   summarise(n_cells=n())             # and count the number of cells
 
+pseudobulk_annotation_table
+```
+
+```{r}
 # Change idents to our samples for grouping.
 Idents(seurat_object_celltype) <- seurat_object_celltype$sample_name
+head(seurat_object_celltype@active.ident)
+```
 
+```{r}
 # Then pool together counts in those groups
 # AggregateExperssion returns a list of matrices - one for each assay requested (even just requesting one)
 pseudobulk_matrix_list <- AggregateExpression( seurat_object_celltype,  slot = 'counts', assays='RNA' )
 pseudobulk_matrix      <- pseudobulk_matrix_list[['RNA']]
 pseudobulk_matrix[1:5,1:4]
+```
 
-
+```{r}
 # Match the order of the matrix with the annotation. It did already match in this case, but a mismatch would cause silent swapping of the data!
 pseudobulk_matrix <- pseudobulk_matrix[,pseudobulk_annotation_table$sample_name]
 # And double check our annotation matches our data
 # Ie. check that all pseudobulk matrix column labels match in the same order of the 'sample_name' column of the annotation table. 
 stopifnot( all(colnames(pseudobulk_matrix) == pseudobulk_annotation_table$sample_name ))  
-
-
 ```
 
-Now it looks like a bulk RNAseq experiment, so treat it like one.
+Now it looks like a bulk RNAseq experiment, so we will treat it like one.
 
-## Test differential expression
+## Testing differential expression
 
 We can use the popular `limma` package for differential expression. Here is one [tutorial](https://ucdavis-bioinformatics-training.github.io/2018-June-RNA-Seq-Workshop/thursday/DE.html), and the hefty reference manual is hosted by [bioconductor](https://bioconductor.org/packages/release/bioc/html/limma.html).
 
-In brief, this code below constructs a linear model for this experiment that accounts for the variation in individuals and treatment. It then tests for differential expression between 'stim' and 'ctrl' groups.
+The code below fits a linear model for this experiment using the voom-limma pipeline:
 
-```{R}
+- `DGEList` + `calcNormFactors` - normalises for differences in library size between samples using TMM scaling factors.
+- `voom` - converts counts to log-CPM and computes precision weights that account for the mean-variance relationship in count data, making the data suitable for a linear model.
+- `model.matrix(~0 + stim + ind)` - constructs a design matrix modelling expression as a function of stimulation condition and individual. Including `ind` accounts for the paired structure: the same 8 individuals appear in both conditions, so inter-individual variation is absorbed as a blocking factor rather than inflating the error term.
+- `makeContrasts` + `eBayes` - tests the stimulated vs. control contrast and applies empirical Bayes shrinkage to stabilise variance estimates, which improves power in small sample sizes.
+
+```{r}
 dge <- DGEList(pseudobulk_matrix)
 dge <- calcNormFactors(dge)
 
@@ -176,12 +189,18 @@ de_result <- topTable(fit, n = Inf, adjust.method = "BH")
 de_result <- arrange(de_result , adj.P.Val)
 ```
 
-
 Look at the significantly differentially expressed genes:
+
 ```{r}
 head(de_result)
 ```
 
+Key columns to interpret:
+
+- `logFC` - log2 fold change between stimulated and control. Positive values mean higher expression in stimulated cells.
+- `AveExpr` - average log2 expression across all samples. Higher values mean the gene is more abundantly expressed overall.
+- `adj.P.Val` - p-value adjusted for multiple testing (Benjamini-Hochberg FDR). Use `< 0.05` as a threshold for significance; the plots below use `< 0.01` for a stricter cutoff to minimise false positive results
+- `B` - log-odds that the gene is differentially expressed; larger values indicate stronger evidence.
 
 ```{r}
 p1 <- ggplot(de_result, aes(x=AveExpr, y=logFC, col=adj.P.Val < 0.01)) +
@@ -190,7 +209,6 @@ p1 <- ggplot(de_result, aes(x=AveExpr, y=logFC, col=adj.P.Val < 0.01)) +
   theme_bw() +
   ggtitle("Pseudobulk")
 
-
 p2 <- ggplot(de_result, aes(x=logFC, y=-log10(P.Value), col=adj.P.Val < 0.01)) +
   geom_point(pch=3, alpha=0.5) +
   scale_colour_manual(values=c('TRUE'="red",'FALSE'="black")) + 
@@ -198,7 +216,6 @@ p2 <- ggplot(de_result, aes(x=logFC, y=-log10(P.Value), col=adj.P.Val < 0.01)) +
   ggtitle("Pseudobulk Test (Volcano)")
 
 p1 + p2
-
 ```
 
 ## Plot gene expression
@@ -213,8 +230,6 @@ We will build another expression matrix for this for two reasons:
 
 
 This code will build another counts matrix with a 'sample' for every combination of sample + celltype. Plus a table of annotation to go with it. 
-
-
 
 ```{r}
 # Pull out a table of our sample information - the sample, individual, stim condition and celltype, for all celltypes
@@ -231,7 +246,6 @@ Remove anything with less than 20 cells (we didn't need to bother for the CD14+ 
 pseudobulk_annotation_table.allcelltypes <- filter(pseudobulk_annotation_table.allcelltypes, n_cells >= 20)
 ```
 
-
 ```{r}
 ## And all celltype counts matrix
 Idents(seurat_object) <- seurat_object$sample_celltype_name
@@ -244,9 +258,7 @@ pseudobulk_matrix.allcelltypes <- pseudobulk_matrix.allcelltypes[,pseudobulk_ann
 pseudobulk_matrix.allcelltypes[1:5,1:4]
 ```
 
-
-
-This code builds a quick TMM normalised matrix. The limma-voom method we used for differential expression worked directly with counts data - but we need something normalised for examining expression! It is customary to log2 transform expression data.
+Trimmed Mean of M-values (TMM) normalisation accounts for differences in library size and composition between samples by computing scaling factors relative to a reference sample. The limma-voom model used above for DE worked directly with raw counts - but for visualising and comparing expression levels across samples we need normalised values. We compute TMM-normalised counts per million (CPM) and log2 transform them; adding 1 before logging ensures zero counts map to 0 rather than negative infinity.
 
 ```{r}
 dge <- DGEList(pseudobulk_matrix.allcelltypes) 
@@ -257,14 +269,12 @@ lognorm_matrix[1:4,1:5]
 ```
 
 
-
-Plotting the most differentially expressed gene, TMSB10, the change is broader than just CD14+ Monocytes.
+Before concluding that a DE gene reflects a CD14+ Monocyte-specific response, it is worth checking whether it changes across all cell types. A gene upregulated everywhere reflects a global IFN-beta response; one confined to monocytes points to a cell-type-specific mechanism. TMSB10, the top DE gene, turns out to change broadly:
 
 ```{r}
 # here we match the sample order by passing the pseudobulk annotation_table sample celltype into the matrix
-my_gene <- 'TMSB10'
+my_gene <- 'NOC2L'
 pseudobulk_annotation_table.allcelltypes$expression <- lognorm_matrix[my_gene, pseudobulk_annotation_table.allcelltypes$sample_celltype_name]
-
 
 ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=stim)) +
   geom_boxplot(outlier.shape=NA) +
@@ -272,26 +282,74 @@ ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=
   theme_bw() +
   facet_wrap(~cell) +
   ggtitle(my_gene)
-
 ```
-
-
 
 #### Discussion {- .challenge}
 
-Look at the expression of some other genes (differentially expressed or not). Are they globally changing or just in that celltype?  Share an interesting example.
+Look at the expression of some other genes (differentially expressed or not). Are they globally changing or just in that celltype?  Share an interesting example. Does this support or reject the initial hypotheses about IFN-beta stimulation in CD14+ monocytes?
 
 #### {-}
 
 
+The interactive plot below steps through a set of genes using the slider. Use the play button to cycle through them, or click a step directly to jump to a gene.
+
+```{r message=FALSE}
+library(plotly)
+
+gene_list <- c(
+  # Broad ISGs — positive controls showing the global IFN-beta response
+  "ISG15", "MX1",
+  # Monocyte-specific upregulation: IFN-beta strongly induces FCGR1A (CD64, high-affinity
+  # Fc gamma receptor) in monocytes but not in T, B, or NK cells
+  "FCGR1A",
+  # Monocyte/DC-specific: IDO1 (indoleamine 2,3-dioxygenase) is an IFN-induced immunosuppressive
+  # enzyme expressed primarily by myeloid cells; minimal induction expected in lymphocytes
+  "IDO1",
+  # Monocyte-specific downregulation: S100A8/S100A9 are classical monocyte identity genes
+  # suppressed by IFN-beta in monocytes; other cell types express little baseline so the
+  # drop is monocyte-specific
+  "S100A8", "S100A9",
+  # NK cell-enriched: granzyme B is a cytotoxic granule protein; IFN-beta activates NK cells
+  # and may specifically increase GZMB in that compartment
+  "GZMB"
+)
+gene_list <- gene_list[gene_list %in% rownames(lognorm_matrix)]
+
+df_long <- bind_rows(lapply(gene_list, function(g) {
+  df              <- pseudobulk_annotation_table.allcelltypes
+  df$expression   <- lognorm_matrix[g, df$sample_celltype_name]
+  df$gene         <- g
+  df
+}))
+
+p <- ggplot(df_long,
+            aes(x     = stim,
+                y     = expression,
+                fill  = stim,
+                frame = gene,
+                text  = paste0("Ind: ", ind,
+                               "\nExpr: ", round(expression, 2)))) +
+  geom_boxplot(outlier.shape = NA, width = 0.5) +
+  geom_point(size = 1.5, alpha = 0.7,
+             position = position_jitter(width = 0.05, seed = 1)) +
+  scale_fill_manual(values = c(ctrl = "#4E79A7", stim = "#E15759"),
+                    labels  = c(ctrl = "Control", stim = "Stimulated")) +
+  facet_wrap(~cell, scales = "free_y") +
+  labs(y = "log2 CPM", x = NULL, fill = "Condition") +
+  theme_bw(base_size = 11) +
+  theme(strip.background = element_rect(fill = "#f5f5f5", colour = "#ddd"),
+        strip.text        = element_text(face = "bold", size = 9),
+        panel.grid.minor  = element_blank())
+
+ggplotly(p, tooltip = "text")
+```
 
 #### What about FindMarkers? {- .rational}
 
-If you look at the seurat [differnetial expression vignette](https://satijalab.org/seurat/articles/de_vignette), you might have seen code that uses 'FindMarkers()' method to look for differential expression between groups.
+If you look at the Seurat [differential expression vignette](https://satijalab.org/seurat/articles/de_vignette), you might have seen code that uses `FindMarkers()` to look for differential expression between groups.
 
-By default, that function uses a 'wilcox' test to look for differences in gene 
-expression, treating _each individual cell as a replicate_.  In cases where biological replicates are simply not available this can be useful (e.g. pilot study, old public dataset or rare sample). 
+By default, that function uses a Wilcoxon test treating _each individual cell as a replicate_. In cases where biological replicates are simply not available this can be useful (e.g. pilot study, old public dataset, or rare sample). However, when biological replicates are available, they should be used. See the pseudoreplication discussion above.
 
-However, when biological replicates are available, they should be used! 
+`FindAllMarkers()` extends this by automating the comparison across every cluster or cell identity in one call, rather than running `FindMarkers()` separately for each. This is convenient for quickly generating a DE gene list per cluster, but carries the same caveat: it still treats cells as replicates. For a dataset with biological replicates, the pseudobulk approach used in this chapter should be preferred, and can similarly be looped across all cell types if a dataset-wide comparison is needed.
 
-
+#### {-}

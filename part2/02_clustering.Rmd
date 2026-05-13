@@ -1,4 +1,4 @@
-# Clustering {#clustering}
+# Clustering
 
 ## Learning outcomes
 
@@ -12,53 +12,56 @@
 
 **Why do we need to do this?**
 
-Clustering the cells will allow you to visualise the variability of your data, can help to segregate cells into cell types.   
+Before we can compare stimulated and control PBMCs, we need to know which cell types we are comparing. Clustering groups cells by similarity in gene expression so that each cluster can be inspected and labelled as a cell type.
 
 ## Cluster cells
 
-Seurat v3 applies a graph-based clustering approach, building upon initial strategies in ([Macosko *et al*](http://www.cell.com/abstract/S0092-8674(15)00549-8)). Importantly, the *distance metric* which drives the clustering analysis (based on previously identified PCs) remains the same. However, our approach to partitioning the cellular distance matrix into clusters has dramatically improved. Our approach was heavily inspired by recent manuscripts which applied graph-based clustering approaches to scRNA-seq data [[SNN-Cliq, Xu and Su, Bioinformatics, 2015]](http://bioinformatics.oxfordjournals.org/content/early/2015/02/10/bioinformatics.btv088.abstract) and CyTOF data [[PhenoGraph, Levine *et al*., Cell, 2015]](http://www.ncbi.nlm.nih.gov/pubmed/26095251). Briefly, these methods embed cells in a graph structure - for example a K-nearest neighbor (KNN) graph, with edges drawn between cells with similar feature expression patterns, and then attempt to partition this graph into highly interconnected 'quasi-cliques' or 'communities'. 
+Seurat uses a **graph-based clustering** approach. Think of it like mapping a social network: each cell is a node, and connections are drawn to its nearest neighbours based on similar gene expression. Cells that are more tightly connected form communities which become your clusters.
 
-As in PhenoGraph, we first construct a KNN graph based on the euclidean distance in PCA space, and refine the edge weights between any two cells based on the shared overlap in their local neighborhoods (Jaccard similarity). This step is performed using the `FindNeighbors()` function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs).
+Two functions do the work:
 
-To cluster the cells, we next apply modularity optimization techniques such as the Louvain algorithm (default) or SLM [[SLM, Blondel *et al*., Journal of Statistical Mechanics]](http://dx.doi.org/10.1088/1742-5468/2008/10/P10008), to iteratively group cells together, with the goal of optimizing the standard modularity function. The `FindClusters()` function implements this procedure, and contains a resolution parameter that sets the 'granularity' of the downstream clustering, with increased values leading to a greater number of clusters. We find that setting this parameter between 0.4-1.2 typically returns good results for single-cell datasets of around 3K cells. Optimal resolution often increases for larger datasets. The clusters can be found using the `Idents()` function.
+- `FindNeighbors()`: builds the graph by connecting each cell to its most similar neighbours in PCA space.
+- `FindClusters()`: partitions that graph into communities. The **resolution** parameter controls the granularity: lower values produce fewer, broader clusters; higher values produce more, finer clusters.
+
+Because the right resolution depends on your data, the next section shows how to test several values and pick the most biologically meaningful one.
+
+<details>
+<summary>Further reading</summary>
+
+- [Macosko *et al.* (2015)](http://www.cell.com/abstract/S0092-8674(15)00549-8) — early application of graph-based clustering to scRNA-seq that informed Seurat's approach.
+- [SNN-Cliq — Xu & Su, *Bioinformatics* (2015)](http://bioinformatics.oxfordjournals.org/content/early/2015/02/10/bioinformatics.btv088.abstract) — introduced shared nearest-neighbour clustering for single-cell data.
+- [PhenoGraph — Levine *et al.*, *Cell* (2015)](http://www.ncbi.nlm.nih.gov/pubmed/26095251) — the KNN + community-detection framework that Seurat's `FindNeighbors` / `FindClusters` pipeline is directly based on.
+- [Louvain algorithm — Blondel *et al.*, *Journal of Statistical Mechanics* (2008)](http://dx.doi.org/10.1088/1742-5468/2008/10/P10008) — the modularity-optimisation method used by default in `FindClusters`.
+
+</details>
 
 
 ```{r cluster, fig.height=5, fig.width=7}
 seurat_object <- FindNeighbors(seurat_object, dims = 1:10, reduction = "harmony")
 seurat_object <- FindClusters(seurat_object, resolution = 0.5)
-# Look at cluster IDs of the first 5 cells
+```
+
+Look at cluster IDs of the first 5 cells
+
+```{r}
 head(Idents(seurat_object), 5)
 ```
 
-
 Check out the clusters.
+
 ```{r}
-DimPlot(seurat_object,reduction = "umap_harmony")
+DimPlot(seurat_object, reduction = "umap_harmony")
 # Equivalent to
 # DimPlot(seurat_object,reduction="umap", group.by="seurat_clusters")
 # DimPlot(seurat_object,reduction="umap", group.by="RNA_snn_res.0.5")
 ```
 
-TODO: prompt for what the plots display in regards to cell identities and gene expression differences
-
-## Exercise: Try different cluster settings
-
-Run `FindNeighbours` and `FindClusters` again, with a different number of dimensions or with a different resolution. Examine the resulting clusters using `DimPlot`.
-
-To maintain the flow of this tutorial, please put the output of this exploration in a different variable, such as `seurat_object2`!
-
-```{r}
-#TODO
-```
-
 ## Choosing a cluster resolution
 
-
 Its a good idea to try different resolutions when clustering to identify the variability of your data. 
-
-```{r message=FALSE, warning=FALSE,eval=TRUE, echo=TRUE,results='hide'}
+```{r}
 resolution = 2
-seurat_object <- FindClusters(seurat_object, resolution = seq(0.1, resolution, 0.1))
+seurat_object <- FindClusters(seurat_object, resolution = seq(0.4, resolution, 0.1), verbose = F)
 
 # the different clustering created
 names(seurat_object@meta.data)
@@ -67,23 +70,53 @@ names(seurat_object@meta.data)
 head(Idents(seurat_object), 5)
 ```
 
-Plot a clustree to decide how many clusters you have and what resolution capture them.
+```{r}
+DimPlot(seurat_object)
+```
+
+### How to read a clustree
+
+A clustree plots each cluster at each resolution as a node, with arrows showing where cells move as resolution increases. Use it to find the resolution that captures real biological structure without over-splitting.
+
+**Stable trunk** — a large node that persists across several resolutions with arrows pointing straight down. Cells are consistently assigned to this cluster regardless of resolution. This is a cluster you can trust.
+
+**Branching point** — a node that splits into two or more child nodes at higher resolution. A clean branch (one dominant arrow per child) suggests the split is capturing a genuine subpopulation. Multiple small arrows from the same parent ("scatter") suggests noise rather than biology.
+
+**Over-clustering** — at high resolutions, previously stable clusters start fragmenting with many small arrows going in multiple directions. The tree looks "bushy". Cells are being split arbitrarily rather than by meaningful gene expression differences.
+
+**Choosing a resolution** — pick the highest resolution at which the major trunks remain stable and branches are still clean. Pushing beyond this point adds clusters that don't reflect biology.
+
+EXERCISE: Choosing a resolution
+
+1. Plot a clustree to decide how many clusters you have and what resolution captures them. Look for the point where stable trunks begin to fragment.
+2. Validate the resolution using DimPlot() — do the clusters look well-separated on the UMAP?
 
 ```{r fig.height=12}
 library(clustree)
 clustree(seurat_object, prefix = "RNA_snn_res.",show_axis=TRUE) + theme(legend.key.size = unit(0.05, "cm"))
 ```
 
-Name cells with the corresponding cluster name at the resolution you pick. This case we are happy with 0.5.
+```{r}
+# Add your DimPlots here
+
+```
+
+Looking at the clustree, resolution 0.5 is a reasonable choice for this dataset:
+
+- The major trunks are stable between 0.4 and 0.5, and the first clean branches appear around 0.5–0.6.
+- Beyond 0.7 the tree becomes unstable, clusters begin fragmenting with scattered arrows, which suggests the splits no longer reflect genuine biology.
+
+Set the resolution for 0.5:
+
 ```{r}
 # The name of the cluster is prefixed with 'RNA_snn_res' and the number of the resolution
 Idents(seurat_object) <- seurat_object$RNA_snn_res.0.5
 ```
 
-Plot the UMAP with colored clusters with Dimplot
+Plot the UMAP with coloured clusters.
 
 ```{r}
 DimPlot(seurat_object, reduction = "umap_harmony", label = TRUE, repel = TRUE, label.box = TRUE) + NoLegend()
 ```
 
-TODO: Do we have enough information to confirm whether these are clustering by biology and reflect geniune cell types?
+ANSWER IN SLACK: At this point we have clusters, but do they reflect genuine cell types or could they still be driven by technical variation? What additional evidence would you want to see before trusting these clusters as biological groups?

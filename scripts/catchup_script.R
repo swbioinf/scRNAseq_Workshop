@@ -39,6 +39,8 @@ seurat_object <- ScaleData(seurat_object, features = all.genes)
 seurat_object <- RunPCA(seurat_object, features = VariableFeatures(object = seurat_object))
 seurat_object <- RunUMAP(seurat_object, dims = 1:10)
 
+# save intermediate file
+#qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.qs2")
 
 ## Harmony
 
