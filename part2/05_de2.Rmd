@@ -283,6 +283,11 @@ Look at the expression of some other genes (differentially expressed or not). Ar
 
 #### {-}
 
+```{r}
+# Checking gene expression...
+
+```
+
 
 
 #### What about FindMarkers? {- .rational}

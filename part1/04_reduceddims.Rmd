@@ -179,6 +179,12 @@ Try out some genes that were highly weighted in the principal component analysis
 
 ####  {-}
 
+```{r}
+# Plotting gene expression on UMAP using featurePlot()
+
+```
+
+
 
 ## Save 
 

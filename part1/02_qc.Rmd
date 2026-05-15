@@ -50,6 +50,13 @@ What do you notice has changed within the `meta.data` table now that we have cal
 
 ####  {-}
 
+```{r}
+## Examining the metadata ...
+
+
+```
+
+
 
 
 
