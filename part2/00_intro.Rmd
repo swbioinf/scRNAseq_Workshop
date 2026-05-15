@@ -1,3 +1,57 @@
+# Introduction to Part 2
 
-TODO: recap samples, experiment, seurat object e.g. where is
-ind and stim
+## Learning objectives
+
+By the end of this lesson, you will be able to:
+
+* Recall the experimental design and analysis goal
+* Identify where this information is in the data
+
+## Overview
+
+Analysis goal: Identify molecular differences between stimulated vs. stimulated peripheral blood mononuclear cells (PBMCs).
+
+PBMCs are stimulated in vitro with IFN-beta. This is expected to trigger the up or downregulation of immune pathways. In our data, we can measure this directly by comparing the gene expression levels of immune-related genes.
+
+We have the following information in our Seurat object metadata:
+
+-   `ind` identifies a cell as coming from one of 8 individuals.
+-   `stim` identifies a cell as control or stimulated with IFN-beta.
+-   `cell` contains the cell types identified by the creators of this data set.
+-   `multiplets` classifies cells as singlet or doublet.
+
+-   Restart session - removes old saved data in the environment
+
+Read in the preprocessed Seurat object from part 1. We use `qs2` to efficiently load the data in. 
+
+```{r}
+so <- qs2::qs_read("../data/seurat_object_preprocessed.qs2")
+```
+
+EXERCISE: Use `names(so@meta.data)` to identify where this information is stored in the Seurat object.
+
+```{r exercise1}
+# Add your code here
+
+
+```
+
+EXERCISE: Use the `table(so$<name>)` function to see the number of cells that belong to each metadata category. Replace `<name>` with the relevant metadata names (e.g. `ind`, `stim`)
+
+```{r exercise2}
+# Add your code here
+
+
+```
+
+It is useful to display the number of control and stimulated cells per individual
+
+```{r}
+table(so$ctrl, so$stim)
+```
+
+Takeaways:
+
+-   Each cell in our Seurat object is annotated either as the control or stimualted cell
+-   Each cell notes the individual the cells were derived from 
+-   This is important so we know which cells to compare in the data
