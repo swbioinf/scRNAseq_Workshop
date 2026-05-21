@@ -53,6 +53,7 @@ library(tidyverse)
 library(SingleCellExperiment)
 library(SingleR)
 library(celldex)
+library(patchwork)
 
 # Harmony
 
@@ -78,17 +79,19 @@ Idents(seurat_object) <- seurat_object$RNA_snn_res.0.6
 
 ## Cluster markers
 
-genes_markers <- list(Naive_CD4_T = c("IL7R", "CCR7"))
-seurat_object <- AddModuleScore(object = seurat_object, features = genes_markers, ctrl = 5, name = "Naive_CD4_T",  search = TRUE)
-seurat_object$cell_label = NA
-seurat_object$cell_label[seurat_object$Naive_CD4_T1 > 1] = "Naive_CD4_T"
-Idents(seurat_object) = seurat_object$cell_label
+Idents(seurat_object) <- seurat_object$RNA_snn_res.0.6
 
-
-
-Idents(seurat_object) <- seurat_object$RNA_snn_res.0.5
-
-
+new.cluster.ids <- c(
+  "0" = "CD4 T cells",
+  "1" = "CD14+ Monocytes",
+  "2" = "NK cells",
+  "3" = "B cells",
+  "4" = "FCGR3A+ Monocytes",
+  "5" = "CD8 T cells",
+  "6" = "Dendritic cells",
+  "7" = "Megakaryocytes"
+)
+seurat_object <- RenameIdents(seurat_object, new.cluster.ids)
 ## Single R
 
 sce <- as.SingleCellExperiment(seurat_object)
