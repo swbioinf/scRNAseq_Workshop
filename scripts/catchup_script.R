@@ -42,30 +42,37 @@ seurat_object <- RunUMAP(seurat_object, dims = 1:10)
 # save intermediate file
 #qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.qs2")
 
-## Harmony
+# ---------------
+# Part 2
+# ---------------
+
+library(qs2)
+library(Seurat)
+
+# Harmony
+
+# Load file
+seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.qs2")
 
 seurat_object<- FindNeighbors(seurat_object, reduction="pca", dims=1:10)
-seurat_object <- FindClusters(seurat_object, resolution=0.5)
+seurat_object <- FindClusters(seurat_object, resolution=0.6)
 seurat_object$pca_clusters <- seurat_object$seurat_clusters
 
 library(harmony)
 seurat_object <- RunHarmony(seurat_object, c("stim", "ind"), reduction="pca",reduction.save="harmony")
 seurat_object <- RunUMAP(seurat_object, reduction="harmony", dims=1:10, reduction.name="umap_harmony")
 seurat_object <- FindNeighbors(seurat_object, reduction="harmony", dims=1:10)
-seurat_object <- FindClusters(seurat_object, resolution=0.5)
+seurat_object <- FindClusters(seurat_object, resolution=0.6)
 seurat_object$harmony_clusters <- seurat_object$seurat_clusters
 
-
 ## Clustering
+min_res <- 0.4
+max_res <- 2
+interval <- 0.2
+seurat_object <- FindClusters(seurat_object, resolution = seq(min_res, max_res, interval), verbose = F)
+Idents(seurat_object) <- seurat_object$RNA_snn_res.0.6
 
-resolution = 2
-seurat_object <- FindClusters(seurat_object, resolution = seq(0.1, resolution, 0.1)) # Slow, can be skipped if already past the cluster resolution
-
-Idents(seurat_object) <- seurat_object$RNA_snn_res.0.5
-
-
-
-## Cluster makrers
+## Cluster markers
 
 genes_markers <- list(Naive_CD4_T = c("IL7R", "CCR7"))
 seurat_object <- AddModuleScore(object = seurat_object, features = genes_markers, ctrl = 5, name = "Naive_CD4_T",  search = TRUE)

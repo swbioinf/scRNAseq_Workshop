@@ -109,3 +109,6 @@ Rerun SingleR using `label.fine` instead of `label.main` and plot the results.
 ```
 
 DISCUSS: How does the granularity of the labels change? Does finer annotation make the results easier or harder to interpret? What trade-off does this introduce?
+
+#TODO: fine labels are great, but more difficult for algorithms to differentiate between the two, 
+#TODO: Use both, then decide.

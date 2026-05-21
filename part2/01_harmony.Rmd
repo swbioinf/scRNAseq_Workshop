@@ -25,7 +25,7 @@ DimPlot(seurat_object, reduction="umap", group.by="multiplets")
 
 ```{r}
 seurat_object <- FindNeighbors(seurat_object, reduction="pca", dims=1:10)
-seurat_object <- FindClusters(seurat_object, resolution=0.5)
+seurat_object <- FindClusters(seurat_object, resolution=0.6)
 seurat_object$pca_clusters <- seurat_object$seurat_clusters
 
 DimPlot(seurat_object, reduction="umap", group.by="pca_clusters")
@@ -37,7 +37,8 @@ Tip: replace `<metadata>` with `stim`.
 
 ```{r}
 # Add your code here
-DimPlot(seurat_object, reduction="umap", group.by="stim")
+
+DimPlot(..)
 ```
 
 There is a big difference between unstimulated and stimulated cells. This has split cells of the same type into pairs of clusters. If the difference was simply uniform, we could regress it out (e.g. using `ScaleData(..., vars.to.regress="stim")`). However, as can be seen in the PCA plot, the difference is not uniform and we need to do something cleverer.
@@ -66,10 +67,13 @@ seurat_object <- RunUMAP(seurat_object, reduction="harmony", dims=1:10, reductio
 
 DimPlot(seurat_object, reduction="umap_harmony", group.by="stim")
 ```
+Run and display how clusters form between the `umap_harmony` and `umap` reductions.
+
+We will explore clustering in more detail in the next section.
 
 ```{r}
 seurat_object <- FindNeighbors(seurat_object, reduction="harmony", dims=1:10)
-seurat_object <- FindClusters(seurat_object, resolution=0.5)
+seurat_object <- FindClusters(seurat_object, resolution=0.6)
 seurat_object$harmony_clusters <- seurat_object$seurat_clusters
 ```
 

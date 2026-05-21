@@ -200,6 +200,8 @@ for (cell_type in names(cell_markers)) {
 }
 ```
 
+#TODO: Also important to show plots of individual genes!
+
 ## Exercise: Match cluster numbers with cell labels
 
 For each cell type in the marker table, identify which cluster number it corresponds to and add it to the list below. Cluster 0 is done as an example.
