@@ -23,38 +23,49 @@ The key parameters filter out genes that are unlikely to be informative: `min.pc
 
 Seurat can help you find markers that define clusters via differential expression. By default, it identifies positive and negative markers of a single cluster (specified in `ident.1`), compared to all other cells.  `FindAllMarkers()` automates this process for all clusters, but you can also test groups of clusters vs. each other, or against all cells.
 
-```{r markers1, fig.height=8, fig.width=15}
+```{r}
 # find all markers of cluster 2
-cluster2.markers <- FindMarkers(seurat_object, ident.1 = 2, min.pct = 0.25)
+cluster0.markers <- FindMarkers(seurat_object, ident.1 = 0, min.pct = 0.25)
 head(cluster2.markers, n = 5)
-# find all markers distinguishing cluster 5 from clusters 0 and 3
-cluster5.markers <- FindMarkers(seurat_object, ident.1 = 5, ident.2 = c(0, 3), min.pct = 0.25)
-head(cluster5.markers, n = 5)
-# find markers for every cluster compared to all remaining cells, report only the positive ones
-seurat_object.markers <- FindAllMarkers(seurat_object, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
-seurat_object.markers %>% group_by(cluster) %>% slice_max(n = 2, order_by = avg_log2FC)
 ```
 
-Seurat has several tests for differential expression which can be set with the test.use parameter (see our [DE vignette](de_vignette.html) for details). For example, the ROC test returns the 'classification power' `abs(AUC-0.5)*2` for any individual marker, ranging from 0 = random to 1 = perfect.
+```{r}
+# find all markers distinguishing cluster 1 from local clusters 2, 5, 6 
+cluster1.markers <- FindMarkers(seurat_object, ident.1 = 1, ident.2 = c(2, 5, 6), min.pct = 0.25)
+head(cluster5.markers, n = 5)
+```
 
-```{r markersroc, fig.height=8, fig.width=15}
-cluster0.markers <- FindMarkers(seurat_object, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = TRUE)
+```{r}
+# find markers for every cluster compared to all remaining cells, report only the positive ones
+seurat_object.markers <- FindAllMarkers(seurat_object, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+seurat_object.markers %>% 
+  group_by(cluster) %>% 
+  slice_max(n = 2, order_by = avg_log2FC)
 ```
 
 Two plots are most useful for confirming markers:
 
 - `VlnPlot()` shows the distribution of expression across clusters. This is useful for checking that a marker is genuinely higher in one cluster and low elsewhere.
-- `FeaturePlot()` overlays expression onto the UMAP. This isuseful for confirming that the distribution of the expression is restricted to the expected cluster.
+- `FeaturePlot()` overlays expression onto the UMAP. This is useful for confirming that the distribution of the expression is restricted to the expected cluster.
 
 ```{r}
-VlnPlot(seurat_object, features = c("MS4A1", "CD79A"))
+seurat_object.markers %>% 
+  group_by(cluster) %>% 
+  slice_max(n = 4, order_by = avg_log2FC)
+```
+
+```{r}
+c3 <- c("MS4A1", "CD79A", "IRF8", "CD83")
+VlnPlot(seurat_object, features = c3)
 # you can plot raw counts as well
-VlnPlot(seurat_object, features = c("NKG7", "PF4"), layer = 'counts', log = TRUE)
+VlnPlot(seurat_object, features = c3, layer = 'counts', log = TRUE)
 ```
 
 ```{r markerplots}
-FeaturePlot(seurat_object, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A"))
-FeaturePlot(seurat_object, features = c("FCGR3A", "LYZ", "PPBP", "CD8A"))
+FeaturePlot(seurat_object, features = c3, reduction = "umap_harmony")
+
+c2 <- c("GZMA", "GNLY", "PRF1", "CLIC3")
+FeaturePlot(seurat_object, features = c2, reduction = "umap_harmony")
 ```
 
 `DoHeatmap()` gives a cluster-level overview of the top markers across all clusters at once.
@@ -71,8 +82,8 @@ DoHeatmap(subset(seurat_object, downsample = maxcells), features = top10$gene) +
 `RidgePlot()`, `CellScatter()`, and `DotPlot()` are alternative ways to inspect marker expression. They can be substituted for `FeaturePlot()` using the same feature arguments.
 
 ```{r ridgeplots}
-RidgePlot(seurat_object, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A"))
-RidgePlot(seurat_object, features = c("FCGR3A", "LYZ", "PPBP", "CD8A"))
+RidgePlot(seurat_object, features = c2)
+RidgePlot(seurat_object, features = c3)
 ```
 
 For `CellScatter()`, you need the cell IDs of the two cells to compare. These can be found in the cell metadata.
@@ -85,7 +96,7 @@ CellScatter(seurat_object, cell1 = "GGAGACGATTCGTT-1", cell2 = "TACGAGACCTATTC-1
 ```
 
 ```{r}
-DotPlot(seurat_object, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP", "CD8A"))
+DotPlot(seurat_object, features = c(c3, c2))
 ```
 
 </details>

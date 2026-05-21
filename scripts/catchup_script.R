@@ -48,6 +48,11 @@ seurat_object <- RunUMAP(seurat_object, dims = 1:10)
 
 library(qs2)
 library(Seurat)
+library(harmony)
+library(tidyverse)
+library(SingleCellExperiment)
+library(SingleR)
+library(celldex)
 
 # Harmony
 
@@ -58,7 +63,6 @@ seurat_object<- FindNeighbors(seurat_object, reduction="pca", dims=1:10)
 seurat_object <- FindClusters(seurat_object, resolution=0.6)
 seurat_object$pca_clusters <- seurat_object$seurat_clusters
 
-library(harmony)
 seurat_object <- RunHarmony(seurat_object, c("stim", "ind"), reduction="pca",reduction.save="harmony")
 seurat_object <- RunUMAP(seurat_object, reduction="harmony", dims=1:10, reduction.name="umap_harmony")
 seurat_object <- FindNeighbors(seurat_object, reduction="harmony", dims=1:10)
@@ -86,10 +90,6 @@ Idents(seurat_object) <- seurat_object$RNA_snn_res.0.5
 
 
 ## Single R
-
-library(SingleCellExperiment)
-library(SingleR)
-library(celldex)
 
 sce <- as.SingleCellExperiment(seurat_object)
 ref.set <- celldex::HumanPrimaryCellAtlasData()
