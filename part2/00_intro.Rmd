@@ -20,12 +20,25 @@ We have the following information in our Seurat object metadata:
 -   `cell` contains the cell types identified by the creators of this data set.
 -   `multiplets` classifies cells as singlet or doublet.
 
--   Restart session - removes old saved data in the environment
+-   **Restart session - removes old saved data in the environment**
+
+Read in libraries
+
+```{r}
+library(qs2)
+library(Seurat)
+library(harmony)
+library(tidyverse)
+library(SingleCellExperiment)
+library(SingleR)
+library(celldex)
+library(patchwork)
+```
 
 Read in the preprocessed Seurat object from part 1. We use `qs2` to efficiently load the data in. 
 
 ```{r}
-so <- qs2::qs_read("../data/seurat_object_preprocessed.qs2")
+seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.qs2")
 ```
 
 EXERCISE: Use `names(so@meta.data)` to identify where this information is stored in the Seurat object.

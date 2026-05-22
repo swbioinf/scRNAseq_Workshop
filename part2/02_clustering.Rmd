@@ -42,6 +42,12 @@ Because the right resolution depends on your data, the next section shows how to
 
 </details>
 
+Read in the harmonised data for this lesson.
+
+```{r}
+seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.harmony.qs2")
+```
+
 Look at cluster IDs of the first 5 cells
 
 ```{r}
@@ -129,3 +135,7 @@ DimPlot(seurat_object, reduction = "umap_harmony", label = TRUE, repel = TRUE, l
 ```
 
 ANSWER IN SLACK: At this point we have clusters, but do they reflect genuine cell types or could they still be driven by technical variation? What additional evidence would you want to see before trusting these clusters as biological groups?
+
+```{r, eval=F}
+qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.clustered.qs2")
+```

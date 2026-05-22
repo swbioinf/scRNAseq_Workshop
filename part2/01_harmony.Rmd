@@ -33,12 +33,12 @@ DimPlot(seurat_object, reduction="umap", group.by="pca_clusters")
 
 EXERCISE: Use `DimPlot(seurat_object, reduction="umap", group.by=<metadata>)` to see how they group by control vs. stimulation condition. 
 
-Tip: replace `<metadata>` with `stim`.
+Tip: replace `<metadata>` with `"stim"`.
 
 ```{r}
 # Add your code here
 
-DimPlot(..)
+
 ```
 
 There is a big difference between unstimulated and stimulated cells. This has split cells of the same type into pairs of clusters. If the difference was simply uniform, we could regress it out (e.g. using `ScaleData(..., vars.to.regress="stim")`). However, as can be seen in the PCA plot, the difference is not uniform and we need to do something cleverer.
@@ -85,3 +85,8 @@ DimPlot(seurat_object, reduction="umap", group.by="harmony_clusters")
 ANSWER IN SLACK: Compare the UMAP and UMAP Harmony plots. Describe the differences in how cells are clustering between the two. Have batch effects been corrected? 
 
 Having found a good set of clusters, we would usually perform differential expression analysis on the original data and include batches/runs/individuals as predictors in the linear model. In this example we could now compare un-stimulated and stimulated cells within each cluster. A particularly nice statistical approach that is possible here would be to convert the counts to pseudo-bulk data for the eight individuals, and then apply a bulk RNA-Seq differential expression analysis method. However there is still the problem that unstimulated and stimulated cells were processed in separate batches.
+
+```{r eval=F}
+#qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.qs2")
+```
+
