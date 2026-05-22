@@ -215,13 +215,13 @@ new.cluster.ids <- c(
 )
 ```
 
-If you did not complete the exercise above, open `scripts/catchup_script.R` and run the **## Cluster markers** section to set `new.cluster.ids` and `RenameIdents` before continuing.
+If you did not complete the exercise above, open `scripts/catchup_script.R` and run the **## Cluster markers** section to set `new.cluster.ids` before continuing.
 
 Apply your labels and visualise the annotated UMAP:
 
 ```{r}
-seurat_object <- RenameIdents(seurat_object, new.cluster.ids)
-DimPlot(seurat_object, reduction = "umap_harmony", label = TRUE, pt.size = 0.5) + NoLegend()
+seurat_object@meta.data$markers <- new.cluster.ids[as.character(seurat_object$RNA_snn_res.0.6)]
+DimPlot(seurat_object, reduction = "umap_harmony", group.by = "markers", label = TRUE, pt.size = 0.5, label.box = T, repel = T) + NoLegend()
 ```
 
 ## Verifying a cluster's identity with `AddModuleScore`
@@ -264,12 +264,6 @@ FeaturePlot(
   seurat_object, features = "NK cells1",
   label = TRUE, repel = TRUE, reduction = "umap_harmony"
 ) + scale_colour_gradientn(colours = c("lightblue", "beige", "red"))
-```
-
-Compare against the unsupervised clusters:
-
-```{r}
-DimPlot(seurat_object, reduction = "umap_harmony", group.by = "RNA_snn_res.0.6", label.box = TRUE, label = TRUE)
 ```
 
 DISCUSS: Which clusters are you least confident in? What would you do to resolve them: repeat the module score for a different candidate cell type, or try a different approach entirely? In the next chapter we'll see one alternative, reference-based annotation with SingleR.

@@ -71,7 +71,7 @@ seurat_object <- FindClusters(seurat_object, resolution=0.6)
 seurat_object$harmony_clusters <- seurat_object$seurat_clusters
 
 ## Clustering
-seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.harmony.qs2")
+seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.qs2")
 min_res <- 0.4
 max_res <- 2
 interval <- 0.2
@@ -80,6 +80,7 @@ seurat_object <- FindClusters(seurat_object, resolution = seq(min_res, max_res, 
 Idents(seurat_object) <- seurat_object$RNA_snn_res.0.6
 
 ## Cluster markers
+seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.clustered.qs2")
 
 new.cluster.ids <- c(
   "0" = "CD4 T cells",
@@ -92,9 +93,12 @@ new.cluster.ids <- c(
   "7" = "Dendritic cells"
 )
 
-seurat_object <- RenameIdents(seurat_object, new.cluster.ids)
+seurat_object@meta.data$markers <- new.cluster.ids[as.character(seurat_object$RNA_snn_res.0.6)]
 
 ## Single R
+
+seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.clustered.markers.qs2")
+Idents(seurat_object) <- seurat_object$markers
 
 sce <- as.SingleCellExperiment(seurat_object)
 ref.set <- celldex::HumanPrimaryCellAtlasData()
