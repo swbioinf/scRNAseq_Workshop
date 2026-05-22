@@ -93,13 +93,13 @@ Cluster 2's top markers from `FindAllMarkers` above included `GNLY`, `GZMA`, and
 5. Cross-check with one or two more candidates (`NKG7`, `PRF1`).
 6. Record the markers you'll use for NK cells in R:
 
-TODO: Mention automated ways to do this
+Rather than searching each gene individually, you can run a functional enrichment analysis on the full list of top markers for a cluster. Tools like `enrichR` or `gprofiler2` map a gene list to GO terms, pathways, and curated cell type signatures in one step, giving you a ranked list of biological processes associated with that cluster. This is especially useful when the top DEGs are not immediately recognisable, or when you are working with a less well-characterised tissue.
 
 ## Top-down annotation with a marker table
 
-TODO: Reframe so that the top DEGs may not always be sufficient, given reasons such as the top n genes may not be indicative of a cell type, that clustering is unsupervised and could be misleading. Therefore, it is important to take a "top-down" approach to label cells agafinst known markers from the literature.
+The top differentially expressed genes from `FindAllMarkers` tell you what makes each cluster *different* from the others, however, this is not the same as being a defining marker for a known cell type. A gene can rank highly simply because the other clusters happen not to express it, not because it is a canonical indicator of a specific biology. Clustering is also unsupervised: the boundaries it draws do not necessarily align with meaningful cell types, and two genuinely distinct populations may land in the same cluster at a given resolution.
 
-For a well-characterised tissue, the most efficient way to do this is to start from a curated list of canonical markers: genes whose expression patterns are already established for the cell types we expect.
+For these reasons, it is important to take a **top-down** approach: define the cell types you expect to find in your tissue, look up their canonical markers from curated sources, and then check whether the clusters match those expectations. For a well-characterised tissue, the most efficient way to do this is to start from a curated list of canonical markers: genes whose expression patterns are already established for the cell types we expect.
 
 ### Step 1: Identify the expected cell types in your sample
 
@@ -124,7 +124,7 @@ Canonical markers are genes whose specific expression in a given cell type is we
 - [Human Protein Atlas](https://www.proteinatlas.org/): gene expression across cell types and tissues
 - **Published literature for your tissue or cell population**
 
-TODO: We won't do this for time, and dataset and question dependent
+In practice you would search each expected cell type and record a few reliable markers. How many you need depends on the cell type: some populations have single highly-specific markers, but relying on one gene alone can bias annotation or miss cases where that gene is silenced. For today's workshop this has been done for you. The result is the `cell_markers` list in Step 3. For your own data, the appropriate markers will depend on the tissue, the species, and the biological question being asked.
 
 ### Step 3: Build the marker list in R and visualise
 
@@ -184,7 +184,7 @@ DimPlot(seurat_object, reduction = "umap_harmony") |
   FeaturePlot(seurat_object, features = cell_markers[["CD8 T cells"]], reduction = "umap_harmony")
 ```
 
-**Cluster 7** shows LYZ (a broad myeloid marker) alongside CST3 and FCER1A, which are more specific for dendritic cells. Dendritic cells are a small population — look for a compact region on the UMAP that lights up for both CST3 and FCER1A but is distinct from the monocyte clusters:
+**Cluster 7** shows LYZ (a broad myeloid marker) alongside CST3 and FCER1A, which are more specific for dendritic cells. Dendritic cells are a small population - look for a compact region on the UMAP that lights up for both CST3 and FCER1A but is distinct from the monocyte clusters:
 
 ```{r}
 FeaturePlot(seurat_object, features = cell_markers[["Dendritic cells"]], reduction = "umap_harmony")
@@ -215,7 +215,7 @@ new.cluster.ids <- c(
 )
 ```
 
-TODO: Go to the catchup_script.R and run the code for this if required, that is ok.
+If you did not complete the exercise above, open `scripts/catchup_script.R` and run the **## Cluster markers** section to set `new.cluster.ids` and `RenameIdents` before continuing.
 
 Apply your labels and visualise the annotated UMAP:
 
@@ -228,7 +228,7 @@ DimPlot(seurat_object, reduction = "umap_harmony", label = TRUE, pt.size = 0.5) 
 
 Visual inspection of a `DotPlot` is fast, but for ambiguous clusters it helps to get a single quantitative score per cell. `AddModuleScore` computes the average expression of a marker gene set, minus the average expression of a random set of control genes with similar overall expression levels. The result is a relative score: positive when a cell expresses the marker set more than expected by chance, and robust to overall expression magnitude.
 
-We'll use it here to verify tthe identity of cluster 2.
+We'll use it here to verify the identity of cluster 2.
 
 ```{r}
 # Reset Idents back to cluster numbers so we can refer to them by number
@@ -274,7 +274,7 @@ DimPlot(seurat_object, reduction = "umap_harmony", group.by = "RNA_snn_res.0.6",
 
 DISCUSS: Which clusters are you least confident in? What would you do to resolve them: repeat the module score for a different candidate cell type, or try a different approach entirely? In the next chapter we'll see one alternative, reference-based annotation with SingleR.
 
-TODO: In fact, this suggests that cluster 2 is too big of a cluster and could benefit from clustering at a higher resolution, scrnaseq analysis, especially annotation should be treated iteratively
+Notice that the `AddModuleScore` result for cluster 2 shows elevated scores for both NK and CD8 T cell signatures. This suggests this cluster may contain two cell types that were merged together at this resolution. This is a normal finding. scRNAseq annotation is an iterative process: the outcome of annotation frequently reveals whether the clustering resolution needs adjustment. If you suspect a cluster is heterogeneous, the next step is to increase the resolution, re-run `FindClusters`, and repeat the annotation.
 
 ```{r, eval=F}
 qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.clustered.markers.qs2")
