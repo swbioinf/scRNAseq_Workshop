@@ -1,0 +1,95 @@
+# Wrapping up and next steps
+
+## Learning outcomes
+
+- Identify downstream analyses that follow from a completed scRNA-seq preprocessing and annotation workflow
+- Connect each analysis type to the original biological hypothesis
+
+## Recap: what we have done and why it matters
+
+Our original question was: **which genes change in response to IFN-beta stimulation, and are those changes specific to particular cell types or broadly shared?**
+
+To answer it, we:
+
+1. Integrated eight individual samples with Harmony to remove batch effects
+2. Clustered cells and identified eight populations
+3. Annotated clusters using canonical markers and automated reference labelling (SingleR)
+4. Ran pseudobulk differential expression in CD14+ Monocytes
+
+We found that IFN-beta triggers a broad antiviral ISG program across all cell types, but also redirects monocytes specifically, suppressing classical inflammatory genes (IL1B, OSM) while upregulating antiviral chemokines (CXCL11, IL27, CCL8). The analyses below are the natural next steps from this point.
+
+## DEG analysis on all cell types
+
+We ran pseudobulk DE for CD14+ Monocytes only. The same pipeline can be looped across every cell type to build a dataset-wide picture of the IFN-beta response. This directly answers the cell-type-specificity learning outcome at scale: for each gene, where does it respond, and in which direction?
+
+`FindAllMarkers` is the most common entry point for single-cell DE. It is fast and built into Seurat but it tests each cell individually rather than aggregating within donors, which inflates statistical power and produces overconfident p-values when multiple cells come from the same donor. For a multi-donor experiment like this one, pseudobulk DE with `limma`/`edgeR` is the statistically appropriate approach and is the current community recommendation (Squair et al. 2021, *Nature Communications*).
+
+**Tools:** `limma`, `edgeR` (already used in this workshop)
+
+**Vignette:** [OSCA multi-sample comparisons](http://bioconductor.org/books/3.15/OSCA.multisample/multi-sample-comparisons.html)
+
+## Functional enrichment analysis
+
+The DE gene lists we produced name individual genes. Functional enrichment maps those genes onto biological pathways, GO terms, and curated gene sets to describe the biology in higher-level terms. For example: the monocyte-specific upregulated genes (CXCL11, IL27, CCL8, IDO1) all point to chemokine signalling and immune regulation — enrichment analysis quantifies and ranks this formally.
+
+This is most informative when run separately per cell type, so that pathway enrichment reflects cell-type-specific rather than global responses.
+
+**Tools:**
+- [gprofiler2](https://cran.r-project.org/package=gprofiler2) — R package, queries g:Profiler web service; supports GO, KEGG, Reactome, WikiPathways
+- [enrichR](https://maayanlab.cloud/Enrichr/) — R package + web interface; broad library of gene sets
+- [clusterProfiler](https://bioconductor.org/packages/clusterProfiler/) — Bioconductor; good for comparing enrichment across multiple gene lists
+- [WebGestaltR](https://cran.r-project.org/package=WebGestaltR) — R package wrapping WebGestalt; supports ORA, GSEA, and network-based enrichment
+
+**Vignettes:**
+- [Functional Enrichment workshop (BioCommons 2024)](https://monashbioinformaticsplatform.github.io/Functional_Enrichment_BioCommons_2024/)
+- [Sydney Informatics Hub scRNA-seq analysis guide](https://github.com/Sydney-Informatics-Hub/scrna-analysis)
+
+**Hypothesis connection:** Which pathways distinguish the monocyte-specific IFN-beta response from the global antiviral response? Do the monocyte-specific downregulated genes (IL1B, OSM) cluster into distinct pathways from the upregulated ones?
+
+## Differential cell composition
+
+So far we have asked which genes change. A complementary question is: does IFN-beta change the *proportions* of cell types? For example, does stimulation deplete a rare population or expand a specific subset?
+
+**Tools:**
+- [MiloR](https://marionilab.github.io/miloR/) — tests for differential abundance in local neighbourhoods of the KNN graph; more sensitive than cluster-level proportion tests and avoids hard cluster boundaries
+- [scCODA](https://github.com/theislab/scCODA) — Bayesian compositional analysis; accounts for the compositional nature of cell-type proportions
+
+**Hypothesis connection:** Does the proportion of transitional monocytes (cluster 4, between CD14+ and FCGR3A+) change with IFN-beta stimulation? Does any cell type expand or contract?
+
+## Cell-cell communication
+
+IFN-beta upregulates secreted signalling molecules in monocytes (CXCL11, IL27, CCL8). Cell-cell communication analysis identifies which other cell types express the cognate receptors, inferring putative signalling between populations.
+
+**Tools:**
+- [CellChat](http://www.cellchat.org/) — R package; curated ligand-receptor database, network visualisation, comparison across conditions
+- [NicheNet](https://github.com/saeyslab/nichenetr) — prioritises ligands by their predicted effect on target gene expression in receiver cells; useful for linking sender-cell signals to receiver-cell DE
+- [Cellphonedb](https://www.cellphonedb.org/) — Python; focuses on heteromeric receptor complexes
+
+**Hypothesis connection:** Are the monocyte-derived chemokines (CXCL11, CCL8) signalling to NK or T cells? Does IFN-beta reshape the communication network between cell types, not just the transcriptome of individual cells?
+
+## Trajectory and pseudotime analysis
+
+Cluster 4 in our data appears to represent a transitional monocyte population between classical (CD14+) and non-classical (FCGR3A+) monocytes. Trajectory analysis orders cells along a continuous path of gene expression change, allowing us to ask whether this intermediate state represents cells in the process of differentiating, and whether IFN-beta accelerates or redirects that process.
+
+**Tools:**
+- [Monocle 3](https://cole-trapnell-lab.github.io/monocle3/) — principal graph-based pseudotime; well-integrated with Seurat via SeuratWrappers
+- [scVelo](https://scvelo.readthedocs.io/) — RNA velocity using spliced/unspliced transcript ratios to infer the direction of cell state change; requires raw count data with splicing information
+
+**Hypothesis connection:** Is cluster 4 a stable intermediate or a transient state? Does IFN-beta stimulation alter the directionality or rate of monocyte differentiation?
+
+## Gene regulatory network inference
+
+DE analysis identifies genes that change. GRN inference identifies the transcription factors that drive those changes, building a regulatory model of the IFN-beta response. This is particularly useful for identifying master regulators of the monocyte-specific vs. global response.
+
+**Tools:**
+- [SCENIC / pySCENIC](https://pyscenic.readthedocs.io/) — infers regulons (TF + target gene modules) from single-cell expression; Python, with an R interface
+- [GRaNIE](https://granie.bioinf.uni-heidelberg.de/) — integrates ATAC-seq accessibility with RNA expression to build condition-specific GRNs
+
+**Hypothesis connection:** Which transcription factors are activated in monocytes specifically by IFN-beta? IRF3/7 and STAT1/2 are well-known drivers of the ISG response — do they also explain the monocyte-specific suppression of IL1B and OSM?
+
+## Where to learn more
+
+- [Orchestrating Single-Cell Analysis with Bioconductor (OSCA)](https://bioconductor.org/books/release/OSCA/) - comprehensive, workflow-oriented; covers clustering, DE, multi-sample, trajectory, and more
+- [Single-cell best practices book](https://www.sc-best-practices.org/) - opinionated guide to tool selection and analysis decisions across the full workflow
+- [Spatial and single-cell transcriptomics snippets](https://swbioinf.github.io/spatialsnippets/index.html) - practical recipes for spatial single-cell analyses; useful next step after scRNA-seq profiling
+- [Sydney Informatics Hub scRNA-seq analysis guide](https://github.com/Sydney-Informatics-Hub/scrna-analysis) - SIH's curated workflows and best-practice notes for scRNA-seq
