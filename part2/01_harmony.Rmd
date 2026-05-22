@@ -12,11 +12,13 @@ By the end of this session, you will be able to:
 
 [Slides](https://docs.google.com/presentation/d/134p04OJPKy8yJQPwGtZ14HoLTbyN_flg/edit#slide=id.p1)
 
-**Why do we need this?**
+#### Why do we need this? {- .rational}
 
-You can have data coming from different samples, batches or experiments and you will need to combine them.  
+You can have data coming from different samples, batches or experiments and you will need to combine them.
 
-First we will inspect how our cells are clustering by inspecting how they group my the different annotations available.
+First we will inspect how our cells are clustering by inspecting how they group by the different annotations available.
+
+#### {-}
 
 ```{r harmony1}
 DimPlot(seurat_object, reduction="umap", group.by="ind")
@@ -31,7 +33,9 @@ seurat_object$pca_clusters <- seurat_object$seurat_clusters
 DimPlot(seurat_object, reduction="umap", group.by="pca_clusters")
 ```
 
-EXERCISE: Use `DimPlot(seurat_object, reduction="umap", group.by=<metadata>)` to see how they group by control vs. stimulation condition. 
+#### Exercise {- .challenge}
+
+Use `DimPlot(seurat_object, reduction="umap", group.by=<metadata>)` to see how they group by control vs. stimulation condition.
 
 Tip: replace `<metadata>` with `"stim"`.
 
@@ -40,6 +44,8 @@ Tip: replace `<metadata>` with `"stim"`.
 
 
 ```
+
+#### {-}
 
 There is a big difference between unstimulated and stimulated cells. This has split cells of the same type into pairs of clusters. If the difference was simply uniform, we could regress it out (e.g. using `ScaleData(..., vars.to.regress="stim")`). However, as can be seen in the PCA plot, the difference is not uniform and we need to do something cleverer.
 
@@ -82,7 +88,11 @@ DimPlot(seurat_object, reduction="umap_harmony", group.by="harmony_clusters")
 DimPlot(seurat_object, reduction="umap", group.by="harmony_clusters")
 ```
 
-ANSWER IN SLACK: Compare the UMAP and UMAP Harmony plots. Describe the differences in how cells are clustering between the two. Have batch effects been corrected? 
+#### Answer in Slack {- .challenge}
+
+Compare the UMAP and UMAP Harmony plots. Describe the differences in how cells are clustering between the two. Have batch effects been corrected?
+
+#### {-}
 
 Having found a good set of clusters, we would usually perform differential expression analysis on the original data and include batches/runs/individuals as predictors in the linear model. In this example we could now compare un-stimulated and stimulated cells within each cluster. A particularly nice statistical approach that is possible here would be to convert the counts to pseudo-bulk data for the eight individuals, and then apply a bulk RNA-Seq differential expression analysis method. However there is still the problem that unstimulated and stimulated cells were processed in separate batches.
 

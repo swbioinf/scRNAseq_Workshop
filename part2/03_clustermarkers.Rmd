@@ -8,14 +8,16 @@
 
 ## Overview
 
-**Why do we need to do this?**
+#### Why do we need to do this? {- .rational}
 
-We now have clusters, but we still do not know what they represent biologically. 
+We now have clusters, but we still do not know what they represent biologically.
 To interpret them, we need to identify which cell type each cluster represents.
 
 Cells of the same type tend to co-express a characteristic set of genes. Genes that are highly and specifically expressed in one cluster compared to all others are its **markers**. By finding these differentially expressed genes and matching them against known cell type signatures, we can assign a biological identity to each cluster.
 
 Note: in this example the cell types and their markers are well established in the literature, which makes this step straightforward. In practice, annotating novel or poorly characterised cell types requires careful expert curation.
+
+#### {-}
 
 Read in the clustered data.
 
@@ -156,7 +158,7 @@ DotPlot(seurat_object, features = features_to_plot) + RotatedAxis()
 
 Read the plot column by column: for each marker group, find the cluster (row) where the dots are largest and darkest. That cluster expresses those markers and is likely that cell type.
 
-## Exercise: Match cluster numbers with cell labels
+## Exercise: Match cluster numbers with cell labels {- .challenge}
 
 Use the `DotPlot` above to assign a cell-type label to each cluster.
 
@@ -194,7 +196,11 @@ FeaturePlot(seurat_object, features = cell_markers[["Dendritic cells"]], reducti
 
 Cluster 4 shows large dots for both classical monocyte markers (CD14, LYZ, S100A9) and non-classical monocyte markers (FCGR3A, MS4A7). This co-expression pattern suggests cluster 4 may represent a transitional monocyte population sitting between classical (CD14+) and non-classical (FCGR3A+) monocytes, a known intermediate population in blood.
 
-DISCUSS: How would you label cluster 4, and does the right answer change depending on the biological question being asked?
+#### Discuss {- .challenge}
+
+How would you label cluster 4, and does the right answer change depending on the biological question being asked?
+
+#### {-}
 
 For a broad PBMC survey, labelling it FCGR3A+ Monocytes is a reasonable call given that FCGR3A and MS4A7 are clearly elevated. For a study focused specifically on monocyte biology, you would re-cluster this region at a higher resolution to resolve the subsets.
 
@@ -223,6 +229,8 @@ Apply your labels and visualise the annotated UMAP:
 seurat_object@meta.data$markers <- new.cluster.ids[as.character(seurat_object$RNA_snn_res.0.6)]
 DimPlot(seurat_object, reduction = "umap_harmony", group.by = "markers", label = TRUE, pt.size = 0.5, label.box = T, repel = T) + NoLegend()
 ```
+
+## {-}
 
 ## Verifying a cluster's identity with `AddModuleScore`
 
@@ -266,7 +274,11 @@ FeaturePlot(
 ) + scale_colour_gradientn(colours = c("lightblue", "beige", "red"))
 ```
 
-DISCUSS: Which clusters are you least confident in? What would you do to resolve them: repeat the module score for a different candidate cell type, or try a different approach entirely? In the next chapter we'll see one alternative, reference-based annotation with SingleR.
+#### Discuss {- .challenge}
+
+Which clusters are you least confident in? What would you do to resolve them: repeat the module score for a different candidate cell type, or try a different approach entirely? In the next chapter we'll see one alternative, reference-based annotation with SingleR.
+
+#### {-}
 
 Notice that the `AddModuleScore` result for cluster 2 shows elevated scores for both NK and CD8 T cell signatures. This suggests this cluster may contain two cell types that were merged together at this resolution. This is a normal finding. scRNAseq annotation is an iterative process: the outcome of annotation frequently reveals whether the clustering resolution needs adjustment. If you suspect a cluster is heterogeneous, the next step is to increase the resolution, re-run `FindClusters`, and repeat the annotation.
 

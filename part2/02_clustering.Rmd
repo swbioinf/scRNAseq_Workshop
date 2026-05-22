@@ -10,9 +10,11 @@
 
 [Slides](https://docs.google.com/presentation/d/1erfD1gJAZwpyh2l8wkWBGzUiVStQCyL_/edit#slide=id.p33)
 
-**Why do we need to do this?**
+#### Why do we need to do this? {- .rational}
 
 Before we can compare stimulated and control PBMCs, we need to know which cell types we are comparing. Clustering groups cells by similarity in gene expression so that each cluster can be inspected and labelled as a cell type.
+
+#### {-}
 
 ## Cluster cells
 
@@ -104,7 +106,7 @@ clustree(seurat_object, prefix = "RNA_snn_res.", show_axis=TRUE) +
   theme(legend.key.size = unit(0.05, "cm"))
 ```
 
-EXERCISE: Choosing a resolution
+#### Exercise: Choosing a resolution {- .challenge}
 
 1. Plot a clustree to decide how many clusters you have and what resolution captures them. Look for the point where stable trunks begin to fragment.
 2. Validate the resolution using DimPlot() — do the clusters look well-separated on the UMAP?
@@ -116,6 +118,8 @@ Tip: The name of the cluster is prefixed with 'RNA_snn_res' and the number of th
 #DimPlot(seurat_object, reduction = "umap_harmony", group.by = "")
 
 ```
+
+#### {-}
 
 Looking at the clustree, resolution 0.6 is a reasonable choice for this dataset:
 
@@ -134,7 +138,11 @@ Plot the UMAP with coloured clusters.
 DimPlot(seurat_object, reduction = "umap_harmony", label = TRUE, repel = TRUE, label.box = TRUE) + NoLegend()
 ```
 
-ANSWER IN SLACK: At this point we have clusters, but do they reflect genuine cell types or could they still be driven by technical variation? What additional evidence would you want to see before trusting these clusters as biological groups?
+#### Answer in Slack {- .challenge}
+
+At this point we have clusters, but do they reflect genuine cell types or could they still be driven by technical variation? What additional evidence would you want to see before trusting these clusters as biological groups?
+
+#### {-}
 
 ```{r, eval=F}
 qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.clustered.qs2")

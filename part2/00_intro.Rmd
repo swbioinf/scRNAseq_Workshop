@@ -41,7 +41,9 @@ Read in the preprocessed Seurat object from part 1. We use `qs2` to efficiently 
 seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.qs2")
 ```
 
-EXERCISE: Use `names(so@meta.data)` to identify where this information is stored in the Seurat object.
+#### Exercise {- .challenge}
+
+Use `names(so@meta.data)` to identify where this information is stored in the Seurat object.
 
 ```{r exercise1}
 # Add your code here
@@ -49,13 +51,19 @@ EXERCISE: Use `names(so@meta.data)` to identify where this information is stored
 
 ```
 
-EXERCISE: Use the `table(so$<name>)` function to see the number of cells that belong to each metadata category. Replace `<name>` with the relevant metadata names (e.g. `ind`, `stim`)
+#### {-}
+
+#### Exercise {- .challenge}
+
+Use the `table(so$<name>)` function to see the number of cells that belong to each metadata category. Replace `<name>` with the relevant metadata names (e.g. `ind`, `stim`)
 
 ```{r exercise2}
 # Add your code here
 
 
 ```
+
+#### {-}
 
 It is useful to display the number of control and stimulated cells per individual
 

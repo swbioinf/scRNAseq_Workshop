@@ -7,11 +7,13 @@
 
 ## Overview
 
-**Why do we need to do this?**
+#### Why do we need to do this? {- .rational}
 
 In the previous section we annotated clusters manually using canonical marker genes. This works well for well-characterised cell types, but it is slow, subjective, and depends on the analyst's domain knowledge. Different researchers may reach different conclusions from the same data.
 
 Reference-based annotation automates this process by comparing each cell's expression profile against a curated reference dataset of known cell types. This is faster, reproducible, and less dependent on prior knowledge, making it easier to annotate large datasets or cell types you are less familiar with.
+
+#### {-}
 
 Read in our manually annotated seurat object.
 
@@ -105,9 +107,13 @@ To go beyond the visual and count exact agreement, compare SingleR labels agains
 table(SingleR = seurat_object$SingleR.labels, Ground_truth = seurat_object$cell)
 ```
 
-ANSWER IN SLACK: Looking at the three plots and the table above, where do manual annotation, SingleR, and the ground truth agree? Where do they differ? What might explain the discrepancies?
+#### Answer in Slack {- .challenge}
 
-## Exercise: Fine-grained annotation
+Looking at the three plots and the table above, where do manual annotation, SingleR, and the ground truth agree? Where do they differ? What might explain the discrepancies?
+
+#### {-}
+
+## Exercise: Fine-grained annotation {- .challenge}
 
 Rerun SingleR using `label.fine` instead of `label.main` and plot the results.
 
@@ -117,7 +123,13 @@ Rerun SingleR using `label.fine` instead of `label.main` and plot the results.
 
 ```
 
-DISCUSS: How does the granularity of the labels change? Does finer annotation make the results easier or harder to interpret? What trade-off does this introduce?
+#### Discuss {- .challenge}
+
+How does the granularity of the labels change? Does finer annotation make the results easier or harder to interpret? What trade-off does this introduce?
+
+#### {-}
+
+## {-}
 
 Fine-grained labels capture biologically meaningful distinctions that broad labels miss — for example, separating CD4+ naive from CD4+ memory T cells. However, the more granular the labels, the harder it is for the algorithm to distinguish them reliably: closely related subtypes have very similar expression profiles, and the reference may not have enough examples of each subtype to anchor them confidently. In practice, run both: use `label.main` to confirm the broad populations are correct, then apply `label.fine` to any cluster where a finer distinction matters for your biological question.
 

@@ -8,7 +8,7 @@
 
 ## Overview
 
-**Why do we need to do this?**
+#### Why do we need to do this? {- .rational}
 
 [Slides](https://docs.google.com/presentation/d/1iTfkc2KgGy3d6yT9zCALZzk993pWwT9D/edit#slide=id.p1)
 
@@ -17,6 +17,8 @@ Differential expression (DE) analysis is the payoff for all the preprocessing st
 There are many methods for DE analysis in scRNA-seq. We will use a **pseudobulk** approach, which is currently considered best practice when biological replicates are available.
 
 We will be using a pseudobulk approach with limma. There is also a good discussion of using [pseudobulk approaches here](http://bioconductor.org/books/3.15/OSCA.multisample/multi-sample-comparisons.html#creating-pseudo-bulk-samples), which is worth checking out if you're planning differential expression analyses.
+
+#### {-}
 
 
 ```{r}
