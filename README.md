@@ -19,31 +19,45 @@ Visit the [Workshop page](https://swbioinf.github.io/scRNAseq_Workshop/).
 1. Install CRAN, bioconductor, and github packages:
 
 ```bash
-bash setup/setup.sh install_packages
+bash setup/setup.sh install
 ```
 
 Review any failed package installs and resolve manually in an
 interactive R session. Usually due to missing dependencies in the output
 log.
 
-2. Move relevant files and folder structure for the VM:
+2. Move relevant files and folder structure for the VM.
+
+For small files packaged with the repo:
 
 ```bash
 bash setup/setup.sh prep_data
 ```
 
-3. Remove unneeded files and folders:
+Transfer the rest from a local machine, stored on 2026-07 scRNAseq/data Google Drive:
 
 ```bash
-bash setup/setup.sh clean
+rsync -vPrla *.qs2 tdevXX@XXX.XXX.XXX.XX:/home/tdevXX/data
 ```
 
-4. Start up the rstudio server:
+3. Start up the rstudio server:
 
 ```
 module load rstudio
 sudo rstudio-server start
 ```
 
-5. Open rstudio in the browser with the url provided from `rstudio-server start`.
+* Set a password if required
+
+4. Open rstudio in the browser with the url provided from `rstudio-server start`.
+
+5. Test everything is ready by running the workshop end-to-end
+
+6. Move files and libraries to `etc/skel/`
+
+7. Remove unneeded files and folders:
+
+```bash
+bash setup/setup.sh clean
+```
 
