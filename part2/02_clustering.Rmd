@@ -10,13 +10,22 @@
 
 [Slides](https://docs.google.com/presentation/d/1erfD1gJAZwpyh2l8wkWBGzUiVStQCyL_/edit#slide=id.p33)
 
-**Why do we need to do this?**
+#### Why do we need to do this? {- .rational}
 
 Before we can compare stimulated and control PBMCs, we need to know which cell types we are comparing. Clustering groups cells by similarity in gene expression so that each cluster can be inspected and labelled as a cell type.
+
+#### {-}
 
 ## Cluster cells
 
 Seurat uses a **graph-based clustering** approach. Think of it like mapping a social network: each cell is a node, and connections are drawn to its nearest neighbours based on similar gene expression. Cells that are more tightly connected form communities which become your clusters.
+
+This is what we ran at the end of the previous Harmony section.
+
+```
+seurat_object <- FindNeighbors(seurat_object, dims = 1:10, reduction = "harmony")
+seurat_object <- FindClusters(seurat_object, resolution = 0.5)
+```
 
 Two functions do the work:
 
@@ -35,10 +44,10 @@ Because the right resolution depends on your data, the next section shows how to
 
 </details>
 
+Read in the harmonised data for this lesson.
 
-```{r cluster, fig.height=5, fig.width=7}
-seurat_object <- FindNeighbors(seurat_object, dims = 1:10, reduction = "harmony")
-seurat_object <- FindClusters(seurat_object, resolution = 0.5)
+```{r}
+seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.harmony.qs2")
 ```
 
 Look at cluster IDs of the first 5 cells
@@ -59,19 +68,24 @@ DimPlot(seurat_object, reduction = "umap_harmony")
 ## Choosing a cluster resolution
 
 Its a good idea to try different resolutions when clustering to identify the variability of your data. 
+
 ```{r}
-resolution = 2
-seurat_object <- FindClusters(seurat_object, resolution = seq(0.4, resolution, 0.1), verbose = F)
+min_res <- 0.4
+max_res <- 2
+interval <- 0.2
+seurat_object <- FindClusters(seurat_object, resolution = seq(min_res, max_res, interval), verbose = F)
 
 # the different clustering created
 names(seurat_object@meta.data)
+```
 
+```{r}
 # Look at cluster IDs of the first 5 cells
 head(Idents(seurat_object), 5)
 ```
 
 ```{r}
-DimPlot(seurat_object)
+DimPlot(seurat_object, reduction = "umap_harmony")
 ```
 
 ### How to read a clustree
@@ -86,31 +100,36 @@ A clustree plots each cluster at each resolution as a node, with arrows showing 
 
 **Choosing a resolution** — pick the highest resolution at which the major trunks remain stable and branches are still clean. Pushing beyond this point adds clusters that don't reflect biology.
 
-EXERCISE: Choosing a resolution
+```{r fig.height=12}
+library(clustree)
+clustree(seurat_object, prefix = "RNA_snn_res.", show_axis=TRUE) + 
+  theme(legend.key.size = unit(0.05, "cm"))
+```
+
+#### Exercise: Choosing a resolution {- .challenge}
 
 1. Plot a clustree to decide how many clusters you have and what resolution captures them. Look for the point where stable trunks begin to fragment.
 2. Validate the resolution using DimPlot() — do the clusters look well-separated on the UMAP?
 
-```{r fig.height=12}
-library(clustree)
-clustree(seurat_object, prefix = "RNA_snn_res.",show_axis=TRUE) + theme(legend.key.size = unit(0.05, "cm"))
-```
+Tip: The name of the cluster is prefixed with 'RNA_snn_res' and the number of the resolution e.g. `RNA_snn_res.0.4`
 
 ```{r}
 # Add your DimPlots here
+#DimPlot(seurat_object, reduction = "umap_harmony", group.by = "")
 
 ```
 
-Looking at the clustree, resolution 0.5 is a reasonable choice for this dataset:
+#### {-}
 
-- The major trunks are stable between 0.4 and 0.5, and the first clean branches appear around 0.5–0.6.
-- Beyond 0.7 the tree becomes unstable, clusters begin fragmenting with scattered arrows, which suggests the splits no longer reflect genuine biology.
+Looking at the clustree, resolution 0.6 is a reasonable choice for this dataset:
 
-Set the resolution for 0.5:
+- The major trunks are stable between 0.4 and 0.6 (no effect on clusters)
+- Beyond 0.6 the tree becomes unstable, clusters begin fragmenting with scattered arrows, which suggests the splits no longer reflect genuine biology.
+
+Set the resolution for 0.6:
 
 ```{r}
-# The name of the cluster is prefixed with 'RNA_snn_res' and the number of the resolution
-Idents(seurat_object) <- seurat_object$RNA_snn_res.0.5
+Idents(seurat_object) <- seurat_object$RNA_snn_res.0.6
 ```
 
 Plot the UMAP with coloured clusters.
@@ -119,4 +138,12 @@ Plot the UMAP with coloured clusters.
 DimPlot(seurat_object, reduction = "umap_harmony", label = TRUE, repel = TRUE, label.box = TRUE) + NoLegend()
 ```
 
-ANSWER IN SLACK: At this point we have clusters, but do they reflect genuine cell types or could they still be driven by technical variation? What additional evidence would you want to see before trusting these clusters as biological groups?
+#### Answer in Slack {- .challenge}
+
+At this point we have clusters, but do they reflect genuine cell types or could they still be driven by technical variation? What additional evidence would you want to see before trusting these clusters as biological groups?
+
+#### {-}
+
+```{r, eval=F}
+qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.clustered.qs2")
+```

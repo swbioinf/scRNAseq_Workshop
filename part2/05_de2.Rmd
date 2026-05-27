@@ -8,7 +8,7 @@
 
 ## Overview
 
-**Why do we need to do this?**
+#### Why do we need to do this? {- .rational}
 
 [Slides](https://docs.google.com/presentation/d/1iTfkc2KgGy3d6yT9zCALZzk993pWwT9D/edit#slide=id.p1)
 
@@ -18,8 +18,14 @@ There are many methods for DE analysis in scRNA-seq. We will use a **pseudobulk*
 
 We will be using a pseudobulk approach with limma. There is also a good discussion of using [pseudobulk approaches here](http://bioconductor.org/books/3.15/OSCA.multisample/multi-sample-comparisons.html#creating-pseudo-bulk-samples), which is worth checking out if you're planning differential expression analyses.
 
+#### {-}
 
-## Experimental question and annnotation
+
+```{r}
+seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.harmony.clustered.markers.singler.qs2")
+```
+
+## Experimental question and annotation
 
 In this (NB: modified!) experimental data taken from [Kang et al 2018 - Multiplexed droplet single-cell RNA-sequencing using natural genetic variation](https://pubmed.ncbi.nlm.nih.gov/29227470/), there are IFN-beta stimulated and unstimulated control PBMCs from 8 different lupus patient samples.
 
@@ -85,7 +91,7 @@ hist(log10(total_per_gene), breaks = seq(0, 8, by = 0.1))
 
 Lets keep only those genes with at least 50 copies across the entire experiment.
 
-The threshold is somewhat flexible — the histogram x axis is log10(total counts), so the cut-off of 50 sits at log10(50) ≈ 1.7. Look for the point where the sparse left tail separates from the main distribution of expressed genes and choose a threshold in that gap. For a dataset of this size (~3,000 cells, 16 samples), 50 counts is a reasonable minimum: it ensures a gene is detected at an average of roughly 3 counts per sample, which is the lower bound for reliable DE testing. Anywhere from 10 to 100 (log10 ≈ 1.0–2.0) is defensible, but let the histogram guide you toward a natural break.
+The threshold is somewhat flexible. The histogram x axis is log10(total counts), so the cut-off of 50 sits at log10(50) ≈ 1.7. Look for the point where the sparse left tail separates from the main distribution of expressed genes and choose a threshold in that gap. For a dataset of this size (~3,000 cells, 16 samples), 50 counts is a reasonable minimum: it ensures a gene is detected at an average of roughly 3 counts per sample, which is the lower bound for reliable DE testing. Anywhere from 10 to 100 (log10 ≈ 1.0–2.0) is defensible, but let the histogram guide you toward a natural break.
 
 ```{r}
 seurat_object <- seurat_object[total_per_gene >= 50, ] 
@@ -105,6 +111,9 @@ An easy way is to subset the object.
 # Set idents to 'cell' column.
 Idents(seurat_object) <- seurat_object$cell
 DimPlot(seurat_object, reduction = "umap_harmony")
+```
+
+```{r}
 seurat_object_celltype <- seurat_object[, seurat_object$cell == "CD14+ Monocytes" ]
 DimPlot(seurat_object_celltype, reduction = "umap_harmony")
 ```
@@ -120,11 +129,6 @@ Pseudobulk analysis addresses this by first aggregating (summing) counts for all
 First, you need to build a pseudobulk matrix - the `AggregateExpression()` function can do this, once you set the 'Idents' of your seurat object to your grouping factor (here, that's that combination of individual+treatment called 'sample', instead of the 'stim' treatment column).
 
 ```{r}
-# Tools for bulk differential expression
-library(limma)
-library(edgeR)
-
-
 # Pull out a table of our sample information - the sample, individual, stim condition and celltype
 pseudobulk_annotation_table <- FetchData(seurat_object_celltype, vars = c('sample_name', 'ind', 'stim', 'cell', 'sample_celltype_name')) |> 
   as_tibble()  |>
@@ -156,6 +160,10 @@ pseudobulk_matrix <- pseudobulk_matrix[,pseudobulk_annotation_table$sample_name]
 stopifnot( all(colnames(pseudobulk_matrix) == pseudobulk_annotation_table$sample_name ))  
 ```
 
+```{r}
+pseudobulk_matrix[1:10, 1:10]
+```
+
 Now it looks like a bulk RNAseq experiment, so we will treat it like one.
 
 ## Testing differential expression
@@ -164,10 +172,14 @@ We can use the popular `limma` package for differential expression. Here is one 
 
 The code below fits a linear model for this experiment using the voom-limma pipeline:
 
+#### Why these steps? {- .rational}
+
 - `DGEList` + `calcNormFactors` - normalises for differences in library size between samples using TMM scaling factors.
 - `voom` - converts counts to log-CPM and computes precision weights that account for the mean-variance relationship in count data, making the data suitable for a linear model.
 - `model.matrix(~0 + stim + ind)` - constructs a design matrix modelling expression as a function of stimulation condition and individual. Including `ind` accounts for the paired structure: the same 8 individuals appear in both conditions, so inter-individual variation is absorbed as a blocking factor rather than inflating the error term.
 - `makeContrasts` + `eBayes` - tests the stimulated vs. control contrast and applies empirical Bayes shrinkage to stabilise variance estimates, which improves power in small sample sizes.
+
+#### {-}
 
 ```{r}
 dge <- DGEList(pseudobulk_matrix)
@@ -192,7 +204,10 @@ de_result <- arrange(de_result , adj.P.Val)
 Look at the significantly differentially expressed genes:
 
 ```{r}
-head(de_result)
+# Top upregulated
+de_result %>% head(n=10)
+# Top downregulated
+de_result %>% arrange(desc(x = adj.P.Val)) %>% head(n=10)
 ```
 
 Key columns to interpret:
@@ -201,6 +216,17 @@ Key columns to interpret:
 - `AveExpr` - average log2 expression across all samples. Higher values mean the gene is more abundantly expressed overall.
 - `adj.P.Val` - p-value adjusted for multiple testing (Benjamini-Hochberg FDR). Use `< 0.05` as a threshold for significance; the plots below use `< 0.01` for a stricter cutoff to minimise false positive results
 - `B` - log-odds that the gene is differentially expressed; larger values indicate stronger evidence.
+
+#### Answer in Slack {- .challenge}
+
+Look at the top upregulated genes in `de_result`. Which match the known IFN-beta targets from the overview (IFIT1, MX1, OAS1, ISG15)? Now sort by `logFC` ascending — which genes are most strongly *downregulated* by IFN-beta in monocytes? You may not recognise them yet; we will return to them below.
+
+#### {-}
+
+Two plots show DE results:
+
+- **MA plot** (left): average expression vs fold change. Significant genes (red) should spread across the full expression range, not cluster at low counts.
+- **Volcano plot** (right): fold change vs statistical confidence. Top-right = significantly upregulated; top-left = significantly downregulated. Height = confidence, position = effect size.
 
 ```{r}
 p1 <- ggplot(de_result, aes(x=AveExpr, y=logFC, col=adj.P.Val < 0.01)) +
@@ -268,12 +294,15 @@ lognorm_matrix <- log2(norm_matrix + 1) # add 1 so that zero counts can be logge
 lognorm_matrix[1:4,1:5]
 ```
 
+The DE table tells us *which genes change in monocytes*. It does not tell us *whether those changes are unique to monocytes*. A gene at the top of `de_result` could be a broad antiviral response that activates in every cell type, or a genuinely monocyte-specific change. We can only tell by plotting expression across all cell types.
 
-Before concluding that a DE gene reflects a CD14+ Monocyte-specific response, it is worth checking whether it changes across all cell types. A gene upregulated everywhere reflects a global IFN-beta response; one confined to monocytes points to a cell-type-specific mechanism. TMSB10, the top DE gene, turns out to change broadly:
+### Worked example 1: a globally upregulated gene
+
+Start with `ISG15`, one of the top DE genes and a canonical interferon-stimulated gene:
 
 ```{r}
-# here we match the sample order by passing the pseudobulk annotation_table sample celltype into the matrix
-my_gene <- 'NOC2L'
+# Attach expression values to the per-sample annotation by matching on sample_celltype_name
+my_gene <- 'ISG15'
 pseudobulk_annotation_table.allcelltypes$expression <- lognorm_matrix[my_gene, pseudobulk_annotation_table.allcelltypes$sample_celltype_name]
 
 ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=stim)) +
@@ -284,39 +313,58 @@ ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=
   ggtitle(my_gene)
 ```
 
-#### Discussion {- .challenge}
+ISG15 increases in every cell type. This is the **broad antiviral response**: type I interferon receptors are expressed on most immune cells, so the core ISG program activates broadly. Many of the top hits in `de_result` follow this pattern.
 
-Look at the expression of some other genes (differentially expressed or not). Are they globally changing or just in that celltype?  Share an interesting example. Does this support or reject the initial hypotheses about IFN-beta stimulation in CD14+ monocytes?
+### Worked example 2: a monocyte-specific change
+
+Not every IFN-beta response is global. `IL1B` is a classical inflammatory cytokine, highly expressed by activated monocytes. Watch what happens to it under IFN-beta:
+
+```{r}
+my_gene <- 'IL1B'
+pseudobulk_annotation_table.allcelltypes$expression <- lognorm_matrix[my_gene, pseudobulk_annotation_table.allcelltypes$sample_celltype_name]
+
+ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=stim)) +
+  geom_boxplot(outlier.shape=NA) +
+  geom_point() +
+  theme_bw() +
+  facet_wrap(~cell) +
+  ggtitle(my_gene)
+```
+
+IL1B drops sharply in monocytes and barely moves elsewhere. The other cell types have low baseline expression (IL1B is a monocyte/myeloid gene), so the suppression is monocyte-specific. Biologically, IFN-beta redirects monocytes away from classical inflammatory output (IL1B, OSM, CLEC5A) and toward antiviral functions (the ISG program, plus monocyte-specific antiviral chemokines like CXCL11, CCL8, IDO1).
+
+#### Exercise: explore other genes {- .challenge}
+
+Pick a gene from `de_result` and re-run the plot below. Is it global, monocyte-specific up, or monocyte-specific down? Suggestions: `IDO1`, `CXCL11`, `OSM`, `IFIT1`, `CCL8`, `STAT1`.
+
+```{r}
+my_gene <- ''   # replace with a gene name
+pseudobulk_annotation_table.allcelltypes$expression <- lognorm_matrix[my_gene, pseudobulk_annotation_table.allcelltypes$sample_celltype_name]
+
+ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=stim)) +
+  geom_boxplot(outlier.shape=NA) +
+  geom_point() +
+  theme_bw() +
+  facet_wrap(~cell) +
+  ggtitle(my_gene)
+```
 
 #### {-}
 
-```{r}
-# Checking gene expression...
-
-```
-
-
-The interactive plot below steps through a set of genes using the slider. Use the play button to cycle through them, or click a step directly to jump to a gene.
+The interactive plot below cycles through a curated set of genes covering all three patterns (global, monocyte-up, monocyte-down). Use the play button to cycle through them, or click a step directly to jump to a gene.
 
 ```{r message=FALSE}
 library(plotly)
 
 gene_list <- c(
-  # Broad ISGs — positive controls showing the global IFN-beta response
-  "ISG15", "MX1",
-  # Monocyte-specific upregulation: IFN-beta strongly induces FCGR1A (CD64, high-affinity
-  # Fc gamma receptor) in monocytes but not in T, B, or NK cells
-  "FCGR1A",
-  # Monocyte/DC-specific: IDO1 (indoleamine 2,3-dioxygenase) is an IFN-induced immunosuppressive
-  # enzyme expressed primarily by myeloid cells; minimal induction expected in lymphocytes
-  "IDO1",
-  # Monocyte-specific downregulation: S100A8/S100A9 are classical monocyte identity genes
-  # suppressed by IFN-beta in monocytes; other cell types express little baseline so the
-  # drop is monocyte-specific
-  "S100A8", "S100A9",
-  # NK cell-enriched: granzyme B is a cytotoxic granule protein; IFN-beta activates NK cells
-  # and may specifically increase GZMB in that compartment
-  "GZMB"
+  # Global ISGs - the cell-type-agnostic antiviral response. Every cell type upregulates these
+  "ISG15", "MX1", "IFIT1",
+  # Monocyte-specific upregulation - antiviral chemokines and effectors restricted to myeloid cells
+  "IL27", "IRG1",
+  # Monocyte-specific downregulation - classical inflammatory output suppressed by IFN-beta
+  "IL1B", "OSM",
+  # B-cell-specific upregulation
+  "INPP1"
 )
 gene_list <- gene_list[gene_list %in% rownames(lognorm_matrix)]
 
@@ -348,6 +396,18 @@ p <- ggplot(df_long,
 
 ggplotly(p, tooltip = "text")
 ```
+
+#### Discuss {- .challenge}
+
+Cycle through the interactive plot and identify whether genes fit into three groups:
+
+  (a) **global** - changes in every cell type
+  (b) **monocyte-specific upregulated**
+  (c) **monocyte-specific downregulated**
+
+What story does this tell about how IFN-beta affects monocyte function compared to its effects on other immune cells? Does this support or refine the initial hypothesis about a monocyte-specific IFN-beta response?
+
+#### {-}
 
 #### What about FindMarkers? {- .rational}
 

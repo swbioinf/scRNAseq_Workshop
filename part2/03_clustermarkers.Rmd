@@ -3,19 +3,27 @@
 ## Learning outcomes
 
 - Explain how differentially expressed genes can be used as markers to characterise the biological identity of a cluster
-- Run `FindAllMarkers` to identify positive markers for each cluster and visualise them
+- Run `FindMarkers` to identify positive markers for each cluster and visualise them
 - Label clusters to known cell types using canonical marker genes
 
 ## Overview
 
-**Why do we need to do this?**
+#### Why do we need to do this? {- .rational}
 
-We now have clusters, but we still do not know what they represent biologically. 
+We now have clusters, but we still do not know what they represent biologically.
 To interpret them, we need to identify which cell type each cluster represents.
 
 Cells of the same type tend to co-express a characteristic set of genes. Genes that are highly and specifically expressed in one cluster compared to all others are its **markers**. By finding these differentially expressed genes and matching them against known cell type signatures, we can assign a biological identity to each cluster.
 
 Note: in this example the cell types and their markers are well established in the literature, which makes this step straightforward. In practice, annotating novel or poorly characterised cell types requires careful expert curation.
+
+#### {-}
+
+Read in the clustered data.
+
+```{r}
+seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.harmony.clustered.qs2")
+```
 
 ## Finding differentially expressed features (cluster biomarkers)
 
@@ -23,38 +31,49 @@ The key parameters filter out genes that are unlikely to be informative: `min.pc
 
 Seurat can help you find markers that define clusters via differential expression. By default, it identifies positive and negative markers of a single cluster (specified in `ident.1`), compared to all other cells.  `FindAllMarkers()` automates this process for all clusters, but you can also test groups of clusters vs. each other, or against all cells.
 
-```{r markers1, fig.height=8, fig.width=15}
-# find all markers of cluster 2
-cluster2.markers <- FindMarkers(seurat_object, ident.1 = 2, min.pct = 0.25)
-head(cluster2.markers, n = 5)
-# find all markers distinguishing cluster 5 from clusters 0 and 3
-cluster5.markers <- FindMarkers(seurat_object, ident.1 = 5, ident.2 = c(0, 3), min.pct = 0.25)
-head(cluster5.markers, n = 5)
-# find markers for every cluster compared to all remaining cells, report only the positive ones
-seurat_object.markers <- FindAllMarkers(seurat_object, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
-seurat_object.markers %>% group_by(cluster) %>% slice_max(n = 2, order_by = avg_log2FC)
+```{r}
+# find all markers of cluster 0
+cluster0.markers <- FindMarkers(seurat_object, ident.1 = 0, min.pct = 0.25)
+head(cluster0.markers, n = 5)
 ```
 
-Seurat has several tests for differential expression which can be set with the test.use parameter (see our [DE vignette](de_vignette.html) for details). For example, the ROC test returns the 'classification power' `abs(AUC-0.5)*2` for any individual marker, ranging from 0 = random to 1 = perfect.
+```{r}
+# find all markers distinguishing cluster 1 from local clusters 2, 5, 6
+cluster1.markers <- FindMarkers(seurat_object, ident.1 = 1, ident.2 = c(2, 5, 6), min.pct = 0.25)
+head(cluster1.markers, n = 5)
+```
 
-```{r markersroc, fig.height=8, fig.width=15}
-cluster0.markers <- FindMarkers(seurat_object, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = TRUE)
+```{r}
+# find markers for every cluster compared to all remaining cells, report only the positive ones
+seurat_object.markers <- FindAllMarkers(seurat_object, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+seurat_object.markers %>% 
+  group_by(cluster) %>% 
+  slice_max(n = 2, order_by = avg_log2FC)
 ```
 
 Two plots are most useful for confirming markers:
 
 - `VlnPlot()` shows the distribution of expression across clusters. This is useful for checking that a marker is genuinely higher in one cluster and low elsewhere.
-- `FeaturePlot()` overlays expression onto the UMAP. This isuseful for confirming that the distribution of the expression is restricted to the expected cluster.
+- `FeaturePlot()` overlays expression onto the UMAP. This is useful for confirming that the distribution of the expression is restricted to the expected cluster.
 
 ```{r}
-VlnPlot(seurat_object, features = c("MS4A1", "CD79A"))
+seurat_object.markers %>% 
+  group_by(cluster) %>% 
+  slice_max(n = 4, order_by = avg_log2FC)
+```
+
+```{r}
+cluster3_markers <- c("MS4A1", "CD79A", "IRF8", "CD83")
+VlnPlot(seurat_object, features = cluster3_markers)
 # you can plot raw counts as well
-VlnPlot(seurat_object, features = c("NKG7", "PF4"), layer = 'counts', log = TRUE)
+VlnPlot(seurat_object, features = cluster3_markers, layer = 'counts', log = TRUE)
 ```
 
 ```{r markerplots}
-FeaturePlot(seurat_object, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A"))
-FeaturePlot(seurat_object, features = c("FCGR3A", "LYZ", "PPBP", "CD8A"))
+FeaturePlot(seurat_object, features = cluster3_markers, reduction = "umap_harmony")
+
+cluster2_markers <- c("GZMA", "GNLY", "PRF1", "CLIC3")
+FeaturePlot(seurat_object, features = cluster2_markers, reduction = "umap_harmony")
 ```
 
 `DoHeatmap()` gives a cluster-level overview of the top markers across all clusters at once.
@@ -65,170 +84,204 @@ top10 <- seurat_object.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_
 DoHeatmap(subset(seurat_object, downsample = maxcells), features = top10$gene) + NoLegend()
 ```
 
-<details>
-<summary>Additional visualisations</summary>
+**Worked example: confirming NK markers using the Human Protein Atlas**
 
-`RidgePlot()`, `CellScatter()`, and `DotPlot()` are alternative ways to inspect marker expression. They can be substituted for `FeaturePlot()` using the same feature arguments.
+Cluster 2's top markers from `FindAllMarkers` above included `GNLY`, `GZMA`, and `PRF1`. Let's verify what cells these point to.
 
-```{r ridgeplots}
-RidgePlot(seurat_object, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A"))
-RidgePlot(seurat_object, features = c("FCGR3A", "LYZ", "PPBP", "CD8A"))
-```
+1. Open [https://www.proteinatlas.org/](https://www.proteinatlas.org/)
+2. Search for `GNLY`
+3. Click the **Single cell** tab
+4. Look at the cell type group specificity plot. `GNLY` should show highest expression in NK cells.
+5. Cross-check with one or two more candidates (`NKG7`, `PRF1`).
+6. Record the markers you'll use for NK cells in R:
 
-For `CellScatter()`, you need the cell IDs of the two cells to compare. These can be found in the cell metadata.
+Rather than searching each gene individually, you can run a functional enrichment analysis on the full list of top markers for a cluster. Tools like `enrichR` or `gprofiler2` map a gene list to GO terms, pathways, and curated cell type signatures in one step, giving you a ranked list of biological processes associated with that cluster. This is especially useful when the top DEGs are not immediately recognisable, or when you are working with a less well-characterised tissue.
 
-```{r}
-head(seurat_object@meta.data)
+## Top-down annotation with a marker table
 
-CellScatter(seurat_object, cell1 = "AGGGCGCTATTTCC-1", cell2 = "GGAGACGATTCGTT-1")
-CellScatter(seurat_object, cell1 = "GGAGACGATTCGTT-1", cell2 = "TACGAGACCTATTC-1")
-```
+The top differentially expressed genes from `FindAllMarkers` tell you what makes each cluster *different* from the others, however, this is not the same as being a defining marker for a known cell type. A gene can rank highly simply because the other clusters happen not to express it, not because it is a canonical indicator of a specific biology. Clustering is also unsupervised: the boundaries it draws do not necessarily align with meaningful cell types, and two genuinely distinct populations may land in the same cluster at a given resolution.
 
-```{r}
-DotPlot(seurat_object, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP", "CD8A"))
-```
+For these reasons, it is important to take a **top-down** approach: define the cell types you expect to find in your tissue, look up their canonical markers from curated sources, and then check whether the clusters match those expectations. For a well-characterised tissue, the most efficient way to do this is to start from a curated list of canonical markers: genes whose expression patterns are already established for the cell types we expect.
 
-</details>
+### Step 1: Identify the expected cell types in your sample
 
-## Use markers to label or find a cluster
+Our dataset is peripheral blood mononuclear cells (PBMCs), a well-characterised mix of immune cells circulating in blood. In a PBMC sample you should expect to find:
 
-If you already know which markers define your cell types, you can score each cell for those markers directly using `AddModuleScore()`. This is useful for confirming the identity of a single cluster before committing to a full labelling. 
+- CD4+ T cells (helper T cells)
+- CD8+ T cells (cytotoxic T cells)
+- B cells
+- NK (natural killer) cells
+- CD14+ monocytes (classical)
+- FCGR3A+ monocytes (non-classical)
+- Dendritic cells
+- Megakaryocytes / platelets
 
-**Where to find canonical markers:**
+Knowing this up front matters because it tells you which markers to look up, and what to expect in the data
 
-- Literature searches for your tissue or cell population of interest
-- [PanglaoDB](https://panglaodb.se/index.html) - curated cell type marker database
-- [Human Protein Atlas](https://www.proteinatlas.org/) - gene expression across cell types and tissues
+### Step 2: Look up canonical markers for each cell type
 
-Fortunately in the case of this dataset, we can use canonical markers to easily match the unbiased clustering to known cell types:
+Canonical markers are genes whose specific expression in a given cell type is well-established. Where to find them:
 
-| Markers       | Cell Type
-|---------------|----------
-| IL7R, CCR7    | Naive CD4+ T
-| CD14, LYZ     | CD14+ Mono
-| IL7R, S100A4  | Memory CD4+
-| MS4A1         | B
-| CD8A          | CD8+ T
-| FCGR3A, MS4A7 | FCGR3A+ Mono
-| GNLY, NKG7    | NK
-| FCER1A, CST3  | DC
-| PPBP          | Platelet
+- [PanglaoDB](https://panglaodb.se/index.html): a curated cell-type marker database
+- [Human Protein Atlas](https://www.proteinatlas.org/): gene expression across cell types and tissues
+- **Published literature for your tissue or cell population**
 
-```{r}
-genes_markers <- list(Naive_CD4_T = c("IL7R", "CCR7"))
+In practice you would search each expected cell type and record a few reliable markers. How many you need depends on the cell type: some populations have single highly-specific markers, but relying on one gene alone can bias annotation or miss cases where that gene is silenced. For today's workshop this has been done for you. The result is the `cell_markers` list in Step 3. For your own data, the appropriate markers will depend on the tissue, the species, and the biological question being asked.
 
-seurat_object <- AddModuleScore(object = seurat_object, features = genes_markers, ctrl = 5, name = "Naive_CD4_T",
-    search = TRUE)
+### Step 3: Build the marker list in R and visualise
 
-# notice the name of the cluster has a 1 at the end
-names(seurat_object@meta.data)
-
-# label that cell type
-seurat_object$cell_label = NA
-seurat_object$cell_label[seurat_object$Naive_CD4_T1 > 1] = "Naive_CD4_T"
-Idents(seurat_object) = seurat_object$cell_label
-
-# plot
-# Using a custom colour scale 
-FeaturePlot(seurat_object, features = "Naive_CD4_T1", label = TRUE, repel = TRUE, reduction = "umap_harmony") + scale_colour_gradientn(colours = c("lightblue","beige","red"))
-```
-
-To score all cell types at once, define a named list and loop over it:
+This is the named list you'd build from Step 2, mapping each expected cell type to its canonical markers:
 
 ```{r}
 cell_markers <- list(
-    "Naive CD4+ T" = c("IL7R", "CCR7"),
-    "CD14+ Mono"   = c("CD14", "LYZ"),
-    "Memory CD4+"  = c("IL7R", "S100A4"),
-    "B"            = c("MS4A1"),
-    "CD8+ T"       = c("CD8A"),
-    "FCGR3A+ Mono" = c("FCGR3A", "MS4A7"),
-    "NK"           = c("GNLY", "NKG7"),
-    "DC"           = c("FCER1A", "CST3"),
-    "Platelet"     = c("PPBP")
+  "CD4 T cells"       = c("CD4", "IL7R"),
+  "CD8 T cells"       = c("CD8A", "CD8B"),
+  "B cells"           = c("MS4A1", "CD79A"),
+  "NK cells"          = c("NKG7", "GNLY", "KLRD1"),
+  "CD14+ Monocytes"   = c("CD14", "LYZ", "S100A9"),
+  "FCGR3A+ Monocytes" = c("FCGR3A", "MS4A7"),
+  "Dendritic cells"   = c("CST3", "FCER1A"),
+  "Megakaryocytes"    = c("PF4", "PPBP")
 )
-
-for (cell_type in names(cell_markers)) {
-    score_name <- gsub("[^A-Za-z0-9]+", "_", cell_type)
-    seurat_object <- AddModuleScore(
-        object   = seurat_object,
-        features = list(cell_markers[[cell_type]]),
-        name     = score_name,
-        ctrl     = 5,
-        search   = TRUE
-    )
-}
-
-# Seurat appends 1 to each score name
-grep("1$", names(seurat_object@meta.data), value = TRUE)
 ```
 
-## Assigning cell type identity to clusters
+The most informative plot for annotation is a `DotPlot`: a compact cluster by gene grid showing both the proportion of expressing cells (dot size) and average expression (colour). It lets us read off all markers and all clusters at once.
 
-Use the side-by-side plot below to match markers to cluster numbers: replace `"MS4A1"` in the `FeaturePlot` with a marker from the table, find the region of the UMAP that lights up, then read off the cluster number from the labelled DimPlot on the left.
+```{r, fig.width=12}
+all_markers <- unique(unlist(cell_markers))
 
-```{r labelplot, fig.width=10}
-DimPlot(seurat_object, group.by = "RNA_snn_res.0.5", reduction = "umap_harmony") |
-  FeaturePlot(seurat_object, features = cell_markers$B, reduction = "umap_harmony")
+# Filter to genes actually present in the assay (some symbols may not be in this dataset)
+features_to_plot <- all_markers[all_markers %in% rownames(seurat_object)]
+
+DotPlot(seurat_object, features = features_to_plot) + RotatedAxis()
 ```
 
-Plot marker gene expression across all cell types:
+Read the plot column by column: for each marker group, find the cluster (row) where the dots are largest and darkest. That cluster expresses those markers and is likely that cell type.
 
-```{r, fig.width=10}
-library(patchwork)
-for (cell_id in names(cell_markers)) {
-  p <- FeaturePlot(seurat_object, features = cell_markers[[cell_id]], reduction = "umap_harmony")
-  print(p + plot_annotation(title = cell_id))
-}
+## Exercise: Match cluster numbers with cell labels {- .challenge}
+
+Use the `DotPlot` above to assign a cell-type label to each cluster.
+
+Clusters 0, 2, and 3 are filled in as worked examples:
+
+- **Cluster 0 = CD4 T cells:** IL7R is the most prominent dot in row 0, consistent with helper T cells expressing the IL-7 receptor.
+- **Cluster 2 = NK cells:** NKG7 and GNLY are both the largest, darkest dots in their columns and are almost entirely restricted to this row.
+- **Cluster 3 = B cells:** CD79A is large and highly specific, almost no signal appears in any other row.
+
+**Your turn: fill in clusters 1 and 5.**
+
+- **Cluster 1:** Look at the CD14, LYZ, and S100A9 columns (the CD14+ Monocyte block). Find the row with medium-to-large dots across all three.
+- **Cluster 5:** Look at the PF4 and PPBP columns (the two rightmost columns). Find the row where these are the only visible dots in the plot.
+
+Clusters 6 and 7 are harder to call from the DotPlot alone. Use the FeaturePlots below first, then come back and fill in your answers.
+
+Cluster 4 is ambiguous. Read the discussion below before filling it in.
+
+### Explore: clusters 6 and 7
+
+**Cluster 6** has a small CD8A signal on the DotPlot. On the UMAP, CD8+ T cells should occupy a distinct region near the T-cell area, clearly separated from the NK cells (cluster 2). However, on the feature plot it appears only a small proportion of cells in cluster 6 express it. We leave this as an ambiguous cluster
+
+```{r, fig.width=12}
+DimPlot(seurat_object, reduction = "umap_harmony") |
+  FeaturePlot(seurat_object, features = cell_markers[["CD8 T cells"]], reduction = "umap_harmony")
 ```
 
-Plot module scores across all cell types:
+**Cluster 7** shows LYZ (a broad myeloid marker) alongside CST3 and FCER1A, which are more specific for dendritic cells. Dendritic cells are a small population - look for a compact region on the UMAP that lights up for both CST3 and FCER1A but is distinct from the monocyte clusters:
 
-```{r, fig.width=10}
-for (cell_type in names(cell_markers)) {
-  score_name <- paste0(gsub("[^A-Za-z0-9]+", "_", cell_type), "1")
-  p <- FeaturePlot(
-      seurat_object,
-      features  = score_name,
-      label     = TRUE,
-      repel     = TRUE,
-      reduction = "umap_harmony"
-    ) +
-    scale_colour_gradientn(colours = c("lightblue", "beige", "red")) +
-    labs(title = cell_type, colour = "Module\nscore")
-  print(p)
-}
+```{r}
+FeaturePlot(seurat_object, features = cell_markers[["Dendritic cells"]], reduction = "umap_harmony")
 ```
 
-## Exercise: Match cluster numbers with cell labels
+### Discuss: cluster 4
 
-For each cell type in the marker table, identify which cluster number it corresponds to and add it to the list below. Cluster 0 is done as an example.
+Cluster 4 shows large dots for both classical monocyte markers (CD14, LYZ, S100A9) and non-classical monocyte markers (FCGR3A, MS4A7). This co-expression pattern suggests cluster 4 may represent a transitional monocyte population sitting between classical (CD14+) and non-classical (FCGR3A+) monocytes, a known intermediate population in blood.
 
-```{r eval=FALSE}
-Idents(seurat_object) <- seurat_object$RNA_snn_res.0.5
+#### Discuss {- .challenge}
+
+How would you label cluster 4, and does the right answer change depending on the biological question being asked?
+
+#### {-}
+
+For a broad PBMC survey, labelling it FCGR3A+ Monocytes is a reasonable call given that FCGR3A and MS4A7 are clearly elevated. For a study focused specifically on monocyte biology, you would re-cluster this region at a higher resolution to resolve the subsets.
+
+### Fill in your answers
+
+```{r}
+Idents(seurat_object) <- seurat_object$RNA_snn_res.0.6
 
 new.cluster.ids <- c(
-    "0" = "Naive CD4+ T"
-    # add the remaining clusters here
+  "0" = "CD4 T cells",
+  "1" = "",    # CD14, LYZ, S100A9
+  "2" = "NK cells",
+  "3" = "B cells",
+  "4" = "",    # see discussion above
+  "5" = "",    # PF4, PPBP
+  "6" = "",    # CD8A, CD8B (see FeaturePlot above)
+  "7" = ""     # CST3, FCER1A (see FeaturePlot above)
+)
+```
+
+If you did not complete the exercise above, open `scripts/catchup_script.R` and run the **## Cluster markers** section to set `new.cluster.ids` before continuing.
+
+Apply your labels and visualise the annotated UMAP:
+
+```{r}
+seurat_object@meta.data$markers <- new.cluster.ids[as.character(seurat_object$RNA_snn_res.0.6)]
+DimPlot(seurat_object, reduction = "umap_harmony", group.by = "markers", label = TRUE, pt.size = 0.5, label.box = T, repel = T) + NoLegend()
+```
+
+## {-}
+
+## Verifying a cluster's identity with `AddModuleScore`
+
+Visual inspection of a `DotPlot` is fast, but for ambiguous clusters it helps to get a single quantitative score per cell. `AddModuleScore` computes the average expression of a marker gene set, minus the average expression of a random set of control genes with similar overall expression levels. The result is a relative score: positive when a cell expresses the marker set more than expected by chance, and robust to overall expression magnitude.
+
+We'll use it here to verify the identity of cluster 2.
+
+```{r}
+# Reset Idents back to cluster numbers so we can refer to them by number
+Idents(seurat_object) <- seurat_object$RNA_snn_res.0.6
+
+seurat_object <- AddModuleScore(
+  object   = seurat_object,
+  features = list(cell_markers[["CD8 T cells"]]),
+  ctrl     = 5,
+  name     = "CD8 T cells"
 )
 
-seurat_object <- RenameIdents(seurat_object, new.cluster.ids)
-DimPlot(seurat_object, reduction = 'umap_harmony', label = TRUE, pt.size = 0.5) + NoLegend()
+seurat_object <- AddModuleScore(
+  object   = seurat_object,
+  features = list(cell_markers[["NK cells"]]),
+  ctrl     = 5,
+  name     = "NK cells"
+)
+
+# AddModuleScore appends a "1" to the name (NK_cell1)
+names(seurat_object@meta.data)
 ```
 
-## save the plots
+Plot the score on the UMAP. Cells in cluster 2 should have the highest NK signature scores:
 
-```{r save.img , eval=FALSE}
+```{r}
+FeaturePlot(
+  seurat_object, features = "CD8 T cells1",
+  label = TRUE, repel = TRUE, reduction = "umap_harmony"
+) + scale_colour_gradientn(colours = c("lightblue", "beige", "red"))
 
-plot <- DimPlot(seurat_object, reduction = 'umap_harmony', label = TRUE, label.size = 4.5) + xlab("UMAP 1") + ylab("UMAP 2") + 
-  theme(axis.title = element_text(size = 18), legend.text = element_text(size = 18)) + 
-  guides(colour = guide_legend(override.aes = list(size = 10)))
-ggsave(filename = "seurat_object3k_umap.jpg", height = 7, width = 12, plot = plot, quality = 50)
+FeaturePlot(
+  seurat_object, features = "NK cells1",
+  label = TRUE, repel = TRUE, reduction = "umap_harmony"
+) + scale_colour_gradientn(colours = c("lightblue", "beige", "red"))
 ```
 
-## save the seurat object
+#### Discuss {- .challenge}
 
-```{r save.rds, eval=FALSE}
-saveRDS(seurat_object, file = "seurat_object3k_final.rds")
+Which clusters are you least confident in? What would you do to resolve them: repeat the module score for a different candidate cell type, or try a different approach entirely? In the next chapter we'll see one alternative, reference-based annotation with SingleR.
+
+#### {-}
+
+Notice that the `AddModuleScore` result for cluster 2 shows elevated scores for both NK and CD8 T cell signatures. This suggests this cluster may contain two cell types that were merged together at this resolution. This is a normal finding. scRNAseq annotation is an iterative process: the outcome of annotation frequently reveals whether the clustering resolution needs adjustment. If you suspect a cluster is heterogeneous, the next step is to increase the resolution, re-run `FindClusters`, and repeat the annotation.
+
+```{r, eval=F}
+qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.clustered.markers.qs2")
 ```
-

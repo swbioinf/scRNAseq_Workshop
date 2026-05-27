@@ -7,16 +7,19 @@
 
 ## Overview
 
-**Why do we need to do this?**
+#### Why do we need to do this? {- .rational}
 
 In the previous section we annotated clusters manually using canonical marker genes. This works well for well-characterised cell types, but it is slow, subjective, and depends on the analyst's domain knowledge. Different researchers may reach different conclusions from the same data.
 
 Reference-based annotation automates this process by comparing each cell's expression profile against a curated reference dataset of known cell types. This is faster, reproducible, and less dependent on prior knowledge, making it easier to annotate large datasets or cell types you are less familiar with.
 
-```{r results='hide', message=FALSE, warning=FALSE}
-library(SingleCellExperiment)
-library(SingleR)
-library(celldex)
+#### {-}
+
+Read in our manually annotated seurat object.
+
+```{r}
+seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.harmony.clustered.markers.qs2")
+Idents(seurat_object) <- seurat_object$markers
 ```
 
 In this workshop we have focused on the Seurat package.  However, there is another whole ecosystem of R packages for single cell analysis within Bioconductor.  We won't go into any detail on these packages in this workshop, but there is good material describing the object type online : [OSCA](https://robertamezquita.github.io/orchestratingSingleCellAnalysis/data-infrastructure.html).
@@ -55,7 +58,7 @@ unique(ref.set$label.main)
 An example of the types of "fine" labels.
 
 ```{r}
-head(unique(ref.set$label.fine))
+head(unique(ref.set$label.fine), n = 20)
 ```
 
 Now we'll label our cells using the SingleCellExperiment object, with the above reference set. This will take a minute.
@@ -76,29 +79,41 @@ DimPlot(seurat_object, reduction='umap_harmony', group.by='SingleR.labels')
 
 Before comparing, it is worth summarising what each approach offers:
 
-| | Reference-based (SingleR) | Marker-based (manual) |
-|---|---|---|
-| Speed | Fast, automated | Slow, manual |
-| Objectivity | Reproducible | Analyst-dependent |
-| Flexibility | Bounded by reference | Uses any domain knowledge |
-| Limitations | Misses cell types absent from reference | Subjective, error-prone |
+|             | Reference-based (SingleR)               | Marker-based (manual)     |
+|-------------|-----------------------------------------|---------------------------|
+| Speed       | Fast, automated                         | Slow, manual              |
+| Objectivity | Reproducible                            | Analyst-dependent         |
+| Flexibility | Bounded by reference                    | Uses any domain knowledge |
+| Limitations | Misses cell types absent from reference | Subjective, error-prone   |
 
-The `$cell` column in our metadata contains the cell type labels provided by the original dataset authors, we can use these as a ground truth to assess both of our annotation approaches.
+The `$cell` column in our metadata contains the cell type labels provided by the original dataset authors. We can use these as a ground truth to assess both annotation approaches side by side.
 
-```{r}
-DimPlot(seurat_object, group.by = "RNA_snn_res.0.5", reduction = "umap_harmony")
-DimPlot(seurat_object, group.by = "cell",            reduction = "umap_harmony")
+```{r, fig.width=16, fig.height=5}
+library(patchwork)
+p1 <- DimPlot(seurat_object, reduction = "umap_harmony", label = TRUE, repel = TRUE) +
+        ggtitle("Marker-based") + NoLegend()
+p2 <- DimPlot(seurat_object, reduction = "umap_harmony", group.by = "SingleR.labels",
+              label = TRUE, repel = TRUE) +
+        ggtitle("SingleR (HPCA main)") + NoLegend()
+p3 <- DimPlot(seurat_object, reduction = "umap_harmony", group.by = "cell",
+              label = TRUE, repel = TRUE) +
+        ggtitle("Ground truth") + NoLegend()
+p1 | p2 | p3
 ```
 
-Compare the three plots:
+To go beyond the visual and count exact agreement, compare SingleR labels against the ground truth:
 
-1. SingleR labels
-2. cluster numbers, and;
-3. The ground truth.
+```{r}
+table(SingleR = seurat_object$SingleR.labels, Ground_truth = seurat_object$cell)
+```
 
-ANSWER IN SLACK: Where do SingleR and the ground truth agree? Where do they differ? What might explain any discrepancies?
+#### Answer in Slack {- .challenge}
 
-## Exercise: Fine-grained annotation
+Looking at the three plots and the table above, where do manual annotation, SingleR, and the ground truth agree? Where do they differ? What might explain the discrepancies?
+
+#### {-}
+
+## Exercise: Fine-grained annotation {- .challenge}
 
 Rerun SingleR using `label.fine` instead of `label.main` and plot the results.
 
@@ -108,4 +123,17 @@ Rerun SingleR using `label.fine` instead of `label.main` and plot the results.
 
 ```
 
-DISCUSS: How does the granularity of the labels change? Does finer annotation make the results easier or harder to interpret? What trade-off does this introduce?
+#### Discuss {- .challenge}
+
+How does the granularity of the labels change? Does finer annotation make the results easier or harder to interpret? What trade-off does this introduce?
+
+#### {-}
+
+## {-}
+
+Fine-grained labels capture biologically meaningful distinctions that broad labels miss — for example, separating CD4+ naive from CD4+ memory T cells. However, the more granular the labels, the harder it is for the algorithm to distinguish them reliably: closely related subtypes have very similar expression profiles, and the reference may not have enough examples of each subtype to anchor them confidently. In practice, run both: use `label.main` to confirm the broad populations are correct, then apply `label.fine` to any cluster where a finer distinction matters for your biological question.
+
+```{r, eval=F}
+qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.clustered.markers.singler.qs2")
+```
+
