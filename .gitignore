@@ -3,6 +3,7 @@ docs/*
 /_bookdown_files
 .Rproj.user
 .Rprofile
+.Rhistory
 renv/*
 renv.lock
 *.Rproj

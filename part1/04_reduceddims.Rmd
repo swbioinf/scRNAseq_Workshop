@@ -188,10 +188,10 @@ Try out some genes that were highly weighted in the principal component analysis
 
 ## Save 
 
-You can save the object at this point so that it can easily be loaded back in with `readRDS()` without having to rerun the computationally intensive steps performed above, or easily shared with collaborators.
+You can save the object at this point so that it can easily be loaded back in without having to rerun the computationally intensive steps performed above, or easily shared with collaborators.
 
-```{r saveobject, eval=FALSE}
-saveRDS(seurat_object, file = "seurat_object_tutorial_saved.rds") 
+In this workshop, we used the `qs2` R package for saving and loading the Seurat data. Because the data is often large (~500MB), `qs2` is also used to compress the data, faster than `saveRDS()` does.
+
+```{r, eval=FALSE}
+# qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.qs2")
 ```
-
-Tip: For faster saving and loading, try the "qs" package.

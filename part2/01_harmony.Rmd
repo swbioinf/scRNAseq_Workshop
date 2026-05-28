@@ -88,7 +88,7 @@ DimPlot(seurat_object, reduction="umap_harmony", group.by="harmony_clusters")
 DimPlot(seurat_object, reduction="umap", group.by="harmony_clusters")
 ```
 
-#### Answer in Slack {- .challenge}
+#### Answer in Zoom {- .challenge}
 
 Compare the UMAP and UMAP Harmony plots. Describe the differences in how cells are clustering between the two. Have batch effects been corrected?
 
