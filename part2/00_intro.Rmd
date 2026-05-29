@@ -38,7 +38,7 @@ library(patchwork)
 Read in the preprocessed Seurat object from part 1. We use `qs2` to efficiently load the data in. 
 
 ```{r}
-seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.qs2")
+seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.qs2")
 ```
 
 #### Exercise {- .challenge}
@@ -68,7 +68,7 @@ Use the `table(seurat_object$<name>)` function to see the number of cells that b
 It is useful to display the number of control and stimulated cells per individual
 
 ```{r}
-table(seurat_object$ctrl, seurat_object$stim)
+table(seurat_object$ind, seurat_object$stim)
 ```
 
 Takeaways:
