@@ -8,3 +8,7 @@ renv/*
 renv.lock
 *.Rproj
 *.qs2
+kang2018.rds
+scripts/kang2018/
+scRNAseqInR_ABACBS_2024_Doco_files/
+scripts/kang2018_preprocessing.html
