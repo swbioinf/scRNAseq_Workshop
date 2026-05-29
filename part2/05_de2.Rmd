@@ -22,7 +22,7 @@ We will be using a pseudobulk approach with limma. There is also a good discussi
 
 
 ```{r}
-seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.harmony.clustered.markers.singler.qs2")
+seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.clustered.markers.singler.qs2")
 ```
 
 ## Experimental question and annotation
@@ -182,6 +182,9 @@ The code below fits a linear model for this experiment using the voom-limma pipe
 #### {-}
 
 ```{r}
+library(limma)
+library(edgeR)
+
 dge <- DGEList(pseudobulk_matrix)
 dge <- calcNormFactors(dge)
 
@@ -337,7 +340,7 @@ IL1B drops sharply in monocytes and barely moves elsewhere. The other cell types
 
 Pick a gene from `de_result` and re-run the plot below. Is it global, monocyte-specific up, or monocyte-specific down? Suggestions: `IDO1`, `CXCL11`, `OSM`, `IFIT1`, `CCL8`, `STAT1`.
 
-```{r}
+```{r eval=FALSE}
 my_gene <- ''   # replace with a gene name
 pseudobulk_annotation_table.allcelltypes$expression <- lognorm_matrix[my_gene, pseudobulk_annotation_table.allcelltypes$sample_celltype_name]
 

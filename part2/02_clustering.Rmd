@@ -47,7 +47,7 @@ Because the right resolution depends on your data, the next section shows how to
 Read in the harmonised data for this lesson.
 
 ```{r}
-seurat_object <- qs2::qs_read("../data/seurat_object_preprocessed.harmony.qs2")
+seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.qs2")
 ```
 
 Look at cluster IDs of the first 5 cells
@@ -145,5 +145,5 @@ At this point we have clusters, but do they reflect genuine cell types or could 
 #### {-}
 
 ```{r, eval=F}
-qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.clustered.qs2")
+qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.harmony.clustered.qs2")
 ```

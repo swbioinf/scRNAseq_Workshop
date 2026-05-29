@@ -76,9 +76,7 @@ We'll use method 3 today.
 
 ### Example 1: From the whole data folder
 
-Load your data using the path to the folder
-
-```filtered_feature_bc_matrix``` that is in the output folder of your cellranger run using the ```Read10X``` function.
+Load your data using the path to the folder ```filtered_feature_bc_matrix``` that is in the output folder of your cellranger run using the ```Read10X``` function.
 
 ```{r eval=FALSE}
 # Load the PBMC dataset
