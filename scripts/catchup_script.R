@@ -4,6 +4,7 @@
 # Run up to the appropriate section heading. 
 # Handy if you have accidentally overwritten/brokern the object at some point.
 
+library(here)
 library(dplyr)
 library(ggplot2)
 library(Seurat)
@@ -11,8 +12,8 @@ library(patchwork)
 
 
 ## Load
-pbmc.data <- Read10X_h5("data/filtered_feature_bc_matrix.h5")
-metadata <- read.table("data/metadata.txt")
+pbmc.data <- Read10X_h5(here("data", "filtered_feature_bc_matrix.h5"))
+metadata <- read.table(here("data", "metadata.txt"))
 seurat_object <- CreateSeuratObject(counts = pbmc.data ,
                                     assay = "RNA", project = 'pbmc')
 seurat_object  <- AddMetaData(object = seurat_object, metadata = metadata)
@@ -40,15 +41,17 @@ seurat_object <- RunPCA(seurat_object, features = VariableFeatures(object = seur
 seurat_object <- RunUMAP(seurat_object, dims = 1:10)
 
 # save intermediate file
-#qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.qs2")
+#qs2::qs_save(seurat_object, here("data", "seurat_object_preprocessed.qs2"))
 
 # ---------------
 # Part 2
 # ---------------
 
+library(here)
 library(qs2)
 library(Seurat)
 library(harmony)
+library(clustree)
 library(tidyverse)
 library(SingleCellExperiment)
 library(SingleR)
@@ -60,7 +63,7 @@ library(edgeR)
 # Harmony
 
 # Load file
-seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.qs2")
+seurat_object <- qs2::qs_read(here("data", "seurat_object_preprocessed.qs2"))
 
 seurat_object<- FindNeighbors(seurat_object, reduction="pca", dims=1:10)
 seurat_object <- FindClusters(seurat_object, resolution=0.6)
@@ -73,7 +76,7 @@ seurat_object <- FindClusters(seurat_object, resolution=0.6)
 seurat_object$harmony_clusters <- seurat_object$seurat_clusters
 
 ## Clustering
-seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.qs2")
+seurat_object <- qs2::qs_read(here("data", "seurat_object_preprocessed.harmony.qs2"))
 min_res <- 0.4
 max_res <- 2
 interval <- 0.2
@@ -82,7 +85,7 @@ seurat_object <- FindClusters(seurat_object, resolution = seq(min_res, max_res, 
 Idents(seurat_object) <- seurat_object$RNA_snn_res.0.6
 
 ## Cluster markers
-seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.clustered.qs2")
+seurat_object <- qs2::qs_read(here("data", "seurat_object_preprocessed.harmony.clustered.qs2"))
 
 new.cluster.ids <- c(
   "0" = "CD4 T cells",
@@ -99,7 +102,7 @@ seurat_object@meta.data$markers <- new.cluster.ids[as.character(seurat_object$RN
 
 ## Single R
 
-seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.clustered.markers.qs2")
+seurat_object <- qs2::qs_read(here("data", "seurat_object_preprocessed.harmony.clustered.markers.qs2"))
 Idents(seurat_object) <- seurat_object$markers
 
 sce <- as.SingleCellExperiment(seurat_object)
@@ -111,7 +114,7 @@ seurat_object$SingleR.labels <- ifelse(lbls.keep[pred.cnts$labels], pred.cnts$la
 
 
 ## DE
-seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.clustered.markers.singler.qs2")
+seurat_object <- qs2::qs_read(here("data", "seurat_object_preprocessed.harmony.clustered.markers.singler.qs2"))
 seurat_object$sample_name          <- paste(seurat_object$stim, seurat_object$ind, sep=".")
 seurat_object$sample_celltype_name <- paste(gsub(" ","",seurat_object$cell), seurat_object$ind, seurat_object$stim, sep=".")
 
