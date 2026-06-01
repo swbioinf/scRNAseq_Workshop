@@ -45,8 +45,8 @@ These instructions have been tested with R version 4.4.0 and Bioconductor versio
 
 ```{r eval=FALSE}
 ## Install required packages for Seurat and clustree:
-install.packages(c("Seurat", "dplyr", "remotes", "R.utils", "harmony", 
-                   "hdf5r", "clustree", "RColorBrewer","tidyverse","pander"))
+install.packages(c("Seurat", "dplyr", "remotes", "R.utils", "harmony",
+                   "hdf5r", "clustree", "RColorBrewer", "tidyverse", "pander", "here"))
 
 ## Install required Bioconductor packages
 install.packages("BiocManager")

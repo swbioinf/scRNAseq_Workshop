@@ -97,6 +97,6 @@ Compare the UMAP and UMAP Harmony plots. Describe the differences in how cells a
 Having found a good set of clusters, we would usually perform differential expression analysis on the original data and include batches/runs/individuals as predictors in the linear model. In this example we could now compare un-stimulated and stimulated cells within each cluster. A particularly nice statistical approach that is possible here would be to convert the counts to pseudo-bulk data for the eight individuals, and then apply a bulk RNA-Seq differential expression analysis method. However there is still the problem that unstimulated and stimulated cells were processed in separate batches.
 
 ```{r eval=F}
-#qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.harmony.qs2")
+#qs2::qs_save(seurat_object, here("data", "seurat_object_preprocessed.harmony.qs2"))
 ```
 

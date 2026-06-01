@@ -85,6 +85,9 @@ cmd_prep_data() {
     fi
   done
 
+  # Create .here so the here package can locate the project root
+  touch "${HOME}/.here"
+  echo "created ${HOME}/.here"
 
 }
 

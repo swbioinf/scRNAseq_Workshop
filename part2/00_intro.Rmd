@@ -25,6 +25,7 @@ We have the following information in our Seurat object metadata:
 Read in libraries
 
 ```{r}
+library(here)
 library(qs2)
 library(Seurat)
 library(harmony)
@@ -38,7 +39,7 @@ library(patchwork)
 Read in the preprocessed Seurat object from part 1. We use `qs2` to efficiently load the data in. 
 
 ```{r}
-seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.qs2")
+seurat_object <- qs2::qs_read(here("data", "seurat_object_preprocessed.qs2"))
 ```
 
 #### Exercise {- .challenge}
