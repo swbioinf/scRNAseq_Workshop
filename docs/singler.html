@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 13 SingleR | scRNAseq Analysis in R with Seurat</title>
+<meta name="description" content="13.1 Learning outcomes Apply bioconductor packages to automate cell type annotations Evaluate the trade-offs between reference-based and marker-based annotation  13.2 Overview  Why do we need to...">
+<meta name="generator" content="bookdown 0.46 with bs4_book()">
+<meta property="og:title" content="Chapter 13 SingleR | scRNAseq Analysis in R with Seurat">
+<meta property="og:type" content="book">
+<meta property="og:description" content="13.1 Learning outcomes Apply bioconductor packages to automate cell type annotations Evaluate the trade-offs between reference-based and marker-based annotation  13.2 Overview  Why do we need to...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 13 SingleR | scRNAseq Analysis in R with Seurat">
+<meta name="twitter:description" content="13.1 Learning outcomes Apply bioconductor packages to automate cell type annotations Evaluate the trade-offs between reference-based and marker-based annotation  13.2 Overview  Why do we need to...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/plotly-binding-4.11.0/plotly.js"></script><script src="libs/typedarray-0.1/typedarray.min.js"></script><link href="libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="libs/crosstalk-1.2.2/js/crosstalk.min.js"></script><link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">scRNAseq Analysis in R with Seurat</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="" href="set-up.html"><span class="header-section-number">2</span> Set up</a></li>
+<li><a class="" href="schedule.html"><span class="header-section-number">3</span> Schedule</a></li>
+<li class="book-part">Single Cell Analysis</li>
+<li><a class="" href="load.html"><span class="header-section-number">4</span> Load data</a></li>
+<li><a class="" href="qc.html"><span class="header-section-number">5</span> QC Filtering</a></li>
+<li><a class="" href="norm.html"><span class="header-section-number">6</span> Normalisation</a></li>
+<li><a class="" href="reducedims.html"><span class="header-section-number">7</span> PCAs and UMAPs</a></li>
+<li><a class="" href="dimensionality-reduction.html"><span class="header-section-number">8</span> Dimensionality reduction</a></li>
+<li><a class="" href="introduction-to-part-2.html"><span class="header-section-number">9</span> Introduction to Part 2</a></li>
+<li><a class="" href="Harmony.html"><span class="header-section-number">10</span> Data set integration with Harmony</a></li>
+<li><a class="" href="clustering.html"><span class="header-section-number">11</span> Clustering</a></li>
+<li><a class="" href="clustermarkers.html"><span class="header-section-number">12</span> Cluster Markers</a></li>
+<li><a class="active" href="singler.html"><span class="header-section-number">13</span> SingleR</a></li>
+<li><a class="" href="differential-expression.html"><span class="header-section-number">14</span> Differential Expression</a></li>
+<li><a class="" href="wrapping-up-and-next-steps.html"><span class="header-section-number">15</span> Wrapping up and next steps</a></li>
+<li class="book-part">Extra</li>
+<li><a class="" href="CellCycle.html"><span class="header-section-number">16</span> Cell cycle Assignment</a></li>
+<li><a class="" href="structure.html"><span class="header-section-number">17</span> The Seurat object</a></li>
+<li class="book-part">Other Resources</li>
+<li><a class="" href="resources.html"><span class="header-section-number">18</span> Resources</a></li>
+<li class="book-part">Closing matter</li>
+<li><a class="" href="acknowledgements.html"><span class="header-section-number">19</span> Acknowledgements</a></li>
+<li><a class="" href="session-info.html"><span class="header-section-number">20</span> Session info</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024/">View book source <i class="fab fa-gitlab"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="singler" class="section level1" number="13">
+<h1>
+<span class="header-section-number">13</span> SingleR<a class="anchor" aria-label="anchor" href="#singler"><i class="fas fa-link"></i></a>
+</h1>
+<div id="learning-outcomes-7" class="section level2" number="13.1">
+<h2>
+<span class="header-section-number">13.1</span> Learning outcomes<a class="anchor" aria-label="anchor" href="#learning-outcomes-7"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Apply bioconductor packages to automate cell type annotations</li>
+<li>Evaluate the trade-offs between reference-based and marker-based annotation</li>
+</ul>
+</div>
+<div id="overview-4" class="section level2" number="13.2">
+<h2>
+<span class="header-section-number">13.2</span> Overview<a class="anchor" aria-label="anchor" href="#overview-4"><i class="fas fa-link"></i></a>
+</h2>
+<div id="why-do-we-need-to-do-this-7" class="section level4 unnumbered rational">
+<h4>Why do we need to do this?<a class="anchor" aria-label="anchor" href="#why-do-we-need-to-do-this-7"><i class="fas fa-link"></i></a>
+</h4>
+<p>In the previous section we annotated clusters manually using canonical marker genes. This works well for well-characterised cell types, but it is slow, subjective, and depends on the analyst’s domain knowledge. Different researchers may reach different conclusions from the same data.</p>
+<p>Reference-based annotation automates this process by comparing each cell’s expression profile against a curated reference dataset of known cell types. This is faster, reproducible, and less dependent on prior knowledge, making it easier to annotate large datasets or cell types you are less familiar with.</p>
+</div>
+<div id="section-21" class="section level4 unnumbered">
+<h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-21"><i class="fas fa-link"></i></a></h4>
+<p>Read in our manually annotated seurat object.</p>
+<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu">qs2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qs2/man/qs_read.html">qs_read</a></span><span class="op">(</span><span class="st">"data/seurat_object_preprocessed.harmony.clustered.markers.qs2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://satijalab.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">seurat_object</span><span class="op">$</span><span class="va">markers</span></span></code></pre></div>
+<p>In this workshop we have focused on the Seurat package. However, there is another whole ecosystem of R packages for single cell analysis within Bioconductor. We won’t go into any detail on these packages in this workshop, but there is good material describing the object type online : <a href="https://robertamezquita.github.io/orchestratingSingleCellAnalysis/data-infrastructure.html">OSCA</a>.</p>
+<p>For now, we’ll just convert our Seurat object into an object called SingleCellExperiment. This allows us to utilise the Bioconductor packages.</p>
+<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/as.SingleCellExperiment.html">as.SingleCellExperiment</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="va">sce</span></span>
+<span><span class="co">#&gt; class: SingleCellExperiment </span></span>
+<span><span class="co">#&gt; dim: 35635 4877 </span></span>
+<span><span class="co">#&gt; metadata(0):</span></span>
+<span><span class="co">#&gt; assays(3): counts logcounts scaledata</span></span>
+<span><span class="co">#&gt; rownames(35635): MIR1302-10 FAM138A ... MT-ND6 MT-CYB</span></span>
+<span><span class="co">#&gt; rowData names(0):</span></span>
+<span><span class="co">#&gt; colnames(4877): AGGGCGCTATTTCC-1 GGAGACGATTCGTT-1 ...</span></span>
+<span><span class="co">#&gt;   ATGTTGCTAAAAGC-1 GATGACACTAGCGT-1</span></span>
+<span><span class="co">#&gt; colData names(24): orig.ident nCount_RNA ...</span></span>
+<span><span class="co">#&gt;   NK.cells1 ident</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="co">#&gt; reducedDimNames(4): PCA UMAP HARMONY UMAP_HARMONY</span></span>
+<span><span class="co">#&gt; mainExpName: RNA</span></span>
+<span><span class="co">#&gt; Found more than one class "package_version" in cache; using the first, from namespace 'SeuratObject'</span></span>
+<span><span class="co">#&gt; Also defined by 'alabaster.base'</span></span>
+<span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
+<p>We will now use a package called SingleR to label each cell. SingleR uses a reference data set of cell types with expression data to infer the best label for each cell. A convenient collection of cell type reference is in the <code>celldex</code> package which currently contains the follow sets:</p>
+<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/ls.html">ls</a></span><span class="op">(</span><span class="st">'package:celldex'</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "BlueprintEncodeData"             </span></span>
+<span><span class="co">#&gt;  [2] "DatabaseImmuneCellExpressionData"</span></span>
+<span><span class="co">#&gt;  [3] "defineTextQuery"                 </span></span>
+<span><span class="co">#&gt;  [4] "fetchLatestVersion"              </span></span>
+<span><span class="co">#&gt;  [5] "fetchMetadata"                   </span></span>
+<span><span class="co">#&gt;  [6] "fetchReference"                  </span></span>
+<span><span class="co">#&gt;  [7] "HumanPrimaryCellAtlasData"       </span></span>
+<span><span class="co">#&gt;  [8] "ImmGenData"                      </span></span>
+<span><span class="co">#&gt;  [9] "listReferences"                  </span></span>
+<span><span class="co">#&gt; [10] "listVersions"                    </span></span>
+<span><span class="co">#&gt; [11] "MonacoImmuneData"                </span></span>
+<span><span class="co">#&gt; [12] "MouseRNAseqData"                 </span></span>
+<span><span class="co">#&gt; [13] "NovershternHematopoieticData"    </span></span>
+<span><span class="co">#&gt; [14] "saveReference"                   </span></span>
+<span><span class="co">#&gt; [15] "searchReferences"                </span></span>
+<span><span class="co">#&gt; [16] "surveyReferences"</span></span></code></pre></div>
+<p>We will use <code>HumanPrimaryCellAtlasData</code> because our dataset is human PBMCs - broad, well-characterised immune cell types that are well represented in this atlas. It provides both high-level (<code>label.main</code>) and fine-grained (<code>label.fine</code>) annotations.</p>
+<p>This reference would be a poor choice if your data came from a specific tissue (e.g. brain, liver), a non-human species, or contained rare or novel cell types not present in the atlas (e.g. tumour cells). In those cases, you would need a more appropriate reference. For example a tissue-specific atlas or one built from your own annotated data.</p>
+<p>Let’s download the reference dataset:</p>
+<div class="sourceCode" id="cb97"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># This too is a sce object,</span></span>
+<span><span class="co"># colData is equivalent to seurat's metadata</span></span>
+<span><span class="va">ref.set</span> <span class="op">&lt;-</span> <span class="fu">celldex</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/celldex/man/HumanPrimaryCellAtlasData.html">HumanPrimaryCellAtlasData</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>HPCA contains two categories of labels at different granularities, <code>main</code> and <code>fine</code>. Display the <code>main</code> labels.</p>
+<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">ref.set</span><span class="op">$</span><span class="va">label.main</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "DC"                   "Smooth_muscle_cells" </span></span>
+<span><span class="co">#&gt;  [3] "Epithelial_cells"     "B_cell"              </span></span>
+<span><span class="co">#&gt;  [5] "Neutrophils"          "T_cells"             </span></span>
+<span><span class="co">#&gt;  [7] "Monocyte"             "Erythroblast"        </span></span>
+<span><span class="co">#&gt;  [9] "BM &amp; Prog."           "Endothelial_cells"   </span></span>
+<span><span class="co">#&gt; [11] "Gametocytes"          "Neurons"             </span></span>
+<span><span class="co">#&gt; [13] "Keratinocytes"        "HSC_-G-CSF"          </span></span>
+<span><span class="co">#&gt; [15] "Macrophage"           "NK_cell"             </span></span>
+<span><span class="co">#&gt; [17] "Embryonic_stem_cells" "Tissue_stem_cells"   </span></span>
+<span><span class="co">#&gt; [19] "Chondrocytes"         "Osteoblasts"         </span></span>
+<span><span class="co">#&gt; [21] "BM"                   "Platelets"           </span></span>
+<span><span class="co">#&gt; [23] "Fibroblasts"          "iPS_cells"           </span></span>
+<span><span class="co">#&gt; [25] "Hepatocytes"          "MSC"                 </span></span>
+<span><span class="co">#&gt; [27] "Neuroepithelial_cell" "Astrocyte"           </span></span>
+<span><span class="co">#&gt; [29] "HSC_CD34+"            "CMP"                 </span></span>
+<span><span class="co">#&gt; [31] "GMP"                  "MEP"                 </span></span>
+<span><span class="co">#&gt; [33] "Myelocyte"            "Pre-B_cell_CD34-"    </span></span>
+<span><span class="co">#&gt; [35] "Pro-B_cell_CD34+"     "Pro-Myelocyte"</span></span></code></pre></div>
+<p>An example of the types of “fine” labels.</p>
+<div class="sourceCode" id="cb99"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">ref.set</span><span class="op">$</span><span class="va">label.fine</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "DC:monocyte-derived:immature"       </span></span>
+<span><span class="co">#&gt;  [2] "DC:monocyte-derived:Galectin-1"     </span></span>
+<span><span class="co">#&gt;  [3] "DC:monocyte-derived:LPS"            </span></span>
+<span><span class="co">#&gt;  [4] "DC:monocyte-derived"                </span></span>
+<span><span class="co">#&gt;  [5] "Smooth_muscle_cells:bronchial:vit_D"</span></span>
+<span><span class="co">#&gt;  [6] "Smooth_muscle_cells:bronchial"      </span></span>
+<span><span class="co">#&gt;  [7] "Epithelial_cells:bronchial"         </span></span>
+<span><span class="co">#&gt;  [8] "B_cell"                             </span></span>
+<span><span class="co">#&gt;  [9] "Neutrophil"                         </span></span>
+<span><span class="co">#&gt; [10] "T_cell:CD8+_Central_memory"         </span></span>
+<span><span class="co">#&gt; [11] "T_cell:CD8+"                        </span></span>
+<span><span class="co">#&gt; [12] "T_cell:CD4+"                        </span></span>
+<span><span class="co">#&gt; [13] "T_cell:CD8+_effector_memory_RA"     </span></span>
+<span><span class="co">#&gt; [14] "T_cell:CD8+_effector_memory"        </span></span>
+<span><span class="co">#&gt; [15] "T_cell:CD8+_naive"                  </span></span>
+<span><span class="co">#&gt; [16] "Monocyte"                           </span></span>
+<span><span class="co">#&gt; [17] "Erythroblast"                       </span></span>
+<span><span class="co">#&gt; [18] "BM"                                 </span></span>
+<span><span class="co">#&gt; [19] "DC:monocyte-derived:rosiglitazone"  </span></span>
+<span><span class="co">#&gt; [20] "DC:monocyte-derived:AM580"</span></span></code></pre></div>
+<p>Now we’ll label our cells using the SingleCellExperiment object, with the above reference set. This will take a minute.</p>
+<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pred.cnts</span> <span class="op">&lt;-</span> <span class="fu">SingleR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SingleR/man/SingleR.html">SingleR</a></span><span class="op">(</span>test <span class="op">=</span> <span class="va">sce</span>, ref <span class="op">=</span> <span class="va">ref.set</span>, labels <span class="op">=</span> <span class="va">ref.set</span><span class="op">$</span><span class="va">label.main</span><span class="op">)</span></span></code></pre></div>
+<p>Labels assigned to fewer than 10 cell are likely low-confidence predictions - too few cells to represent a genuine population. We collapse these into an “Other” category and transfer the remaining labels back to the Seurat object.</p>
+<div class="sourceCode" id="cb101"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lbls.keep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">pred.cnts</span><span class="op">$</span><span class="va">labels</span><span class="op">)</span><span class="op">&gt;</span><span class="fl">10</span></span>
+<span><span class="va">seurat_object</span><span class="op">$</span><span class="va">SingleR.labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">lbls.keep</span><span class="op">[</span><span class="va">pred.cnts</span><span class="op">$</span><span class="va">labels</span><span class="op">]</span>, <span class="va">pred.cnts</span><span class="op">$</span><span class="va">labels</span>, <span class="st">'Other'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction<span class="op">=</span><span class="st">'umap_harmony'</span>, group.by<span class="op">=</span><span class="st">'SingleR.labels'</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-73-1.png" width="672"></div>
+</div>
+<div id="comparing-annotation-methods" class="section level3" number="13.2.1">
+<h3>
+<span class="header-section-number">13.2.1</span> Comparing annotation methods<a class="anchor" aria-label="anchor" href="#comparing-annotation-methods"><i class="fas fa-link"></i></a>
+</h3>
+<p>Before comparing, it is worth summarising what each approach offers:</p>
+<div class="inline-table"><table class="table table-sm">
+<colgroup>
+<col width="16%">
+<col width="50%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th></th>
+<th>Reference-based (SingleR)</th>
+<th>Marker-based (manual)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Speed</td>
+<td>Fast, automated</td>
+<td>Slow, manual</td>
+</tr>
+<tr class="even">
+<td>Objectivity</td>
+<td>Reproducible</td>
+<td>Analyst-dependent</td>
+</tr>
+<tr class="odd">
+<td>Flexibility</td>
+<td>Bounded by reference</td>
+<td>Uses any domain knowledge</td>
+</tr>
+<tr class="even">
+<td>Limitations</td>
+<td>Misses cell types absent from reference</td>
+<td>Subjective, error-prone</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <code>$cell</code> column in our metadata contains the cell type labels provided by the original dataset authors. We can use these as a ground truth to assess both annotation approaches side by side.</p>
+<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span></span>
+<span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, repel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"Marker-based"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span>, group.by <span class="op">=</span> <span class="st">"SingleR.labels"</span>,</span>
+<span>              label <span class="op">=</span> <span class="cn">TRUE</span>, repel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"SingleR (HPCA main)"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span>, group.by <span class="op">=</span> <span class="st">"cell"</span>,</span>
+<span>              label <span class="op">=</span> <span class="cn">TRUE</span>, repel <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">"Ground truth"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">p1</span> <span class="op">|</span> <span class="va">p2</span> <span class="op">|</span> <span class="va">p3</span></span></code></pre></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-74-1.png" width="1536"></div>
+<p>To go beyond the visual and count exact agreement, compare SingleR labels against the ground truth:</p>
+<div class="sourceCode" id="cb103"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span>SingleR <span class="op">=</span> <span class="va">seurat_object</span><span class="op">$</span><span class="va">SingleR.labels</span>, Ground_truth <span class="op">=</span> <span class="va">seurat_object</span><span class="op">$</span><span class="va">cell</span><span class="op">)</span></span>
+<span><span class="co">#&gt;              Ground_truth</span></span>
+<span><span class="co">#&gt; SingleR       B cells CD14+ Monocytes CD4 T cells</span></span>
+<span><span class="co">#&gt;   B_cell          424               0           5</span></span>
+<span><span class="co">#&gt;   DC                2              14           1</span></span>
+<span><span class="co">#&gt;   Macrophage        0               9           0</span></span>
+<span><span class="co">#&gt;   Monocyte         12            1039           9</span></span>
+<span><span class="co">#&gt;   Neutrophils       3              23           0</span></span>
+<span><span class="co">#&gt;   NK_cell           4               0          19</span></span>
+<span><span class="co">#&gt;   Other             5               0           2</span></span>
+<span><span class="co">#&gt;   T_cells          41               2        2031</span></span>
+<span><span class="co">#&gt;              Ground_truth</span></span>
+<span><span class="co">#&gt; SingleR       CD8 T cells Dendritic cells FCGR3A+ Monocytes</span></span>
+<span><span class="co">#&gt;   B_cell                0               9                 3</span></span>
+<span><span class="co">#&gt;   DC                    0              25                 4</span></span>
+<span><span class="co">#&gt;   Macrophage            0               0                 2</span></span>
+<span><span class="co">#&gt;   Monocyte              0              44               293</span></span>
+<span><span class="co">#&gt;   Neutrophils           0               0                 3</span></span>
+<span><span class="co">#&gt;   NK_cell              95               5                 2</span></span>
+<span><span class="co">#&gt;   Other                 1               2                 3</span></span>
+<span><span class="co">#&gt;   T_cells             326               1                 2</span></span>
+<span><span class="co">#&gt;              Ground_truth</span></span>
+<span><span class="co">#&gt; SingleR       Megakaryocytes NK cells</span></span>
+<span><span class="co">#&gt;   B_cell                   6        0</span></span>
+<span><span class="co">#&gt;   DC                       0        0</span></span>
+<span><span class="co">#&gt;   Macrophage               0        0</span></span>
+<span><span class="co">#&gt;   Monocyte                 8        2</span></span>
+<span><span class="co">#&gt;   Neutrophils              0        0</span></span>
+<span><span class="co">#&gt;   NK_cell                  5      338</span></span>
+<span><span class="co">#&gt;   Other                    5        0</span></span>
+<span><span class="co">#&gt;   T_cells                 24       24</span></span></code></pre></div>
+<div id="answer-in-slack-2" class="section level4 unnumbered challenge">
+<h4>Answer in Slack<a class="anchor" aria-label="anchor" href="#answer-in-slack-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>Looking at the three plots and the table above, where do manual annotation, SingleR, and the ground truth agree? Where do they differ? What might explain the discrepancies?</p>
+</div>
+<div id="section-22" class="section level4 unnumbered">
+<h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-22"><i class="fas fa-link"></i></a></h4>
+</div>
+</div>
+</div>
+<div id="exercise-fine-grained-annotation" class="section level2 unnumbered challenge">
+<h2>Exercise: Fine-grained annotation<a class="anchor" aria-label="anchor" href="#exercise-fine-grained-annotation"><i class="fas fa-link"></i></a>
+</h2>
+<p>Rerun SingleR using <code>label.fine</code> instead of <code>label.main</code> and plot the results.</p>
+<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Add your code here</span></span></code></pre></div>
+<div id="discuss-2" class="section level4 unnumbered challenge">
+<h4>Discuss<a class="anchor" aria-label="anchor" href="#discuss-2"><i class="fas fa-link"></i></a>
+</h4>
+<p>How does the granularity of the labels change? Does finer annotation make the results easier or harder to interpret? What trade-off does this introduce?</p>
+</div>
+<div id="section-23" class="section level4 unnumbered">
+<h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-23"><i class="fas fa-link"></i></a></h4>
+</div>
+</div>
+<div id="section-24" class="section level2 unnumbered">
+<h2 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-24"><i class="fas fa-link"></i></a></h2>
+<p>Fine-grained labels capture biologically meaningful distinctions that broad labels miss — for example, separating CD4+ naive from CD4+ memory T cells. However, the more granular the labels, the harder it is for the algorithm to distinguish them reliably: closely related subtypes have very similar expression profiles, and the reference may not have enough examples of each subtype to anchor them confidently. In practice, run both: use <code>label.main</code> to confirm the broad populations are correct, then apply <code>label.fine</code> to any cluster where a finer distinction matters for your biological question.</p>
+<div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">qs2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qs2/man/qs_save.html">qs_save</a></span><span class="op">(</span><span class="va">seurat_object</span>, <span class="st">"data/seurat_object_preprocessed.harmony.clustered.markers.singler.qs2"</span><span class="op">)</span></span></code></pre></div>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="clustermarkers.html"><span class="header-section-number">12</span> Cluster Markers</a></div>
+<div class="next"><a href="differential-expression.html"><span class="header-section-number">14</span> Differential Expression</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#singler"><span class="header-section-number">13</span> SingleR</a></li>
+<li><a class="nav-link" href="#learning-outcomes-7"><span class="header-section-number">13.1</span> Learning outcomes</a></li>
+<li>
+<a class="nav-link" href="#overview-4"><span class="header-section-number">13.2</span> Overview</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#comparing-annotation-methods"><span class="header-section-number">13.2.1</span> Comparing annotation methods</a></li></ul>
+</li>
+<li><a class="nav-link" href="#exercise-fine-grained-annotation">Exercise: Fine-grained annotation</a></li>
+<li><a class="nav-link" href="#section-24"></a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//blob/master/part2/04_singler.Rmd">View source <i class="fab fa-gitlab"></i></a></li>
+          <li><a id="book-edit" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//edit/master/part2/04_singler.Rmd">Edit this page <i class="fab fa-gitlab"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: May 29, 2026.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer>
+</body>
+</html>

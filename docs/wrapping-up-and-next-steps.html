@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 15 Wrapping up and next steps | scRNAseq Analysis in R with Seurat</title>
+<meta name="description" content="15.1 Learning outcomes Identify downstream analyses that follow from a completed scRNA-seq preprocessing and annotation workflow Connect each analysis type to the original biological hypothesis ...">
+<meta name="generator" content="bookdown 0.46 with bs4_book()">
+<meta property="og:title" content="Chapter 15 Wrapping up and next steps | scRNAseq Analysis in R with Seurat">
+<meta property="og:type" content="book">
+<meta property="og:description" content="15.1 Learning outcomes Identify downstream analyses that follow from a completed scRNA-seq preprocessing and annotation workflow Connect each analysis type to the original biological hypothesis ...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 15 Wrapping up and next steps | scRNAseq Analysis in R with Seurat">
+<meta name="twitter:description" content="15.1 Learning outcomes Identify downstream analyses that follow from a completed scRNA-seq preprocessing and annotation workflow Connect each analysis type to the original biological hypothesis ...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/plotly-binding-4.11.0/plotly.js"></script><script src="libs/typedarray-0.1/typedarray.min.js"></script><link href="libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="libs/crosstalk-1.2.2/js/crosstalk.min.js"></script><link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">scRNAseq Analysis in R with Seurat</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Getting started</a></li>
+<li><a class="" href="set-up.html"><span class="header-section-number">2</span> Set up</a></li>
+<li><a class="" href="schedule.html"><span class="header-section-number">3</span> Schedule</a></li>
+<li class="book-part">Single Cell Analysis</li>
+<li><a class="" href="load.html"><span class="header-section-number">4</span> Load data</a></li>
+<li><a class="" href="qc.html"><span class="header-section-number">5</span> QC Filtering</a></li>
+<li><a class="" href="norm.html"><span class="header-section-number">6</span> Normalisation</a></li>
+<li><a class="" href="reducedims.html"><span class="header-section-number">7</span> PCAs and UMAPs</a></li>
+<li><a class="" href="dimensionality-reduction.html"><span class="header-section-number">8</span> Dimensionality reduction</a></li>
+<li><a class="" href="introduction-to-part-2.html"><span class="header-section-number">9</span> Introduction to Part 2</a></li>
+<li><a class="" href="Harmony.html"><span class="header-section-number">10</span> Data set integration with Harmony</a></li>
+<li><a class="" href="clustering.html"><span class="header-section-number">11</span> Clustering</a></li>
+<li><a class="" href="clustermarkers.html"><span class="header-section-number">12</span> Cluster Markers</a></li>
+<li><a class="" href="singler.html"><span class="header-section-number">13</span> SingleR</a></li>
+<li><a class="" href="differential-expression.html"><span class="header-section-number">14</span> Differential Expression</a></li>
+<li><a class="active" href="wrapping-up-and-next-steps.html"><span class="header-section-number">15</span> Wrapping up and next steps</a></li>
+<li class="book-part">Extra</li>
+<li><a class="" href="CellCycle.html"><span class="header-section-number">16</span> Cell cycle Assignment</a></li>
+<li><a class="" href="structure.html"><span class="header-section-number">17</span> The Seurat object</a></li>
+<li class="book-part">Other Resources</li>
+<li><a class="" href="resources.html"><span class="header-section-number">18</span> Resources</a></li>
+<li class="book-part">Closing matter</li>
+<li><a class="" href="acknowledgements.html"><span class="header-section-number">19</span> Acknowledgements</a></li>
+<li><a class="" href="session-info.html"><span class="header-section-number">20</span> Session info</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024/">View book source <i class="fab fa-gitlab"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="wrapping-up-and-next-steps" class="section level1" number="15">
+<h1>
+<span class="header-section-number">15</span> Wrapping up and next steps<a class="anchor" aria-label="anchor" href="#wrapping-up-and-next-steps"><i class="fas fa-link"></i></a>
+</h1>
+<div id="learning-outcomes-9" class="section level2" number="15.1">
+<h2>
+<span class="header-section-number">15.1</span> Learning outcomes<a class="anchor" aria-label="anchor" href="#learning-outcomes-9"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Identify downstream analyses that follow from a completed scRNA-seq preprocessing and annotation workflow</li>
+<li>Connect each analysis type to the original biological hypothesis</li>
+</ul>
+</div>
+<div id="recap-what-we-have-done-and-why-it-matters" class="section level2" number="15.2">
+<h2>
+<span class="header-section-number">15.2</span> Recap: what we have done and why it matters<a class="anchor" aria-label="anchor" href="#recap-what-we-have-done-and-why-it-matters"><i class="fas fa-link"></i></a>
+</h2>
+<p>Our original question was: <strong>which genes change in response to IFN-beta stimulation, and are those changes specific to particular cell types or broadly shared?</strong></p>
+<p>To answer it, we:</p>
+<ol style="list-style-type: decimal">
+<li>Integrated eight individual samples with Harmony to remove batch effects</li>
+<li>Clustered cells and identified eight populations</li>
+<li>Annotated clusters using canonical markers and automated reference labelling (SingleR)</li>
+<li>Ran pseudobulk differential expression in CD14+ Monocytes</li>
+</ol>
+<p>We found that IFN-beta triggers a broad antiviral ISG program across all cell types, but also redirects monocytes specifically, suppressing classical inflammatory genes (IL1B, OSM) while upregulating antiviral chemokines (CXCL11, IL27, CCL8). The analyses below are the natural next steps from this point.</p>
+</div>
+<div id="deg-analysis-on-all-cell-types" class="section level2" number="15.3">
+<h2>
+<span class="header-section-number">15.3</span> DEG analysis on all cell types<a class="anchor" aria-label="anchor" href="#deg-analysis-on-all-cell-types"><i class="fas fa-link"></i></a>
+</h2>
+<p>We ran pseudobulk DE for CD14+ Monocytes only. The same pipeline can be looped across every cell type to build a dataset-wide picture of the IFN-beta response. This directly answers the cell-type-specificity learning outcome at scale: for each gene, where does it respond, and in which direction?</p>
+<p><code>FindAllMarkers</code> is the most common entry point for single-cell DE. It is fast and built into Seurat but it tests each cell individually rather than aggregating within donors, which inflates statistical power and produces overconfident p-values when multiple cells come from the same donor. For a multi-donor experiment like this one, pseudobulk DE with <code>limma</code>/<code>edgeR</code> is the statistically appropriate approach and is the current community recommendation (Squair et al. 2021, <em>Nature Communications</em>).</p>
+<p><strong>Tools:</strong> <code>limma</code>, <code>edgeR</code> (already used in this workshop)</p>
+<p><strong>Vignette:</strong> <a href="http://bioconductor.org/books/3.15/OSCA.multisample/multi-sample-comparisons.html">OSCA multi-sample comparisons</a></p>
+</div>
+<div id="functional-enrichment-analysis" class="section level2" number="15.4">
+<h2>
+<span class="header-section-number">15.4</span> Functional enrichment analysis<a class="anchor" aria-label="anchor" href="#functional-enrichment-analysis"><i class="fas fa-link"></i></a>
+</h2>
+<p>The DE gene lists we produced name individual genes. Functional enrichment maps those genes onto biological pathways, GO terms, and curated gene sets to describe the biology in higher-level terms. For example: the monocyte-specific upregulated genes (CXCL11, IL27, CCL8, IDO1) all point to chemokine signalling and immune regulation — enrichment analysis quantifies and ranks this formally.</p>
+<p>This is most informative when run separately per cell type, so that pathway enrichment reflects cell-type-specific rather than global responses.</p>
+<p><strong>Tools:</strong>
+- <a href="https://cran.r-project.org/package=gprofiler2">gprofiler2</a> — R package, queries g:Profiler web service; supports GO, KEGG, Reactome, WikiPathways
+- <a href="https://maayanlab.cloud/Enrichr/">enrichR</a> — R package + web interface; broad library of gene sets
+- <a href="https://bioconductor.org/packages/clusterProfiler/">clusterProfiler</a> — Bioconductor; good for comparing enrichment across multiple gene lists
+- <a href="https://cran.r-project.org/package=WebGestaltR">WebGestaltR</a> — R package wrapping WebGestalt; supports ORA, GSEA, and network-based enrichment</p>
+<p><strong>Vignettes:</strong>
+- <a href="https://monashbioinformaticsplatform.github.io/Functional_Enrichment_BioCommons_2024/">Functional Enrichment workshop (BioCommons 2024)</a>
+- <a href="https://github.com/Sydney-Informatics-Hub/scrna-analysis">Sydney Informatics Hub scRNA-seq analysis guide</a></p>
+<p><strong>Hypothesis connection:</strong> Which pathways distinguish the monocyte-specific IFN-beta response from the global antiviral response? Do the monocyte-specific downregulated genes (IL1B, OSM) cluster into distinct pathways from the upregulated ones?</p>
+</div>
+<div id="differential-cell-composition" class="section level2" number="15.5">
+<h2>
+<span class="header-section-number">15.5</span> Differential cell composition<a class="anchor" aria-label="anchor" href="#differential-cell-composition"><i class="fas fa-link"></i></a>
+</h2>
+<p>So far we have asked which genes change. A complementary question is: does IFN-beta change the <em>proportions</em> of cell types? For example, does stimulation deplete a rare population or expand a specific subset?</p>
+<p><strong>Tools:</strong>
+- <a href="https://marionilab.github.io/miloR/">MiloR</a> — tests for differential abundance in local neighbourhoods of the KNN graph; more sensitive than cluster-level proportion tests and avoids hard cluster boundaries
+- <a href="https://github.com/theislab/scCODA">scCODA</a> — Bayesian compositional analysis; accounts for the compositional nature of cell-type proportions</p>
+<p><strong>Hypothesis connection:</strong> Does the proportion of transitional monocytes (cluster 4, between CD14+ and FCGR3A+) change with IFN-beta stimulation? Does any cell type expand or contract?</p>
+</div>
+<div id="cell-cell-communication" class="section level2" number="15.6">
+<h2>
+<span class="header-section-number">15.6</span> Cell-cell communication<a class="anchor" aria-label="anchor" href="#cell-cell-communication"><i class="fas fa-link"></i></a>
+</h2>
+<p>IFN-beta upregulates secreted signalling molecules in monocytes (CXCL11, IL27, CCL8). Cell-cell communication analysis identifies which other cell types express the cognate receptors, inferring putative signalling between populations.</p>
+<p><strong>Tools:</strong>
+- <a href="http://www.cellchat.org/">CellChat</a> — R package; curated ligand-receptor database, network visualisation, comparison across conditions
+- <a href="https://github.com/saeyslab/nichenetr">NicheNet</a> — prioritises ligands by their predicted effect on target gene expression in receiver cells; useful for linking sender-cell signals to receiver-cell DE
+- <a href="https://www.cellphonedb.org/">Cellphonedb</a> — Python; focuses on heteromeric receptor complexes</p>
+<p><strong>Hypothesis connection:</strong> Are the monocyte-derived chemokines (CXCL11, CCL8) signalling to NK or T cells? Does IFN-beta reshape the communication network between cell types, not just the transcriptome of individual cells?</p>
+</div>
+<div id="trajectory-and-pseudotime-analysis" class="section level2" number="15.7">
+<h2>
+<span class="header-section-number">15.7</span> Trajectory and pseudotime analysis<a class="anchor" aria-label="anchor" href="#trajectory-and-pseudotime-analysis"><i class="fas fa-link"></i></a>
+</h2>
+<p>Cluster 4 in our data appears to represent a transitional monocyte population between classical (CD14+) and non-classical (FCGR3A+) monocytes. Trajectory analysis orders cells along a continuous path of gene expression change, allowing us to ask whether this intermediate state represents cells in the process of differentiating, and whether IFN-beta accelerates or redirects that process.</p>
+<p><strong>Tools:</strong>
+- <a href="https://cole-trapnell-lab.github.io/monocle3/">Monocle 3</a> — principal graph-based pseudotime; well-integrated with Seurat via SeuratWrappers
+- <a href="https://scvelo.readthedocs.io/">scVelo</a> — RNA velocity using spliced/unspliced transcript ratios to infer the direction of cell state change; requires raw count data with splicing information</p>
+<p><strong>Hypothesis connection:</strong> Is cluster 4 a stable intermediate or a transient state? Does IFN-beta stimulation alter the directionality or rate of monocyte differentiation?</p>
+</div>
+<div id="gene-regulatory-network-inference" class="section level2" number="15.8">
+<h2>
+<span class="header-section-number">15.8</span> Gene regulatory network inference<a class="anchor" aria-label="anchor" href="#gene-regulatory-network-inference"><i class="fas fa-link"></i></a>
+</h2>
+<p>DE analysis identifies genes that change. GRN inference identifies the transcription factors that drive those changes, building a regulatory model of the IFN-beta response. This is particularly useful for identifying master regulators of the monocyte-specific vs. global response.</p>
+<p><strong>Tools:</strong>
+- <a href="https://pyscenic.readthedocs.io/">SCENIC / pySCENIC</a> — infers regulons (TF + target gene modules) from single-cell expression; Python, with an R interface
+- <a href="https://granie.bioinf.uni-heidelberg.de/">GRaNIE</a> — integrates ATAC-seq accessibility with RNA expression to build condition-specific GRNs</p>
+<p><strong>Hypothesis connection:</strong> Which transcription factors are activated in monocytes specifically by IFN-beta? IRF3/7 and STAT1/2 are well-known drivers of the ISG response — do they also explain the monocyte-specific suppression of IL1B and OSM?</p>
+</div>
+<div id="where-to-learn-more" class="section level2" number="15.9">
+<h2>
+<span class="header-section-number">15.9</span> Where to learn more<a class="anchor" aria-label="anchor" href="#where-to-learn-more"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>
+<a href="https://bioconductor.org/books/release/OSCA/">Orchestrating Single-Cell Analysis with Bioconductor (OSCA)</a> - comprehensive, workflow-oriented; covers clustering, DE, multi-sample, trajectory, and more</li>
+<li>
+<a href="https://www.sc-best-practices.org/">Single-cell best practices book</a> - opinionated guide to tool selection and analysis decisions across the full workflow</li>
+<li>
+<a href="https://swbioinf.github.io/spatialsnippets/index.html">Spatial and single-cell transcriptomics snippets</a> - practical recipes for spatial single-cell analyses; useful next step after scRNA-seq profiling</li>
+<li>
+<a href="https://github.com/Sydney-Informatics-Hub/scrna-analysis">Sydney Informatics Hub scRNA-seq analysis guide</a> - SIH’s curated workflows and best-practice notes for scRNA-seq</li>
+</ul>
+</div>
+</div>
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="differential-expression.html"><span class="header-section-number">14</span> Differential Expression</a></div>
+<div class="next"><a href="CellCycle.html"><span class="header-section-number">16</span> Cell cycle Assignment</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#wrapping-up-and-next-steps"><span class="header-section-number">15</span> Wrapping up and next steps</a></li>
+<li><a class="nav-link" href="#learning-outcomes-9"><span class="header-section-number">15.1</span> Learning outcomes</a></li>
+<li><a class="nav-link" href="#recap-what-we-have-done-and-why-it-matters"><span class="header-section-number">15.2</span> Recap: what we have done and why it matters</a></li>
+<li><a class="nav-link" href="#deg-analysis-on-all-cell-types"><span class="header-section-number">15.3</span> DEG analysis on all cell types</a></li>
+<li><a class="nav-link" href="#functional-enrichment-analysis"><span class="header-section-number">15.4</span> Functional enrichment analysis</a></li>
+<li><a class="nav-link" href="#differential-cell-composition"><span class="header-section-number">15.5</span> Differential cell composition</a></li>
+<li><a class="nav-link" href="#cell-cell-communication"><span class="header-section-number">15.6</span> Cell-cell communication</a></li>
+<li><a class="nav-link" href="#trajectory-and-pseudotime-analysis"><span class="header-section-number">15.7</span> Trajectory and pseudotime analysis</a></li>
+<li><a class="nav-link" href="#gene-regulatory-network-inference"><span class="header-section-number">15.8</span> Gene regulatory network inference</a></li>
+<li><a class="nav-link" href="#where-to-learn-more"><span class="header-section-number">15.9</span> Where to learn more</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//blob/master/part2/06_next_steps.Rmd">View source <i class="fab fa-gitlab"></i></a></li>
+          <li><a id="book-edit" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//edit/master/part2/06_next_steps.Rmd">Edit this page <i class="fab fa-gitlab"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: May 29, 2026.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer>
+</body>
+</html>
