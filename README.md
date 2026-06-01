@@ -16,23 +16,10 @@ Visit the [Workshop page](https://swbioinf.github.io/scRNAseq_Workshop/).
 
 ## Rendering the bookdown
 
-1. Install rendering dependencies in R:
-
 ```r
-install.packages(c("bookdown", "downlit", "pander"))
-```
-
-2. Generate the Kang (2018) dataset used in the Harmony section (downloads ~76 MB from GEO and runs Seurat preprocessing — takes several minutes):
-
-```r
-rmarkdown::render("scripts/kang2018_preprocessing.Rmd")
-file.copy("scripts/kang2018.rds", "data/kang2018.rds")
-```
-
-3. Render the book:
-
-```r
-bookdown::render_book()
+install.packages(c("bookdown", "downlit", "pander")) # if required
+Rscript -e 'rmarkdown::render("scripts/kang2018_preprocessing.Rmd")'
+Rscript -e 'bookdown::render_book'
 ```
 
 Output is written to `docs/`.
