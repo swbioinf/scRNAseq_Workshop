@@ -134,6 +134,6 @@ How does the granularity of the labels change? Does finer annotation make the re
 Fine-grained labels capture biologically meaningful distinctions that broad labels miss — for example, separating CD4+ naive from CD4+ memory T cells. However, the more granular the labels, the harder it is for the algorithm to distinguish them reliably: closely related subtypes have very similar expression profiles, and the reference may not have enough examples of each subtype to anchor them confidently. In practice, run both: use `label.main` to confirm the broad populations are correct, then apply `label.fine` to any cluster where a finer distinction matters for your biological question.
 
 ```{r, eval=F}
-qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.harmony.clustered.markers.singler.qs2")
+#qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.harmony.clustered.markers.singler.qs2")
 ```
 

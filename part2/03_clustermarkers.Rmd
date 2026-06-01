@@ -283,5 +283,5 @@ Which clusters are you least confident in? What would you do to resolve them: re
 Notice that the `AddModuleScore` result for cluster 2 shows elevated scores for both NK and CD8 T cell signatures. This suggests this cluster may contain two cell types that were merged together at this resolution. This is a normal finding. scRNAseq annotation is an iterative process: the outcome of annotation frequently reveals whether the clustering resolution needs adjustment. If you suspect a cluster is heterogeneous, the next step is to increase the resolution, re-run `FindClusters`, and repeat the annotation.
 
 ```{r, eval=F}
-qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.harmony.clustered.markers.qs2")
+#qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.harmony.clustered.markers.qs2")
 ```
