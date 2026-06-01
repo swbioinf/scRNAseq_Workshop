@@ -10,5 +10,6 @@ renv.lock
 *.qs2
 kang2018.rds
 scripts/kang2018/
-scRNAseqInR_ABACBS_2024_Doco_files/
+Single-cell*
 scripts/kang2018_preprocessing.html
+.here

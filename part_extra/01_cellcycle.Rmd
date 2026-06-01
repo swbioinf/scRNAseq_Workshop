@@ -1,4 +1,4 @@
-# (PART) Extra {-}  
+# (PART) Other resources {-}
 
 # Cell cycle Assignment {#CellCycle}
 
