@@ -191,7 +191,6 @@ Try out some genes that were highly weighted in the principal component analysis
 You can save the object at this point so that it can easily be loaded back in without having to rerun the computationally intensive steps performed above, or easily shared with collaborators.
 
 ```{r saveobject, eval=FALSE}
-library(here)
 save_path <- here("data", "seurat_object_tutorial_saved.rds")
 saveRDS(seurat_object, file = save_path)
 ```

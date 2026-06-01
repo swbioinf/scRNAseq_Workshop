@@ -64,6 +64,7 @@ We start by reading in the data. There are several options for loading the data.
 We next use the count matrix to create a `Seurat` object. The object serves as a container that contains both data (like the count matrix) and analysis (like PCA, or clustering results) for a single-cell dataset. For a technical discussion of the `Seurat` object structure, check out the [GitHub Wiki](https://github.com/satijalab/seurat/wiki). For example, the count matrix is stored in `pbmc@assays$RNA@counts`.
 
 ```{r libloader2, results='hide', message=FALSE, warning=FALSE} 
+library(here)
 library(dplyr)
 library(ggplot2)
 library(Seurat)
@@ -106,8 +107,8 @@ Load your data using the ```Read10X_h5``` function to each of the relevant HDF5 
 For this workshop, we also have a text file with some of the metadata from the original study, which we add with AddMetaData.
 
 ```{r}
-pbmc.data <- Read10X_h5("../data/filtered_feature_bc_matrix.h5")
-metadata <- read.table("../data/metadata.txt")
+pbmc.data <- Read10X_h5(here("data", "filtered_feature_bc_matrix.h5"))
+metadata <- read.table(here("data", "metadata.txt"))
   
 seurat_object <- CreateSeuratObject(counts = pbmc.data ,
                                  assay = "RNA", project = 'pbmc')
