@@ -50,7 +50,7 @@ cmd_install_pkgs() {
 
   # --- User library ---
   echo "[3/4] Preparing user library..."
-  export R_LIBS_USER="${HOME}/.library"
+  export R_LIBS_USER="~/.library"
   if [[ -f ~/.Renviron ]]; then
     echo " ~/.Renviron already exists. Skipping."
   else
