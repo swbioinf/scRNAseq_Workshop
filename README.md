@@ -63,11 +63,10 @@ sudo rstudio-server start
 
 5. Test everything is ready by running the workshop end-to-end
 
-6. Move files and libraries to `etc/skel/`
+6. Move files and libraries to `/etc/skel/`
 
-7. Remove unneeded files and folders:
+7. Clear the rstudio server session history before snapshotting and cloning:
 
-```bash
-bash setup/setup.sh clean
 ```
-
+sudo rm -rfv /etc/skel/.local/share/rstudio/session
+```

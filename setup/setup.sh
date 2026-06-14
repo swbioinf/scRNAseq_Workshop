@@ -12,7 +12,7 @@ cmd_install_pkgs() {
   echo "=========================================="
   echo " Environment setup"
   echo " R version: ${R_VERSION}"
-  echo " User library: ${HOME}/.library"
+  echo " User library: ~/.library"
   echo "=========================================="
 
   # --- System dependencies ---
