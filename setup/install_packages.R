@@ -39,7 +39,7 @@ cran_pkgs <- c(
   "pander",
   "qs2",
   "plotly",
-  "ggplotly"
+  "here"
 )
 
 install.packages(cran_pkgs, lib = user_lib, repos = "https://cran.csiro.au/")

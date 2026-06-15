@@ -6,7 +6,8 @@
 And here's the one we prepared earlier. Seurat objects are usually saved as '.rds' files, which is an R format for storing binary data (not-text or human-readable). The functions `readRDS()` can load it.
 
 ```{r}
-seurat_object <- readRDS("data/kang2018.rds")
+library(here)
+seurat_object <- readRDS(here("data", "kang2018.rds"))
 
 ```
 

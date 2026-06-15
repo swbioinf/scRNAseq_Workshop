@@ -188,10 +188,11 @@ Try out some genes that were highly weighted in the principal component analysis
 
 ## Save 
 
-You can save the object at this point so that it can easily be loaded back in with `readRDS()` without having to rerun the computationally intensive steps performed above, or easily shared with collaborators.
+You can save the object at this point so that it can easily be loaded back in without having to rerun the computationally intensive steps performed above, or easily shared with collaborators.
 
 ```{r saveobject, eval=FALSE}
-saveRDS(seurat_object, file = "data/seurat_object_tutorial_saved.rds") 
+save_path <- here("data", "seurat_object_tutorial_saved.rds")
+saveRDS(seurat_object, file = save_path)
 ```
 
 
@@ -199,7 +200,7 @@ saveRDS(seurat_object, file = "data/seurat_object_tutorial_saved.rds")
 
 Tip: For faster saving and loading, try the "qs" package.
 ```{r saveobject2, eval=FALSE}
- qs2::qs_save(seurat_object, "data/seurat_object_preprocessed.qs2")
+ qs2::qs_save(seurat_object, here("data", "seurat_object_preprocessed.qs2"))
 ```
 
 
