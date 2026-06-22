@@ -22,7 +22,7 @@ We will be using a pseudobulk approach with limma. There is also a good discussi
 
 
 ```{r}
-seurat_object <- qs2::qs_read("data/seurat_object_preprocessed.harmony.clustered.markers.singler.qs2")
+seurat_object <- qs2::qs_read(here("data", "seurat_object_preprocessed.harmony.clustered.markers.singler.qs2"))
 ```
 
 ## Experimental question and annotation

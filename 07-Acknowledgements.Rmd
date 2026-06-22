@@ -1,5 +1,3 @@
-# (PART) Closing matter {-}  
-
 # Acknowledgements
 
 This material is mostly based on the [Seurat introductory tutorial.](https://satijalab.org/seurat/articles/pbmc3k_tutorial.html), adapted to use multiple-sample data from [Kang et al 2018 - Multiplexed droplet single-cell RNA-sequencing using natural genetic variation](https://pubmed.ncbi.nlm.nih.gov/29227470/), and extended and updated with commonly applied methods. 

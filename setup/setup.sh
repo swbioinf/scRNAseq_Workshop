@@ -12,7 +12,7 @@ cmd_install_pkgs() {
   echo "=========================================="
   echo " Environment setup"
   echo " R version: ${R_VERSION}"
-  echo " User library: ${HOME}/.library"
+  echo " User library: ~/.library"
   echo "=========================================="
 
   # --- System dependencies ---
@@ -50,7 +50,7 @@ cmd_install_pkgs() {
 
   # --- User library ---
   echo "[3/4] Preparing user library..."
-  export R_LIBS_USER="${HOME}/.library"
+  export R_LIBS_USER="~/.library"
   if [[ -f ~/.Renviron ]]; then
     echo " ~/.Renviron already exists. Skipping."
   else
@@ -85,6 +85,9 @@ cmd_prep_data() {
     fi
   done
 
+  # Create .here so the here package can locate the project root
+  touch "${HOME}/.here"
+  echo "created ${HOME}/.here"
 
 }
 
