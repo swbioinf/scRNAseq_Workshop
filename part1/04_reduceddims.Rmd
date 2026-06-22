@@ -8,11 +8,15 @@
 
 
 [Slides](https://docs.google.com/presentation/d/17-AYqsosmKnJFgv_7DHYNbMQFIXrGAP4/edit#slide=id.p1)
-<!-- why pca -->
-<!-- how to pick genes for pca -->
-<!-- why not pca? the blob of not very usefulness. -->
-<!-- Elbow plots -->
-<!-- oooh umap. -->
+
+
+We need to do some data processing before we can output a nice UMAP.
+
+1) Identify ~2000 variable genes - these are likely to be informative for cell types
+2) Scale data - consider genes equally
+3) Run PCA - Summarise ~2000 variable genes to ~20 dimensions 
+4) Run UMAP - Summarise ~10-20 PCA dimensions to just 2 that we can see.
+
 
 
 ## Identification of highly variable features (feature selection)
@@ -160,7 +164,7 @@ We chose 10 here, but encourage users to consider the following:
 
 Seurat offers several non-linear dimensional reduction techniques, such as tSNE and UMAP, to visualize and explore these datasets. The goal of these algorithms is to learn the underlying manifold of the data in order to place similar cells together in low-dimensional space. Cells within the graph-based clusters determined above should co-localize on these dimension reduction plots. As input to the UMAP and tSNE, we suggest using the same PCs as input to the clustering analysis.
 
-<!-- # If you haven't installed UMAP, you can do so via reticulate::py_install(packages = "umap-learn") -->
+
 ```{r tsne, fig.height=5, fig.width=7}
 seurat_object <- RunUMAP(seurat_object, dims = 1:10)
 ```
@@ -181,7 +185,7 @@ Try out some genes that were highly weighted in the principal component analysis
 
 ```{r}
 # Plotting gene expression on UMAP using featurePlot()
-
+FeaturePlot(seurat_object, 'IFI6')
 ```
 
 

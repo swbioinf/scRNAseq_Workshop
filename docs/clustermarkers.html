@@ -198,11 +198,11 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cluster3_markers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"MS4A1"</span>, <span class="st">"CD79A"</span>, <span class="st">"IRF8"</span>, <span class="st">"CD83"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cluster3_markers</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-55-1.png" width="672"></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-58-1.png" width="672"></div>
 <div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># you can plot raw counts as well</span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cluster3_markers</span>, layer <span class="op">=</span> <span class="st">'counts'</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-55-2.png" width="672"></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-58-2.png" width="672"></div>
 <div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cluster3_markers</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/markerplots-1.png" width="672"></div>
@@ -292,7 +292,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span><span class="va">features_to_plot</span> <span class="op">&lt;-</span> <span class="va">all_markers</span><span class="op">[</span><span class="va">all_markers</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/DotPlot.html">DotPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">features_to_plot</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">RotatedAxis</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-57-1.png" width="1152"></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-60-1.png" width="1152"></div>
 <p>Read the plot column by column: for each marker group, find the cluster (row) where the dots are largest and darkest. That cluster expresses those markers and is likely that cell type.</p>
 </div>
 </div>
@@ -326,11 +326,11 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span> <span class="op">|</span></span>
 <span>  <span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cell_markers</span><span class="op">[[</span><span class="st">"CD8 T cells"</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-58-1.png" width="1152"></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-61-1.png" width="1152"></div>
 <p><strong>Cluster 7</strong> shows LYZ (a broad myeloid marker) alongside CST3 and FCER1A, which are more specific for dendritic cells. Dendritic cells are a small population - look for a compact region on the UMAP that lights up for both CST3 and FCER1A but is distinct from the monocyte clusters:</p>
 <div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cell_markers</span><span class="op">[[</span><span class="st">"Dendritic cells"</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-59-1.png" width="672"></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-62-1.png" width="672"></div>
 </div>
 <div id="discuss-cluster-4" class="section level3" number="12.4.5">
 <h3>
@@ -369,7 +369,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seurat_object</span><span class="op">@</span><span class="va">meta.data</span><span class="op">$</span><span class="va">markers</span> <span class="op">&lt;-</span> <span class="va">new.cluster.ids</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">$</span><span class="va">RNA_snn_res.0.6</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span>, group.by <span class="op">=</span> <span class="st">"markers"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, pt.size <span class="op">=</span> <span class="fl">0.5</span>, label.box <span class="op">=</span> <span class="cn">T</span>, repel <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-61-1.png" width="672"></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-64-1.png" width="672"></div>
 </div>
 </div>
 <div id="section-19" class="section level2 unnumbered">
@@ -420,8 +420,9 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span>  label <span class="op">=</span> <span class="cn">TRUE</span>, repel <span class="op">=</span> <span class="cn">TRUE</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span></span>
 <span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_colour_gradientn</a></span><span class="op">(</span>colours <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"lightblue"</span>, <span class="st">"beige"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Scale for colour is already present.</span></span>
-<span><span class="co">#&gt; Adding another scale for colour, which will replace the existing scale.</span></span></code></pre></div>
-<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-63-1.png" width="672"></div>
+<span><span class="co">#&gt; Adding another scale for colour, which will replace the</span></span>
+<span><span class="co">#&gt; existing scale.</span></span></code></pre></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-66-1.png" width="672"></div>
 <div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span></span>
@@ -429,8 +430,9 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span>  label <span class="op">=</span> <span class="cn">TRUE</span>, repel <span class="op">=</span> <span class="cn">TRUE</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span></span>
 <span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_colour_gradientn</a></span><span class="op">(</span>colours <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"lightblue"</span>, <span class="st">"beige"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Scale for colour is already present.</span></span>
-<span><span class="co">#&gt; Adding another scale for colour, which will replace the existing scale.</span></span></code></pre></div>
-<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-63-2.png" width="672"></div>
+<span><span class="co">#&gt; Adding another scale for colour, which will replace the</span></span>
+<span><span class="co">#&gt; existing scale.</span></span></code></pre></div>
+<div class="inline-figure"><img src="scRNAseqInR_ABACBS_2024_Doco_files/figure-html/unnamed-chunk-66-2.png" width="672"></div>
 <div id="discuss-1" class="section level4 unnumbered challenge">
 <h4>Discuss<a class="anchor" aria-label="anchor" href="#discuss-1"><i class="fas fa-link"></i></a>
 </h4>
@@ -488,7 +490,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: May 29, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 22, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

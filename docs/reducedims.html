@@ -88,12 +88,14 @@
 <li>Have a conceptual understanding of the relationship between gene expression, principal components (PCs) and UMAP ‘dimensional reductions’, and why we need them.</li>
 <li>Be able to produce a useful UMAP visualisation for a given dataset.</li>
 </ul>
-<p><a href="https://docs.google.com/presentation/d/17-AYqsosmKnJFgv_7DHYNbMQFIXrGAP4/edit#slide=id.p1">Slides</a>
-<!-- why pca -->
-<!-- how to pick genes for pca -->
-<!-- why not pca? the blob of not very usefulness. -->
-<!-- Elbow plots -->
-<!-- oooh umap. --></p>
+<p><a href="https://docs.google.com/presentation/d/17-AYqsosmKnJFgv_7DHYNbMQFIXrGAP4/edit#slide=id.p1">Slides</a></p>
+<p>We need to do some data processing before we can output a nice UMAP.</p>
+<ol style="list-style-type: decimal">
+<li>Identify ~2000 variable genes - these are likely to be informative for cell types</li>
+<li>Scale data - consider genes equally</li>
+<li>Run PCA - Summarise ~2000 variable genes to ~20 dimensions</li>
+<li>Run UMAP - Summarise ~10-20 PCA dimensions to just 2 that we can see.</li>
+</ol>
 </div>
 <div id="identification-of-highly-variable-features-feature-selection" class="section level2" number="7.2">
 <h2>
@@ -198,7 +200,7 @@ However, particularly for advanced users who would like to use this functionalit
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: May 29, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 22, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

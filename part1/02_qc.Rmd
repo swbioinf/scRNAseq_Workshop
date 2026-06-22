@@ -17,6 +17,7 @@ Low quality cells can add noise to your results leading you to the wrong biologi
 
 ####  {-}
 
+Typically, you might recive a QC report for your sample from the prepocessing steps. Here is one [example from 10X](https://cf.10xgenomics.com/samples/cell-exp/8.0.0/10k_Mouse_Neurons_3p_nextgem_10k_Mouse_Neurons_3p_nextgem/10k_Mouse_Neurons_3p_nextgem_10k_Mouse_Neurons_3p_nextgem_web_summary.html). Inspecting these reports are a good first step in your QC assessment. 
 
 Seurat allows you to easily explore QC metrics and filter cells based on any user-defined criteria. A few QC metrics [commonly used](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4758103/) by the community include
 
@@ -27,7 +28,11 @@ Seurat allows you to easily explore QC metrics and filter cells based on any use
 * The percentage of reads that map to the mitochondrial genome
     + Low-quality / dying cells often exhibit extensive mitochondrial contamination
     + We calculate mitochondrial QC metrics with the `PercentageFeatureSet()` function, which calculates the percentage of counts originating from a set of features
-    + We use the set of all genes starting with `MT-` as a set of mitochondrial genes
+
+
+
+
+We first use the set of all genes starting with `MT-` as a set of mitochondrial genes. (This works because that's how mitchondrial genes are named in this reference)
 
 ```{r mito, fig.height=7, fig.width=13}
 # The $ operator can add columns to object metadata.
@@ -46,13 +51,11 @@ Where are QC metrics stored in Seurat?
 
 What do you notice has changed within the `meta.data` table now that we have calculated mitochondrial gene proportion?
 
-<!-- Imagine that this is the first of several samples in our experiment. Add a `samplename` column to to the `meta.data` table. -->
 
 ####  {-}
 
 ```{r}
 ## Examining the metadata ...
-
 
 ```
 
@@ -87,42 +90,24 @@ Genes "HBA1", "HBA2", and "HBB" are components of hemoglobin in red blood cells.
 
 ####  {-}
 
+```{r}
+
+```
 
 
-<!-- #### Challenge: Ribosomal gene expression as a QC metric {- .challenge} -->
-<!-- Ribosomal gene expression could be another factor to look into your cells within your experiment. -->
-
-<!-- Create more columns of metadata using `PercentageFeatureSet` function, this time search for ribosomal genes. We can  calculate the percentage for the large subunit (RPL) and small subunit (RPS) ribosomal genes.  -->
-
-<!-- Use `FeatureScatter` to plot combinations of metrics available in metadata. How is the mitochondrial gene percentage related to the ribosomal gene percentage? What can you see? Discuss in break out. -->
-
-<!-- <details> -->
-<!-- <summary>**Code for challenge**</summary> -->
-<!-- Create new meta.data columns to contain percentages of the large and small ribosomal genes. -->
-
-<!-- Then plot a scatter plot with this new data. You should find that the large and small ribosomal subunit genes are correlated within cell.  -->
-
-<!-- What about with mitochondria and gene, feature counts? -->
-
-<!-- These are the cells you may want to exclude. -->
-<!-- </details> -->
-
-<!-- <details> -->
-<!-- <summary>**Advanced Challenge**</summary> -->
-<!-- Highlight cells with very low percentage of ribosomal genes, create a new column in the meta.data table and with `FeatureScatter` make a plot of the RNA count and mitochondrial percentage with the cells with very low ribosomal gene perentage. -->
-<!-- </details> -->
-<!-- ### { - } -->
 
 Let's look again at the number of features (genes) to the percent mitochondrial genes plot.
 
 ```{r}
-VlnPlot(seurat_object, features = "nFeature_RNA")
+min_nFeature <- 200
+max_mt_pc    <- 5
+VlnPlot(seurat_object, features = "nFeature_RNA") + geom_hline(yintercept=min_nFeature, lty=3)
 
-# Zoom in to the max and min
-VlnPlot(seurat_object, features = "nFeature_RNA") + scale_y_continuous(limits = c(1000,3000))
-VlnPlot(seurat_object, features = "nFeature_RNA", y.max =1000)
 
-FeatureScatter(seurat_object, feature1 = "nFeature_RNA", feature2 = "percent.mt")
+FeatureScatter(seurat_object, feature1 = "nFeature_RNA", feature2 = "percent.mt") + 
+  geom_hline(yintercept=max_mt_pc, lty=3) +
+  geom_vline(xintercept=min_nFeature, lty=3)
+
 ```
 
 You can check different thresholds of mito percentage.
