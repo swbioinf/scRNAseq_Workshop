@@ -48,12 +48,13 @@
 <li><a class="" href="index.html"><span class="header-section-number">1</span> Getting started</a></li>
 <li><a class="" href="set-up.html"><span class="header-section-number">2</span> Set up</a></li>
 <li><a class="" href="schedule.html"><span class="header-section-number">3</span> Schedule</a></li>
-<li class="book-part">Single Cell Analysis</li>
+<li class="book-part">Part 1</li>
 <li><a class="" href="load.html"><span class="header-section-number">4</span> Load data</a></li>
 <li><a class="" href="qc.html"><span class="header-section-number">5</span> QC Filtering</a></li>
 <li><a class="" href="norm.html"><span class="header-section-number">6</span> Normalisation</a></li>
 <li><a class="" href="reducedims.html"><span class="header-section-number">7</span> PCAs and UMAPs</a></li>
 <li><a class="" href="dimensionality-reduction.html"><span class="header-section-number">8</span> Dimensionality reduction</a></li>
+<li class="book-part">Part 2</li>
 <li><a class="" href="introduction-to-part-2.html"><span class="header-section-number">9</span> Introduction to Part 2</a></li>
 <li><a class="" href="Harmony.html"><span class="header-section-number">10</span> Data set integration with Harmony</a></li>
 <li><a class="" href="clustering.html"><span class="header-section-number">11</span> Clustering</a></li>
@@ -61,12 +62,10 @@
 <li><a class="" href="singler.html"><span class="header-section-number">13</span> SingleR</a></li>
 <li><a class="" href="differential-expression.html"><span class="header-section-number">14</span> Differential Expression</a></li>
 <li><a class="" href="wrapping-up-and-next-steps.html"><span class="header-section-number">15</span> Wrapping up and next steps</a></li>
-<li class="book-part">Extra</li>
+<li class="book-part">Other resources</li>
 <li><a class="" href="CellCycle.html"><span class="header-section-number">16</span> Cell cycle Assignment</a></li>
 <li><a class="active" href="structure.html"><span class="header-section-number">17</span> The Seurat object</a></li>
-<li class="book-part">Other Resources</li>
 <li><a class="" href="resources.html"><span class="header-section-number">18</span> Resources</a></li>
-<li class="book-part">Closing matter</li>
 <li><a class="" href="acknowledgements.html"><span class="header-section-number">19</span> Acknowledgements</a></li>
 <li><a class="" href="session-info.html"><span class="header-section-number">20</span> Session info</a></li>
 </ul>
@@ -86,7 +85,8 @@
 </h2>
 <p>And here’s the one we prepared earlier. Seurat objects are usually saved as ‘.rds’ files, which is an R format for storing binary data (not-text or human-readable). The functions <code><a href="https://rdrr.io/r/base/readRDS.html">readRDS()</a></code> can load it.</p>
 <div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/kang2018.rds"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://here.r-lib.org/">here</a></span><span class="op">)</span></span>
+<span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html">here</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"kang2018.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div id="discussion-the-seurat-object-in-r" class="section level4 unnumbered rational">
 <h4>Discussion: The Seurat Object in R<a class="anchor" aria-label="anchor" href="#discussion-the-seurat-object-in-r"><i class="fas fa-link"></i></a>
 </h4>
@@ -186,9 +186,6 @@ The Assay structure has some nuances (see discussion below), but there are funct
 
 </div>
 </div>
-
-
-
   <div class="chapter-nav">
 <div class="prev"><a href="CellCycle.html"><span class="header-section-number">16</span> Cell cycle Assignment</a></div>
 <div class="next"><a href="resources.html"><span class="header-section-number">18</span> Resources</a></div>
