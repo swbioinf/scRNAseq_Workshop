@@ -27,20 +27,24 @@ seurat_object <- qs2::qs_read(here("data", "seurat_object_preprocessed.harmony.c
 
 ## Finding differentially expressed features (cluster biomarkers)
 
+> **Cluster markers vs. canonical markers:** These are not the same thing. `FindMarkers` and `FindAllMarkers` identify genes that are statistically differentially expressed in a cluster compared to others: they tell you what makes a cluster *different*. A canonical marker is a gene whose expression in a specific cell type is well established in the literature: it tells you *what a cluster is*. The top DEGs from `FindAllMarkers` are a starting point for annotation, not an answer on their own. The top-down annotation section below shows how to go from one to the other.
+
 The key parameters filter out genes that are unlikely to be informative: `min.pct` removes genes detected in very few cells, and `logfc.threshold` removes genes with small average differences between groups. This keeps the analysis focused on the most discriminatory markers.
 
-Seurat can help you find markers that define clusters via differential expression. By default, it identifies positive and negative markers of a single cluster (specified in `ident.1`), compared to all other cells.  `FindAllMarkers()` automates this process for all clusters, but you can also test groups of clusters vs. each other, or against all cells.
+Seurat can help you find markers that define clusters via differential expression. By default, it identifies positive and negative markers of a single cluster (specified in `ident.1`), compared to all other cells. `FindAllMarkers()` automates this process for all clusters, but you can also test groups of clusters vs. each other, or against all cells.
+
+We use `only.pos = TRUE` to return only positive markers — genes that are more highly expressed in the cluster than in others. These are the most useful for cell type identification: a gene being *switched off* in a cluster is harder to interpret than one being *switched on*.
 
 ```{r}
-# find all markers of cluster 0
-cluster0.markers <- FindMarkers(seurat_object, ident.1 = 0, min.pct = 0.25)
-head(cluster0.markers, n = 5)
+# find positive markers of cluster 1
+cluster1.markers <- FindMarkers(seurat_object, ident.1 = 1, min.pct = 0.25, only.pos = TRUE)
+head(cluster1.markers, n = 5)
 ```
 
 ```{r}
-# find all markers distinguishing cluster 1 from local clusters 2, 5, 6
-cluster1.markers <- FindMarkers(seurat_object, ident.1 = 1, ident.2 = c(2, 5, 6), min.pct = 0.25)
-head(cluster1.markers, n = 5)
+# find markers distinguishing cluster 1 from specific neighbouring clusters 2, 5, 6
+cluster1.specific.markers <- FindMarkers(seurat_object, ident.1 = 1, ident.2 = c(2, 5, 6), min.pct = 0.25)
+head(cluster1.specific.markers, n = 5)
 ```
 
 ```{r}
@@ -57,13 +61,11 @@ Two plots are most useful for confirming markers:
 - `FeaturePlot()` overlays expression onto the UMAP. This is useful for confirming that the distribution of the expression is restricted to the expected cluster.
 
 ```{r}
-seurat_object.markers %>% 
-  group_by(cluster) %>% 
-  slice_max(n = 4, order_by = avg_log2FC)
-```
-
-```{r}
-cluster3_markers <- c("MS4A1", "CD79A", "IRF8", "CD83")
+cluster3_markers <- seurat_object.markers %>%
+  filter(cluster == 3) %>%
+  slice_max(n = 4, order_by = avg_log2FC) %>%
+  pull(gene)
+cluster3_markers
 VlnPlot(seurat_object, features = cluster3_markers)
 # you can plot raw counts as well
 VlnPlot(seurat_object, features = cluster3_markers, layer = 'counts', log = TRUE)

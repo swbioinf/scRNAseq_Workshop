@@ -2,6 +2,23 @@
 
 # Introduction to Part 2
 
+## Part 1 Recap
+
+In Part 1, we processed raw single-cell RNA-seq data through the following steps:
+
+| Step | What we did | Why |
+|---|---|---|
+| Load data | Imported raw count matrices for 8 PBMC samples | Starting point — raw gene expression counts per cell |
+| Quality control | Filtered low-quality cells based on count depth and mitochondrial gene percentage | Remove damaged or empty droplets that would skew downstream analysis |
+| Normalisation | Normalised counts and identified highly variable genes | Make cells comparable despite differences in sequencing depth |
+| Dimensionality reduction | Computed PCA and UMAP embeddings | Reduce noise and enable visualisation of structure in high-dimensional data |
+
+## Clear your session
+
+Before starting Part 2, clear your environment and restart your R session to remove any saved objects from Part 1.
+
+In RStudio: **Session → Restart R** (or `Ctrl+Shift+F10` / `Cmd+Shift+F10` on Mac)
+
 ## Learning objectives
 
 By the end of this lesson, you will be able to:
@@ -21,8 +38,6 @@ We have the following information in our Seurat object metadata:
 -   `stim` identifies a cell as control or stimulated with IFN-beta.
 -   `cell` contains the cell types identified by the creators of this data set.
 -   `multiplets` classifies cells as singlet or doublet.
-
--   **Clear environment and restart the session to remove old saved data in the environment**
 
 Read in libraries
 

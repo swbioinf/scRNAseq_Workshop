@@ -12,9 +12,11 @@ By the end of this session, you will be able to:
 
 [Slides](https://docs.google.com/presentation/d/134p04OJPKy8yJQPwGtZ14HoLTbyN_flg/edit#slide=id.p1)
 
-#### Why do we need this? {- .rational}
+#### Why do we need this? {- .rationale}
 
 You can have data coming from different samples, batches or experiments and you will need to combine them.
+
+When batch effects are present, cells from different samples or conditions will cluster based on technical variation rather than true cell identity. This means two cells of the same type (e.g. one from a control sample and one from a stimulated sample) may appear in separate clusters simply because they were processed differently. This makes it difficult to identify genuine biological differences downstream.
 
 First we will inspect how our cells are clustering by inspecting how they group by the different annotations available.
 
@@ -24,6 +26,8 @@ First we will inspect how our cells are clustering by inspecting how they group 
 DimPlot(seurat_object, reduction="umap", group.by="ind")
 DimPlot(seurat_object, reduction="umap", group.by="multiplets")
 ```
+
+To visualise how cells group together, we will run a basic clustering using the default PCA reduction. We will go into clustering in much more detail in the next section — for now this is just to help us see the effect of batch correction.
 
 ```{r}
 seurat_object <- FindNeighbors(seurat_object, reduction="pca", dims=1:10)
@@ -73,6 +77,11 @@ seurat_object <- RunUMAP(seurat_object, reduction="harmony", dims=1:10, reductio
 
 DimPlot(seurat_object, reduction="umap_harmony", group.by="stim")
 ```
+
+Note that batch correction may not be perfect. However, it is not always a problem.
+
+In this experiment, IFN-beta stimulation is expected to cause genuine transcriptional changes in immune cells. Some separation between ctrl and stim cells after correction may reflect real biology rather than a technical artefact. When interpreting your own results, consider whether residual separation is expected given your experimental design.
+
 Run and display how clusters form between the `umap_harmony` and `umap` reductions.
 
 We will explore clustering in more detail in the next section.
@@ -90,7 +99,11 @@ DimPlot(seurat_object, reduction="umap", group.by="harmony_clusters")
 
 #### Answer in Zoom {- .challenge}
 
-Compare the UMAP and UMAP Harmony plots. Describe the differences in how cells are clustering between the two. Have batch effects been corrected?
+Compare the `umap` and `umap_harmony` plots coloured by `stim`. Consider the following:
+
+- Do ctrl and stim cells now share the same clusters in the harmony UMAP, or are they still separated?
+- Are there any clusters that remain split by condition? If so, is that separation expected given the experimental design?
+- How does the number and shape of clusters differ between the two UMAPs?
 
 #### {-}
 

@@ -204,13 +204,13 @@ de_result <- topTable(fit, n = Inf, adjust.method = "BH")
 de_result <- arrange(de_result , adj.P.Val)
 ```
 
-Look at the significantly differentially expressed genes:
+Look at the significantly differentially expressed genes, sorted by ascending p-value (most significant first):
 
 ```{r}
-# Top upregulated
-de_result %>% head(n=10)
-# Top downregulated
-de_result %>% arrange(desc(x = adj.P.Val)) %>% head(n=10)
+# Top upregulated (lowest adj.P.Val, positive logFC)
+de_result %>% filter(adj.P.Val < 0.05, logFC > 0) %>% head(n=10)
+# Top downregulated (lowest adj.P.Val, negative logFC)
+de_result %>% filter(adj.P.Val < 0.05, logFC < 0) %>% arrange(logFC) %>% head(n=10)
 ```
 
 Key columns to interpret:
@@ -335,24 +335,6 @@ ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=
 ```
 
 IL1B drops sharply in monocytes and barely moves elsewhere. The other cell types have low baseline expression (IL1B is a monocyte/myeloid gene), so the suppression is monocyte-specific. Biologically, IFN-beta redirects monocytes away from classical inflammatory output (IL1B, OSM, CLEC5A) and toward antiviral functions (the ISG program, plus monocyte-specific antiviral chemokines like CXCL11, CCL8, IDO1).
-
-#### Exercise: explore other genes {- .challenge}
-
-Pick a gene from `de_result` and re-run the plot below. Is it global, monocyte-specific up, or monocyte-specific down? Suggestions: `IDO1`, `CXCL11`, `OSM`, `IFIT1`, `CCL8`, `STAT1`.
-
-```{r eval=FALSE}
-my_gene <- ''   # replace with a gene name
-pseudobulk_annotation_table.allcelltypes$expression <- lognorm_matrix[my_gene, pseudobulk_annotation_table.allcelltypes$sample_celltype_name]
-
-ggplot(pseudobulk_annotation_table.allcelltypes, aes(x=stim, y=expression, fill=stim)) +
-  geom_boxplot(outlier.shape=NA) +
-  geom_point() +
-  theme_bw() +
-  facet_wrap(~cell) +
-  ggtitle(my_gene)
-```
-
-#### {-}
 
 The interactive plot below cycles through a curated set of genes covering all three patterns (global, monocyte-up, monocyte-down). Use the play button to cycle through them, or click a step directly to jump to a gene.
 
