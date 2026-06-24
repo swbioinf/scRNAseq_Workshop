@@ -94,7 +94,7 @@
 <span class="header-section-number">11.2</span> Overview<a class="anchor" aria-label="anchor" href="#overview-2"><i class="fas fa-link"></i></a>
 </h2>
 <p><a href="https://docs.google.com/presentation/d/1erfD1gJAZwpyh2l8wkWBGzUiVStQCyL_/edit#slide=id.p33">Slides</a></p>
-<div id="why-do-we-need-to-do-this-5" class="section level4 unnumbered rational">
+<div id="why-do-we-need-to-do-this-5" class="section level4 unnumbered rationale">
 <h4>Why do we need to do this?<a class="anchor" aria-label="anchor" href="#why-do-we-need-to-do-this-5"><i class="fas fa-link"></i></a>
 </h4>
 <p>Before we can compare stimulated and control PBMCs, we need to know which cell types we are comparing. Clustering groups cells by similarity in gene expression so that each cluster can be inspected and labelled as a cell type.</p>
@@ -154,7 +154,14 @@ Further reading
 <h2>
 <span class="header-section-number">11.4</span> Choosing a cluster resolution<a class="anchor" aria-label="anchor" href="#choosing-a-cluster-resolution"><i class="fas fa-link"></i></a>
 </h2>
-<p>Its a good idea to try different resolutions when clustering to identify the variability of your data.</p>
+<div id="why-do-we-need-to-do-this-6" class="section level4 unnumbered rationale">
+<h4>Why do we need to do this?<a class="anchor" aria-label="anchor" href="#why-do-we-need-to-do-this-6"><i class="fas fa-link"></i></a>
+</h4>
+<p>The best resolution is the one that reflects the cell types you want to work with. Too low and you merge biologically distinct populations into a single cluster; too high and you split one cell type into many fragments that don’t reflect genuine biology. The goal is a resolution that matches the granularity of your scientific question.</p>
+</div>
+<div id="section-15" class="section level4 unnumbered">
+<h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-15"><i class="fas fa-link"></i></a></h4>
+<p>In practice, it is a good idea to test a range of resolutions and use the data to guide your choice. At this stage it is difficult to interpret the biology (e.g. how and what cells are clustering together) and may need to revisit this step after downstream annotation steps.</p>
 <div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">min_res</span> <span class="op">&lt;-</span> <span class="fl">0.4</span></span>
 <span><span class="va">max_res</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
@@ -184,6 +191,7 @@ Further reading
 <div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-46-1.png" width="672"></div>
+</div>
 <div id="how-to-read-a-clustree" class="section level3" number="11.4.1">
 <h3>
 <span class="header-section-number">11.4.1</span> How to read a clustree<a class="anchor" aria-label="anchor" href="#how-to-read-a-clustree"><i class="fas fa-link"></i></a>
@@ -216,12 +224,13 @@ Further reading
 <code class="sourceCode R"><span><span class="co"># Add your DimPlots here</span></span>
 <span><span class="co">#DimPlot(seurat_object, reduction = "umap_harmony", group.by = "")</span></span></code></pre></div>
 </div>
-<div id="section-15" class="section level4 unnumbered">
-<h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-15"><i class="fas fa-link"></i></a></h4>
+<div id="section-16" class="section level4 unnumbered">
+<h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-16"><i class="fas fa-link"></i></a></h4>
 <p>Looking at the clustree, resolution 0.6 is a reasonable choice for this dataset:</p>
 <ul>
 <li>The major trunks are stable between 0.4 and 0.6 (no effect on clusters)</li>
-<li>Beyond 0.6 the tree becomes unstable, clusters begin fragmenting with scattered arrows, which suggests the splits no longer reflect genuine biology.</li>
+<li>Beyond 0.6 the tree becomes unstable, clusters begin fragmenting with scattered arrows, which suggests the splits no longer reflect genuine biology</li>
+<li>At 0.6, the number of clusters is consistent with the major PBMC cell types we expect to see (T cells, B cells, monocytes, NK cells) - giving us the right level of detail for the annotation and differential expression steps ahead</li>
 </ul>
 <p>Set the resolution for 0.6:</p>
 <div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
@@ -234,10 +243,14 @@ Further reading
 <div id="answer-in-zoom-1" class="section level4 unnumbered challenge">
 <h4>Answer in Zoom<a class="anchor" aria-label="anchor" href="#answer-in-zoom-1"><i class="fas fa-link"></i></a>
 </h4>
-<p>At this point we have clusters, but do they reflect genuine cell types or could they still be driven by technical variation? What additional evidence would you want to see before trusting these clusters as biological groups?</p>
+<p>Look at the UMAP coloured by clusters, then by <code>stim</code> and <code>ind</code>. Consider:</p>
+<ul>
+<li>Are any clusters made up almost entirely of cells from one condition or one individual?</li>
+<li>If so, does that reflect biology or could it be a residual technical effect?</li>
+</ul>
 </div>
-<div id="section-16" class="section level4 unnumbered">
-<h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-16"><i class="fas fa-link"></i></a></h4>
+<div id="section-17" class="section level4 unnumbered">
+<h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-17"><i class="fas fa-link"></i></a></h4>
 <div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.clustered.qs2")</span></span></code></pre></div>
 
@@ -275,7 +288,7 @@ Further reading
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 22, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 24, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

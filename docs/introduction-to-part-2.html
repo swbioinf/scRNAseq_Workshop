@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 9 Introduction to Part 2 | scRNAseq Analysis in R with Seurat</title>
-<meta name="description" content="9.1 Learning objectives By the end of this lesson, you will be able to: Recall the experimental design and analysis goal Identify where this information is in the data  9.2 Overview Analysis goal:...">
+<meta name="description" content="9.1 Part 1 Recap In Part 1, we processed raw single-cell RNA-seq data through the following steps: Step What we did Why Load data Imported raw count matrices for 8 PBMC samples Starting point —...">
 <meta name="generator" content="bookdown 0.46 with bs4_book()">
 <meta property="og:title" content="Chapter 9 Introduction to Part 2 | scRNAseq Analysis in R with Seurat">
 <meta property="og:type" content="book">
-<meta property="og:description" content="9.1 Learning objectives By the end of this lesson, you will be able to: Recall the experimental design and analysis goal Identify where this information is in the data  9.2 Overview Analysis goal:...">
+<meta property="og:description" content="9.1 Part 1 Recap In Part 1, we processed raw single-cell RNA-seq data through the following steps: Step What we did Why Load data Imported raw count matrices for 8 PBMC samples Starting point —...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 9 Introduction to Part 2 | scRNAseq Analysis in R with Seurat">
-<meta name="twitter:description" content="9.1 Learning objectives By the end of this lesson, you will be able to: Recall the experimental design and analysis goal Identify where this information is in the data  9.2 Overview Analysis goal:...">
+<meta name="twitter:description" content="9.1 Part 1 Recap In Part 1, we processed raw single-cell RNA-seq data through the following steps: Step What we did Why Load data Imported raw count matrices for 8 PBMC samples Starting point —...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -79,9 +79,56 @@
 <h1>
 <span class="header-section-number">9</span> Introduction to Part 2<a class="anchor" aria-label="anchor" href="#introduction-to-part-2"><i class="fas fa-link"></i></a>
 </h1>
-<div id="learning-objectives" class="section level2" number="9.1">
+<div id="part-1-recap" class="section level2" number="9.1">
 <h2>
-<span class="header-section-number">9.1</span> Learning objectives<a class="anchor" aria-label="anchor" href="#learning-objectives"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.1</span> Part 1 Recap<a class="anchor" aria-label="anchor" href="#part-1-recap"><i class="fas fa-link"></i></a>
+</h2>
+<p>In Part 1, we processed raw single-cell RNA-seq data through the following steps:</p>
+<div class="inline-table"><table class="table table-sm">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr class="header">
+<th>Step</th>
+<th>What we did</th>
+<th>Why</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Load data</td>
+<td>Imported raw count matrices for 8 PBMC samples</td>
+<td>Starting point — raw gene expression counts per cell</td>
+</tr>
+<tr class="even">
+<td>Quality control</td>
+<td>Filtered low-quality cells based on count depth and mitochondrial gene percentage</td>
+<td>Remove damaged or empty droplets that would skew downstream analysis</td>
+</tr>
+<tr class="odd">
+<td>Normalisation</td>
+<td>Normalised counts and identified highly variable genes</td>
+<td>Make cells comparable despite differences in sequencing depth</td>
+</tr>
+<tr class="even">
+<td>Dimensionality reduction</td>
+<td>Computed PCA and UMAP embeddings</td>
+<td>Reduce noise and enable visualisation of structure in high-dimensional data</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div id="clear-your-session" class="section level2" number="9.2">
+<h2>
+<span class="header-section-number">9.2</span> Clear your session<a class="anchor" aria-label="anchor" href="#clear-your-session"><i class="fas fa-link"></i></a>
+</h2>
+<p>Before starting Part 2, clear your environment and restart your R session to remove any saved objects from Part 1.</p>
+<p>In RStudio: <strong>Session → Restart R</strong> (or <code>Ctrl+Shift+F10</code> / <code>Cmd+Shift+F10</code> on Mac)</p>
+</div>
+<div id="learning-objectives" class="section level2" number="9.3">
+<h2>
+<span class="header-section-number">9.3</span> Learning objectives<a class="anchor" aria-label="anchor" href="#learning-objectives"><i class="fas fa-link"></i></a>
 </h2>
 <p>By the end of this lesson, you will be able to:</p>
 <ul>
@@ -89,19 +136,22 @@
 <li>Identify where this information is in the data</li>
 </ul>
 </div>
-<div id="overview" class="section level2" number="9.2">
+<div id="overview" class="section level2" number="9.4">
 <h2>
-<span class="header-section-number">9.2</span> Overview<a class="anchor" aria-label="anchor" href="#overview"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.4</span> Overview<a class="anchor" aria-label="anchor" href="#overview"><i class="fas fa-link"></i></a>
 </h2>
 <p>Analysis goal: Identify molecular differences between stimulated vs. stimulated peripheral blood mononuclear cells (PBMCs).</p>
 <p>PBMCs are stimulated in vitro with IFN-beta. This is expected to trigger the up or downregulation of immune pathways. In our data, we can measure this directly by comparing the gene expression levels of immune-related genes.</p>
 <p>We have the following information in our Seurat object metadata:</p>
 <ul>
-<li><p><code>ind</code> identifies a cell as coming from one of 8 individuals.</p></li>
-<li><p><code>stim</code> identifies a cell as control or stimulated with IFN-beta.</p></li>
-<li><p><code>cell</code> contains the cell types identified by the creators of this data set.</p></li>
-<li><p><code>multiplets</code> classifies cells as singlet or doublet.</p></li>
-<li><p><strong>Clear environment and restart the session to remove old saved data in the environment</strong></p></li>
+<li>
+<code>ind</code> identifies a cell as coming from one of 8 individuals.</li>
+<li>
+<code>stim</code> identifies a cell as control or stimulated with IFN-beta.</li>
+<li>
+<code>cell</code> contains the cell types identified by the creators of this data set.</li>
+<li>
+<code>multiplets</code> classifies cells as singlet or doublet.</li>
 </ul>
 <p>Read in libraries</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
@@ -112,12 +162,12 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/immunogenomics/harmony">harmony</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: Rcpp</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; ── Attaching core tidyverse packages ────── tidyverse 2.0.0 ──</span></span>
+<span><span class="co">#&gt; ── Attaching core tidyverse packages ───────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 2.0.0 ──</span></span>
 <span><span class="co">#&gt; ✔ forcats   1.0.1     ✔ stringr   1.6.0</span></span>
 <span><span class="co">#&gt; ✔ lubridate 1.9.4     ✔ tibble    3.3.0</span></span>
 <span><span class="co">#&gt; ✔ purrr     1.2.0     ✔ tidyr     1.3.1</span></span>
 <span><span class="co">#&gt; ✔ readr     2.1.6</span></span>
-<span><span class="co">#&gt; ── Conflicts ──────────────────────── tidyverse_conflicts() ──</span></span>
+<span><span class="co">#&gt; ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
 <span><span class="co">#&gt; ✖ dplyr::filter() masks stats::filter()</span></span>
 <span><span class="co">#&gt; ✖ dplyr::lag()    masks stats::lag()</span></span>
 <span><span class="co">#&gt; ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</span></span>
@@ -346,8 +396,10 @@
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
 <li><a class="nav-link" href="#introduction-to-part-2"><span class="header-section-number">9</span> Introduction to Part 2</a></li>
-<li><a class="nav-link" href="#learning-objectives"><span class="header-section-number">9.1</span> Learning objectives</a></li>
-<li><a class="nav-link" href="#overview"><span class="header-section-number">9.2</span> Overview</a></li>
+<li><a class="nav-link" href="#part-1-recap"><span class="header-section-number">9.1</span> Part 1 Recap</a></li>
+<li><a class="nav-link" href="#clear-your-session"><span class="header-section-number">9.2</span> Clear your session</a></li>
+<li><a class="nav-link" href="#learning-objectives"><span class="header-section-number">9.3</span> Learning objectives</a></li>
+<li><a class="nav-link" href="#overview"><span class="header-section-number">9.4</span> Overview</a></li>
 </ul>
 
       <div class="book-extra">
@@ -365,7 +417,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 22, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 24, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

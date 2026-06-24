@@ -95,10 +95,11 @@
 <span class="header-section-number">10.2</span> Overview<a class="anchor" aria-label="anchor" href="#overview-1"><i class="fas fa-link"></i></a>
 </h2>
 <p><a href="https://docs.google.com/presentation/d/134p04OJPKy8yJQPwGtZ14HoLTbyN_flg/edit#slide=id.p1">Slides</a></p>
-<div id="why-do-we-need-this" class="section level4 unnumbered rational">
+<div id="why-do-we-need-this" class="section level4 unnumbered rationale">
 <h4>Why do we need this?<a class="anchor" aria-label="anchor" href="#why-do-we-need-this"><i class="fas fa-link"></i></a>
 </h4>
 <p>You can have data coming from different samples, batches or experiments and you will need to combine them.</p>
+<p>When batch effects are present, cells from different samples or conditions will cluster based on technical variation rather than true cell identity. This means two cells of the same type (e.g. one from a control sample and one from a stimulated sample) may appear in separate clusters simply because they were processed differently. This makes it difficult to identify genuine biological differences downstream.</p>
 <p>First we will inspect how our cells are clustering by inspecting how they group by the different annotations available.</p>
 </div>
 <div id="section-11" class="section level4 unnumbered">
@@ -109,6 +110,7 @@
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction<span class="op">=</span><span class="st">"umap"</span>, group.by<span class="op">=</span><span class="st">"multiplets"</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/harmony1-2.png" width="672"></div>
+<p>To visualise how cells group together, we will run a basic clustering using the default PCA reduction. We will go into clustering in much more detail in the next section — for now this is just to help us see the effect of batch correction.</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindNeighbors.html">FindNeighbors</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction<span class="op">=</span><span class="st">"pca"</span>, dims<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Computing nearest neighbor graph</span></span>
@@ -162,25 +164,27 @@
 <p>We can use <code>harmony</code> the same way we used the <code>pca</code> reduction to compute a UMAP layout or to find clusters.</p>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunUMAP.html">RunUMAP</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction<span class="op">=</span><span class="st">"harmony"</span>, dims<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, reduction.name<span class="op">=</span><span class="st">"umap_harmony"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 04:48:36 UMAP embedding parameters a = 0.9922 b = 1.112</span></span>
-<span><span class="co">#&gt; 04:48:36 Read 4877 rows and found 10 numeric columns</span></span>
-<span><span class="co">#&gt; 04:48:36 Using Annoy for neighbor search, n_neighbors = 30</span></span>
-<span><span class="co">#&gt; 04:48:36 Building Annoy index with metric = cosine, n_trees = 50</span></span>
+<span><span class="co">#&gt; 06:14:41 UMAP embedding parameters a = 0.9922 b = 1.112</span></span>
+<span><span class="co">#&gt; 06:14:41 Read 4877 rows and found 10 numeric columns</span></span>
+<span><span class="co">#&gt; 06:14:41 Using Annoy for neighbor search, n_neighbors = 30</span></span>
+<span><span class="co">#&gt; 06:14:41 Building Annoy index with metric = cosine, n_trees = 50</span></span>
 <span><span class="co">#&gt; 0%   10   20   30   40   50   60   70   80   90   100%</span></span>
 <span><span class="co">#&gt; [----|----|----|----|----|----|----|----|----|----|</span></span>
 <span><span class="co">#&gt; **************************************************|</span></span>
-<span><span class="co">#&gt; 04:48:37 Writing NN index file to temp file /tmp/RtmpSrmzT3/file36bc16b3e5dc8</span></span>
-<span><span class="co">#&gt; 04:48:37 Searching Annoy index using 1 thread, search_k = 3000</span></span>
-<span><span class="co">#&gt; 04:48:38 Annoy recall = 100%</span></span>
-<span><span class="co">#&gt; 04:48:41 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30</span></span>
-<span><span class="co">#&gt; 04:48:45 Initializing from normalized Laplacian + noise (using RSpectra)</span></span>
-<span><span class="co">#&gt; 04:48:45 Commencing optimization for 500 epochs, with 203852 positive edges</span></span>
-<span><span class="co">#&gt; 04:48:45 Using rng type: pcg</span></span>
-<span><span class="co">#&gt; 04:48:54 Optimization finished</span></span>
+<span><span class="co">#&gt; 06:14:42 Writing NN index file to temp file /tmp/RtmpR8Un4z/file22feb101cdf76</span></span>
+<span><span class="co">#&gt; 06:14:42 Searching Annoy index using 1 thread, search_k = 3000</span></span>
+<span><span class="co">#&gt; 06:14:45 Annoy recall = 100%</span></span>
+<span><span class="co">#&gt; 06:14:46 Commencing smooth kNN distance calibration using 1 thread with target n_neighbors = 30</span></span>
+<span><span class="co">#&gt; 06:14:50 Initializing from normalized Laplacian + noise (using RSpectra)</span></span>
+<span><span class="co">#&gt; 06:14:50 Commencing optimization for 500 epochs, with 203852 positive edges</span></span>
+<span><span class="co">#&gt; 06:14:50 Using rng type: pcg</span></span>
+<span><span class="co">#&gt; 06:14:56 Optimization finished</span></span>
 <span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction<span class="op">=</span><span class="st">"umap_harmony"</span>, group.by<span class="op">=</span><span class="st">"stim"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/harmony4-1.png" width="672">
-Run and display how clusters form between the <code>umap_harmony</code> and <code>umap</code> reductions.</p>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/harmony4-1.png" width="672"></div>
+<p>Note that batch correction may not be perfect. However, it is not always a problem.</p>
+<p>In this experiment, IFN-beta stimulation is expected to cause genuine transcriptional changes in immune cells. Some separation between ctrl and stim cells after correction may reflect real biology rather than a technical artefact. When interpreting your own results, consider whether residual separation is expected given your experimental design.</p>
+<p>Run and display how clusters form between the <code>umap_harmony</code> and <code>umap</code> reductions.</p>
 <p>We will explore clustering in more detail in the next section.</p>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindNeighbors.html">FindNeighbors</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction<span class="op">=</span><span class="st">"harmony"</span>, dims<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
@@ -207,7 +211,12 @@ Run and display how clusters form between the <code>umap_harmony</code> and <cod
 <div id="answer-in-zoom" class="section level4 unnumbered challenge">
 <h4>Answer in Zoom<a class="anchor" aria-label="anchor" href="#answer-in-zoom"><i class="fas fa-link"></i></a>
 </h4>
-<p>Compare the UMAP and UMAP Harmony plots. Describe the differences in how cells are clustering between the two. Have batch effects been corrected?</p>
+<p>Compare the <code>umap</code> and <code>umap_harmony</code> plots coloured by <code>stim</code>. Consider the following:</p>
+<ul>
+<li>Do ctrl and stim cells now share the same clusters in the harmony UMAP, or are they still separated?</li>
+<li>Are there any clusters that remain split by condition? If so, is that separation expected given the experimental design?</li>
+<li>How does the number and shape of clusters differ between the two UMAPs?</li>
+</ul>
 </div>
 <div id="section-13" class="section level4 unnumbered">
 <h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-13"><i class="fas fa-link"></i></a></h4>
@@ -244,7 +253,7 @@ Run and display how clusters form between the <code>umap_harmony</code> and <cod
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 22, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 24, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
