@@ -10,7 +10,7 @@
 
 [Slides](https://docs.google.com/presentation/d/1erfD1gJAZwpyh2l8wkWBGzUiVStQCyL_/edit#slide=id.p33)
 
-#### Why do we need to do this? {- .rational}
+#### Why do we need to do this? {- .rationale}
 
 Before we can compare stimulated and control PBMCs, we need to know which cell types we are comparing. Clustering groups cells by similarity in gene expression so that each cluster can be inspected and labelled as a cell type.
 
@@ -67,7 +67,13 @@ DimPlot(seurat_object, reduction = "umap_harmony")
 
 ## Choosing a cluster resolution
 
-Its a good idea to try different resolutions when clustering to identify the variability of your data. 
+#### Why do we need to do this? {- .rationale}
+
+The best resolution is the one that reflects the cell types you want to work with. Too low and you merge biologically distinct populations into a single cluster; too high and you split one cell type into many fragments that don't reflect genuine biology. The goal is a resolution that matches the granularity of your scientific question.
+
+#### {-}
+
+In practice, it is a good idea to test a range of resolutions and use the data to guide your choice. At this stage it is difficult to interpret the biology (e.g. how and what cells are clustering together) and may need to revisit this step after downstream annotation steps.
 
 ```{r}
 min_res <- 0.4
@@ -124,7 +130,8 @@ Tip: The name of the cluster is prefixed with 'RNA_snn_res' and the number of th
 Looking at the clustree, resolution 0.6 is a reasonable choice for this dataset:
 
 - The major trunks are stable between 0.4 and 0.6 (no effect on clusters)
-- Beyond 0.6 the tree becomes unstable, clusters begin fragmenting with scattered arrows, which suggests the splits no longer reflect genuine biology.
+- Beyond 0.6 the tree becomes unstable, clusters begin fragmenting with scattered arrows, which suggests the splits no longer reflect genuine biology
+- At 0.6, the number of clusters is consistent with the major PBMC cell types we expect to see (T cells, B cells, monocytes, NK cells) - giving us the right level of detail for the annotation and differential expression steps ahead
 
 Set the resolution for 0.6:
 
@@ -140,7 +147,10 @@ DimPlot(seurat_object, reduction = "umap_harmony", label = TRUE, repel = TRUE, l
 
 #### Answer in Zoom {- .challenge}
 
-At this point we have clusters, but do they reflect genuine cell types or could they still be driven by technical variation? What additional evidence would you want to see before trusting these clusters as biological groups?
+Look at the UMAP coloured by clusters, then by `stim` and `ind`. Consider:
+
+- Are any clusters made up almost entirely of cells from one condition or one individual?
+- If so, does that reflect biology or could it be a residual technical effect?
 
 #### {-}
 
