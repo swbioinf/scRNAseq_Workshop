@@ -41,6 +41,34 @@ We will use `HumanPrimaryCellAtlasData` because our dataset is human PBMCs - bro
 
 This reference would be a poor choice if your data came from a specific tissue (e.g. brain, liver), a non-human species, or contained rare or novel cell types not present in the atlas (e.g. tumour cells). In those cases, you would need a more appropriate reference. For example a tissue-specific atlas or one built from your own annotated data.
 
+<details>
+<summary>Choosing a reference for your own data</summary>
+
+**The best reference is a published single-cell study in your model system.** Ideally this means a study from the same tissue, species, and experimental context as your data. A well-annotated scRNA-seq dataset from the literature gives you cell type labels that are directly relevant to what you expect to find. Generic atlases like HPCA are useful for common human cell types, but will lack resolution for tissue-specific subtypes or anything outside their scope.
+
+A key principle: **annotation quality is bounded by the reference.** If a cell type is not represented in the reference, SingleR cannot call it. It will assign the closest available label, which may be misleading.
+
+**Where to look:**
+
+- Published scRNA-seq studies in your tissue or cell type of interest
+- Tissue-specific atlases: [Human Cell Atlas](https://www.humancellatlas.org/), [Tabula Sapiens](https://tabula-sapiens-portal.ds.czbiohub.org/) (human), [Tabula Muris](https://tabula-muris.ds.czbiohub.org/) (mouse)
+- Bioconductor's `celldex` package for common reference types
+
+Any annotated `SingleCellExperiment` can be used as a SingleR reference directly, so a downloaded and annotated published dataset is a valid option.
+
+**Non-model organisms and no-reference scenarios**
+
+For non-model organisms, curated scRNA-seq references are often sparse or non-existent. Options in this case:
+
+- **Cross-species references with ortholog mapping:** convert gene IDs to their human or mouse orthologs and apply a well-annotated reference from a related species. This can work for broadly conserved cell types (e.g. immune populations) but will fail for lineages with divergent gene expression programs.
+- **Bulk RNA-seq references:** SingleR accepts bulk RNA-seq data as a reference. If a well-annotated bulk dataset exists for your organism or tissue, it can serve as a fallback.
+- **Marker-based annotation only:** when no suitable reference exists, the manual top-down approach from the previous section is your primary tool. This requires more domain knowledge and literature review, but is the most flexible option.
+- **De novo annotation:** for truly novel cell types, annotation becomes a research question in itself and will require integration of marker genes, trajectory analysis, and cross-validation against external data sources.
+
+The absence of a reference is common in emerging model systems and is not a dead end, it shifts the bulk of the investigative work back to marker-based interpretation.
+
+</details>
+
 Let's download the reference dataset:
 
 ```{r}
