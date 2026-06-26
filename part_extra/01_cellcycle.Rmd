@@ -3,7 +3,7 @@
 # Cell cycle Assignment {#CellCycle}
 
 In some datasets, the phase of cell cycle that a cell is in (G1/G2M/S) can account for 
-alot of the observed transcriptomic variation. There may be clustering by phase, or 
+a lot of the observed transcriptomic variation. There may be clustering by phase, or 
 separation in the UMAP by phase. 
 
 Seurat provides a simple method for assigning cell cycle state to each cell. Other methods are available. 

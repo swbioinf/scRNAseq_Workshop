@@ -27,7 +27,7 @@ After removing unwanted cells from the dataset, the next step is to normalize th
 ```{r normalize}
 seurat_object <- NormalizeData(seurat_object, normalization.method = "LogNormalize", scale.factor = 1e4)
 ```
-For clarity, in this previous line of code (and in future commands), we provide the default values for certain parameters in the function call. However, this isn't required and the same behavior can be achieved with:
+For clarity, in this previous line of code (and in future commands), we provide the default values for certain parameters in the function call. However, this isn't required and the same behaviour can be achieved with:
 
 ```{r normalize.default, eval = FALSE}
 seurat_object <- NormalizeData(seurat_object)

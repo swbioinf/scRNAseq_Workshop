@@ -17,7 +17,7 @@ Low quality cells can add noise to your results leading you to the wrong biologi
 
 ####  {-}
 
-Typically, you might recive a QC report for your sample from the prepocessing steps. Here is one [example from 10X](https://cf.10xgenomics.com/samples/cell-exp/8.0.0/10k_Mouse_Neurons_3p_nextgem_10k_Mouse_Neurons_3p_nextgem/10k_Mouse_Neurons_3p_nextgem_10k_Mouse_Neurons_3p_nextgem_web_summary.html). Inspecting these reports are a good first step in your QC assessment. 
+Typically, you might receive a QC report for your sample from the preprocessing steps. Here is one [example from 10X](https://cf.10xgenomics.com/samples/cell-exp/8.0.0/10k_Mouse_Neurons_3p_nextgem_10k_Mouse_Neurons_3p_nextgem/10k_Mouse_Neurons_3p_nextgem_10k_Mouse_Neurons_3p_nextgem_web_summary.html). Inspecting these reports are a good first step in your QC assessment. 
 
 Seurat allows you to easily explore QC metrics and filter cells based on any user-defined criteria. A few QC metrics [commonly used](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4758103/) by the community include
 
@@ -32,7 +32,7 @@ Seurat allows you to easily explore QC metrics and filter cells based on any use
 
 
 
-We first use the set of all genes starting with `MT-` as a set of mitochondrial genes. (This works because that's how mitchondrial genes are named in this reference)
+We first use the set of all genes starting with `MT-` as a set of mitochondrial genes. (This works because that's how mitochondrial genes are named in this reference)
 
 ```{r mito, fig.height=7, fig.width=13}
 # The $ operator can add columns to object metadata.
@@ -82,7 +82,7 @@ FeatureScatter(seurat_object, feature1 = "nCount_RNA", feature2 = "nFeature_RNA"
 
 #### Challenge: Red Blood Cells {- .challenge}
 
-Genes "HBA1", "HBA2", and "HBB" are components of hemoglobin in red blood cells.
+Genes "HBA1", "HBA2", and "HBB" are components of haemoglobin in red blood cells.
 
 * Use PercentageFeatureSet, passing these genes to the "features" argument, to find cells that might be red blood cells.
 * How do cells high in these genes differ from other cells, in terms of number of features or total count?
