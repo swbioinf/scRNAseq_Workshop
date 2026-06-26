@@ -5,14 +5,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 16 Cell cycle Assignment | scRNAseq Analysis in R with Seurat</title>
-<meta name="description" content="In some datasets, the phase of cell cycle that a cell is in (G1/G2M/S) can account for alot of the observed transcriptomic variation. There may be clustering by phase, or separation in the UMAP by...">
-<meta name="generator" content="bookdown 0.46 with bs4_book()">
+<meta name="author" content="Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP)">
+<meta name="description" content="In some datasets, the phase of cell cycle that a cell is in (G1/G2M/S) can account for a lot of the observed transcriptomic variation. There may be clustering by phase, or separation in the UMAP...">
+<meta name="generator" content="bookdown 0.47 with bs4_book()">
 <meta property="og:title" content="Chapter 16 Cell cycle Assignment | scRNAseq Analysis in R with Seurat">
 <meta property="og:type" content="book">
-<meta property="og:description" content="In some datasets, the phase of cell cycle that a cell is in (G1/G2M/S) can account for alot of the observed transcriptomic variation. There may be clustering by phase, or separation in the UMAP by...">
+<meta property="og:description" content="In some datasets, the phase of cell cycle that a cell is in (G1/G2M/S) can account for a lot of the observed transcriptomic variation. There may be clustering by phase, or separation in the UMAP...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 16 Cell cycle Assignment | scRNAseq Analysis in R with Seurat">
-<meta name="twitter:description" content="In some datasets, the phase of cell cycle that a cell is in (G1/G2M/S) can account for alot of the observed transcriptomic variation. There may be clustering by phase, or separation in the UMAP by...">
+<meta name="twitter:description" content="In some datasets, the phase of cell cycle that a cell is in (G1/G2M/S) can account for a lot of the observed transcriptomic variation. There may be clustering by phase, or separation in the UMAP...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.9.0/transition.js"></script><script src="libs/bs3compat-0.9.0/tabs.js"></script><script src="libs/bs3compat-0.9.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -71,7 +72,7 @@
 </ul>
 
         <div class="book-extra">
-          <p><a id="book-repo" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024/">View book source <i class="fab fa-gitlab"></i></a></p>
+          <p><a id="book-repo" href="https://github.com/swbioinf/scRNAseq_Workshop">View book source <i class="fab fa-github"></i></a></p>
         </div>
       </nav>
 </div>
@@ -80,11 +81,11 @@
 <span class="header-section-number">16</span> Cell cycle Assignment<a class="anchor" aria-label="anchor" href="#CellCycle"><i class="fas fa-link"></i></a>
 </h1>
 <p>In some datasets, the phase of cell cycle that a cell is in (G1/G2M/S) can account for
-alot of the observed transcriptomic variation. There may be clustering by phase, or
+a lot of the observed transcriptomic variation. There may be clustering by phase, or
 separation in the UMAP by phase.</p>
 <p>Seurat provides a simple method for assigning cell cycle state to each cell. Other methods are available.</p>
 <p>More information about assigning cell cycle states to cells is in the <a href="https://satijalab.org/seurat/articles/cell_cycle_vignette.html">cell cycle vignette</a></p>
-<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># A list of cell cycle markers, from Tirosh et al, 2015, is loaded with Seurat.  We can</span></span>
 <span><span class="co"># segregate this list into markers of G2/M phase and markers of S phase</span></span>
 <span><span class="va">s.genes</span>   <span class="op">&lt;-</span> <span class="va">cc.genes</span><span class="op">$</span><span class="va">s.genes</span></span>
@@ -106,7 +107,7 @@ separation in the UMAP by phase.</p>
 <span><span class="co">#&gt; ANLN, CENPE, NEK2, GAS2L3, CENPA, not searching for symbol</span></span>
 <span><span class="co">#&gt; synonyms</span></span></code></pre></div>
 <p>Which adds S.Score, G2M.Score and Phase calls to the metadata.</p>
-<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">@</span><span class="va">meta.data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                     orig.ident nCount_RNA nFeature_RNA  ind</span></span>
 <span><span class="co">#&gt; AGGGCGCTATTTCC-1 SeuratProject       2053          532 1256</span></span>
@@ -186,9 +187,9 @@ separation in the UMAP by phase.</p>
 <span><span class="co">#&gt; TACGAGACCTATTC-1 -0.02572695  0.02074759   G2M</span></span>
 <span><span class="co">#&gt; GTACTACTCATACG-1 -0.07294007 -0.01517046    G1</span></span></code></pre></div>
 <p>We can then check the cell phase on the UMAP. In this dataset, phase isn’t driving the clustering, and would not require any further handling.</p>
-<div class="sourceCode" id="cb133"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">'umap_harmony'</span>, group.by <span class="op">=</span> <span class="st">"Phase"</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-110-1.png" width="672"></div>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-109-1.png" width="672"></div>
 <p>Where a bias <em>is</em> present, your course of action depends on the task at hand. It might involve ‘regressing out’ the cell cycle variation when scaling data <code>ScaleData(kang, vars.to.regress="Phase")</code>, omitting cell-cycle dominated clusters, or just accounting for it in your differential expression calculations.</p>
 <p>If you are working with non-human data, you will need to convert these gene lists, or find new cell cycle associated genes in your species.</p>
 
@@ -202,8 +203,8 @@ separation in the UMAP by phase.</p>
 
       <div class="book-extra">
         <ul class="list-unstyled">
-<li><a id="book-source" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//blob/master/part_extra/01_cellcycle.Rmd">View source <i class="fab fa-gitlab"></i></a></li>
-          <li><a id="book-edit" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//edit/master/part_extra/01_cellcycle.Rmd">Edit this page <i class="fab fa-gitlab"></i></a></li>
+<li><a id="book-source" href="https://github.com/swbioinf/scRNAseq_Workshop/blob/master/part_extra/01_cellcycle.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/swbioinf/scRNAseq_Workshop/edit/master/part_extra/01_cellcycle.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
 </div>
     </nav>
@@ -215,7 +216,7 @@ separation in the UMAP by phase.</p>
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 24, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP). It was last built on Compiled: June 26, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

@@ -5,8 +5,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 11 Clustering | scRNAseq Analysis in R with Seurat</title>
+<meta name="author" content="Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP)">
 <meta name="description" content="11.1 Learning outcomes Explain how clustering groups cells with similar gene expression profiles, and how the resolution parameter controls how broadly or finely those clusters are defined Run the...">
-<meta name="generator" content="bookdown 0.46 with bs4_book()">
+<meta name="generator" content="bookdown 0.47 with bs4_book()">
 <meta property="og:title" content="Chapter 11 Clustering | scRNAseq Analysis in R with Seurat">
 <meta property="og:type" content="book">
 <meta property="og:description" content="11.1 Learning outcomes Explain how clustering groups cells with similar gene expression profiles, and how the resolution parameter controls how broadly or finely those clusters are defined Run the...">
@@ -71,7 +72,7 @@
 </ul>
 
         <div class="book-extra">
-          <p><a id="book-repo" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024/">View book source <i class="fab fa-gitlab"></i></a></p>
+          <p><a id="book-repo" href="https://github.com/swbioinf/scRNAseq_Workshop">View book source <i class="fab fa-github"></i></a></p>
         </div>
       </nav>
 </div>
@@ -131,10 +132,10 @@ Further reading
 <li>
 <a href="http://dx.doi.org/10.1088/1742-5468/2008/10/P10008">Louvain algorithm — Blondel <em>et al.</em>, <em>Journal of Statistical Mechanics</em> (2008)</a> — the modularity-optimisation method used by default in <code>FindClusters</code>.</li>
 </ul></details><p>Read in the harmonised data for this lesson.</p>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu">qs2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qs2/man/qs_read.html">qs_read</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html">here</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"seurat_object_preprocessed.harmony.qs2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Look at cluster IDs of the first 5 cells</p>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://satijalab.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; AGGGCGCTATTTCC-1 GGAGACGATTCGTT-1 CACCGTTGTCGTAG-1 </span></span>
 <span><span class="co">#&gt;                1                5                4 </span></span>
@@ -142,10 +143,10 @@ Further reading
 <span><span class="co">#&gt;                3                0 </span></span>
 <span><span class="co">#&gt; Levels: 0 1 2 3 4 5 6 7</span></span></code></pre></div>
 <p>Check out the clusters.</p>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-43-1.png" width="672"></div>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-42-1.png" width="672"></div>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Equivalent to</span></span>
 <span><span class="co"># DimPlot(seurat_object,reduction="umap", group.by="seurat_clusters")</span></span>
 <span><span class="co"># DimPlot(seurat_object,reduction="umap", group.by="RNA_snn_res.0.5")</span></span></code></pre></div>
@@ -162,7 +163,7 @@ Further reading
 <div id="section-15" class="section level4 unnumbered">
 <h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-15"><i class="fas fa-link"></i></a></h4>
 <p>In practice, it is a good idea to test a range of resolutions and use the data to guide your choice. At this stage it is difficult to interpret the biology (e.g. how and what cells are clustering together) and may need to revisit this step after downstream annotation steps.</p>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">min_res</span> <span class="op">&lt;-</span> <span class="fl">0.4</span></span>
 <span><span class="va">max_res</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
 <span><span class="va">interval</span> <span class="op">&lt;-</span> <span class="fl">0.2</span></span>
@@ -180,7 +181,7 @@ Further reading
 <span><span class="co">#&gt; [15] "RNA_snn_res.1"    "RNA_snn_res.1.2" </span></span>
 <span><span class="co">#&gt; [17] "RNA_snn_res.1.4"  "RNA_snn_res.1.6" </span></span>
 <span><span class="co">#&gt; [19] "RNA_snn_res.1.8"  "RNA_snn_res.2"</span></span></code></pre></div>
-<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Look at cluster IDs of the first 5 cells</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://satijalab.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; AGGGCGCTATTTCC-1 GGAGACGATTCGTT-1 CACCGTTGTCGTAG-1 </span></span>
@@ -188,9 +189,9 @@ Further reading
 <span><span class="co">#&gt; TATCGTACACGCAT-1 TACGAGACCTATTC-1 </span></span>
 <span><span class="co">#&gt;               13                9 </span></span>
 <span><span class="co">#&gt; 21 Levels: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 ... 20</span></span></code></pre></div>
-<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-46-1.png" width="672"></div>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-45-1.png" width="672"></div>
 </div>
 <div id="how-to-read-a-clustree" class="section level3" number="11.4.1">
 <h3>
@@ -201,7 +202,7 @@ Further reading
 <p><strong>Branching point</strong> — a node that splits into two or more child nodes at higher resolution. A clean branch (one dominant arrow per child) suggests the split is capturing a genuine subpopulation. Multiple small arrows from the same parent (“scatter”) suggests noise rather than biology.</p>
 <p><strong>Over-clustering</strong> — at high resolutions, previously stable clusters start fragmenting with many small arrows going in multiple directions. The tree looks “bushy”. Cells are being split arbitrarily rather than by meaningful gene expression differences.</p>
 <p><strong>Choosing a resolution</strong> — pick the highest resolution at which the major trunks remain stable and branches are still clean. Pushing beyond this point adds clusters that don’t reflect biology.</p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lazappi/clustree">clustree</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: ggraph</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -211,7 +212,7 @@ Further reading
 <span><span class="co">#&gt;     geometry</span></span>
 <span><span class="fu"><a href="https://lazappi.github.io/clustree/reference/clustree.html">clustree</a></span><span class="op">(</span><span class="va">seurat_object</span>, prefix <span class="op">=</span> <span class="st">"RNA_snn_res."</span>, show_axis<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.key.size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grid/unit.html">unit</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="st">"cm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-47-1.png" width="672"></div>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-46-1.png" width="672"></div>
 <div id="exercise-choosing-a-resolution" class="section level4 unnumbered challenge">
 <h4>Exercise: Choosing a resolution<a class="anchor" aria-label="anchor" href="#exercise-choosing-a-resolution"><i class="fas fa-link"></i></a>
 </h4>
@@ -220,7 +221,7 @@ Further reading
 <li>Validate the resolution using DimPlot() — do the clusters look well-separated on the UMAP?</li>
 </ol>
 <p>Tip: The name of the cluster is prefixed with ‘RNA_snn_res’ and the number of the resolution e.g. <code>RNA_snn_res.0.4</code></p>
-<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add your DimPlots here</span></span>
 <span><span class="co">#DimPlot(seurat_object, reduction = "umap_harmony", group.by = "")</span></span></code></pre></div>
 </div>
@@ -233,12 +234,12 @@ Further reading
 <li>At 0.6, the number of clusters is consistent with the major PBMC cell types we expect to see (T cells, B cells, monocytes, NK cells) - giving us the right level of detail for the annotation and differential expression steps ahead</li>
 </ul>
 <p>Set the resolution for 0.6:</p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">seurat_object</span><span class="op">$</span><span class="va">RNA_snn_res.0.6</span></span></code></pre></div>
 <p>Plot the UMAP with coloured clusters.</p>
-<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, repel <span class="op">=</span> <span class="cn">TRUE</span>, label.box <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-50-1.png" width="672"></div>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-49-1.png" width="672"></div>
 </div>
 <div id="answer-in-zoom-1" class="section level4 unnumbered challenge">
 <h4>Answer in Zoom<a class="anchor" aria-label="anchor" href="#answer-in-zoom-1"><i class="fas fa-link"></i></a>
@@ -251,7 +252,7 @@ Further reading
 </div>
 <div id="section-17" class="section level4 unnumbered">
 <h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-17"><i class="fas fa-link"></i></a></h4>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#qs2::qs_save(seurat_object, "../data/seurat_object_preprocessed.harmony.clustered.qs2")</span></span></code></pre></div>
 
 </div>
@@ -275,8 +276,8 @@ Further reading
 
       <div class="book-extra">
         <ul class="list-unstyled">
-<li><a id="book-source" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//blob/master/part2/02_clustering.Rmd">View source <i class="fab fa-gitlab"></i></a></li>
-          <li><a id="book-edit" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//edit/master/part2/02_clustering.Rmd">Edit this page <i class="fab fa-gitlab"></i></a></li>
+<li><a id="book-source" href="https://github.com/swbioinf/scRNAseq_Workshop/blob/master/part2/02_clustering.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/swbioinf/scRNAseq_Workshop/edit/master/part2/02_clustering.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
 </div>
     </nav>
@@ -288,7 +289,7 @@ Further reading
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 24, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP). It was last built on Compiled: June 26, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

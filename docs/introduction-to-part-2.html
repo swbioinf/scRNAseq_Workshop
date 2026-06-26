@@ -5,8 +5,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 9 Introduction to Part 2 | scRNAseq Analysis in R with Seurat</title>
+<meta name="author" content="Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP)">
 <meta name="description" content="9.1 Part 1 Recap In Part 1, we processed raw single-cell RNA-seq data through the following steps: Step What we did Why Load data Imported raw count matrices for 8 PBMC samples Starting point —...">
-<meta name="generator" content="bookdown 0.46 with bs4_book()">
+<meta name="generator" content="bookdown 0.47 with bs4_book()">
 <meta property="og:title" content="Chapter 9 Introduction to Part 2 | scRNAseq Analysis in R with Seurat">
 <meta property="og:type" content="book">
 <meta property="og:description" content="9.1 Part 1 Recap In Part 1, we processed raw single-cell RNA-seq data through the following steps: Step What we did Why Load data Imported raw count matrices for 8 PBMC samples Starting point —...">
@@ -71,7 +72,7 @@
 </ul>
 
         <div class="book-extra">
-          <p><a id="book-repo" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024/">View book source <i class="fab fa-gitlab"></i></a></p>
+          <p><a id="book-repo" href="https://github.com/swbioinf/scRNAseq_Workshop">View book source <i class="fab fa-github"></i></a></p>
         </div>
       </nav>
 </div>
@@ -154,7 +155,7 @@
 <code>multiplets</code> classifies cells as singlet or doublet.</li>
 </ul>
 <p>Read in libraries</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://here.r-lib.org/">here</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/qsbase/qs2">qs2</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; qs2 0.2.1</span></span>
@@ -162,12 +163,12 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/immunogenomics/harmony">harmony</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: Rcpp</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; ── Attaching core tidyverse packages ───────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 2.0.0 ──</span></span>
+<span><span class="co">#&gt; ── Attaching core tidyverse packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 2.0.0 ──</span></span>
 <span><span class="co">#&gt; ✔ forcats   1.0.1     ✔ stringr   1.6.0</span></span>
 <span><span class="co">#&gt; ✔ lubridate 1.9.4     ✔ tibble    3.3.0</span></span>
 <span><span class="co">#&gt; ✔ purrr     1.2.0     ✔ tidyr     1.3.1</span></span>
 <span><span class="co">#&gt; ✔ readr     2.1.6</span></span>
-<span><span class="co">#&gt; ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
+<span><span class="co">#&gt; ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
 <span><span class="co">#&gt; ✖ dplyr::filter() masks stats::filter()</span></span>
 <span><span class="co">#&gt; ✖ dplyr::lag()    masks stats::lag()</span></span>
 <span><span class="co">#&gt; ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</span></span>
@@ -346,13 +347,13 @@
 <span><span class="co">#&gt;     NovershternHematopoieticData</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span></span></code></pre></div>
 <p>Read in the preprocessed Seurat object from part 1. We use <code>qs2</code> to efficiently load the data in.</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu">qs2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qs2/man/qs_read.html">qs_read</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html">here</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"seurat_object_preprocessed.qs2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div id="exercise" class="section level4 unnumbered challenge">
 <h4>Exercise<a class="anchor" aria-label="anchor" href="#exercise"><i class="fas fa-link"></i></a>
 </h4>
 <p>Use <code>names(seurat_object@meta.data)</code> to identify where this information is stored in the Seurat object.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add your code here</span></span></code></pre></div>
 </div>
 <div id="section-9" class="section level4 unnumbered">
@@ -362,13 +363,13 @@
 <h4>Exercise<a class="anchor" aria-label="anchor" href="#exercise-1"><i class="fas fa-link"></i></a>
 </h4>
 <p>Use the <code>table(seurat_object$&lt;name&gt;)</code> function to see the number of cells that belong to each metadata category. Replace <code>&lt;name&gt;</code> with the relevant metadata names (e.g. <code>ind</code>, <code>stim</code>)</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add your code here</span></span></code></pre></div>
 </div>
 <div id="section-10" class="section level4 unnumbered">
 <h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-10"><i class="fas fa-link"></i></a></h4>
 <p>It is useful to display the number of control and stimulated cells per individual</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">$</span><span class="va">ind</span>, <span class="va">seurat_object</span><span class="op">$</span><span class="va">stim</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       </span></span>
 <span><span class="co">#&gt;        ctrl stim</span></span>
@@ -404,8 +405,8 @@
 
       <div class="book-extra">
         <ul class="list-unstyled">
-<li><a id="book-source" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//blob/master/part2/00_intro.Rmd">View source <i class="fab fa-gitlab"></i></a></li>
-          <li><a id="book-edit" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//edit/master/part2/00_intro.Rmd">Edit this page <i class="fab fa-gitlab"></i></a></li>
+<li><a id="book-source" href="https://github.com/swbioinf/scRNAseq_Workshop/blob/master/part2/00_intro.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/swbioinf/scRNAseq_Workshop/edit/master/part2/00_intro.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
 </div>
     </nav>
@@ -417,7 +418,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 24, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP). It was last built on Compiled: June 26, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

@@ -5,8 +5,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Chapter 12 Cluster Markers | scRNAseq Analysis in R with Seurat</title>
+<meta name="author" content="Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP)">
 <meta name="description" content="12.1 Learning outcomes Explain how differentially expressed genes can be used as markers to characterise the biological identity of a cluster Run FindMarkers to identify positive markers for each...">
-<meta name="generator" content="bookdown 0.46 with bs4_book()">
+<meta name="generator" content="bookdown 0.47 with bs4_book()">
 <meta property="og:title" content="Chapter 12 Cluster Markers | scRNAseq Analysis in R with Seurat">
 <meta property="og:type" content="book">
 <meta property="og:description" content="12.1 Learning outcomes Explain how differentially expressed genes can be used as markers to characterise the biological identity of a cluster Run FindMarkers to identify positive markers for each...">
@@ -71,7 +72,7 @@
 </ul>
 
         <div class="book-extra">
-          <p><a id="book-repo" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024/">View book source <i class="fab fa-gitlab"></i></a></p>
+          <p><a id="book-repo" href="https://github.com/swbioinf/scRNAseq_Workshop">View book source <i class="fab fa-github"></i></a></p>
         </div>
       </nav>
 </div>
@@ -104,7 +105,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <div id="section-18" class="section level4 unnumbered">
 <h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-18"><i class="fas fa-link"></i></a></h4>
 <p>Read in the clustered data.</p>
-<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu">qs2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qs2/man/qs_read.html">qs_read</a></span><span class="op">(</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html">here</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"seurat_object_preprocessed.harmony.clustered.qs2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -118,7 +119,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <p>The key parameters filter out genes that are unlikely to be informative: <code>min.pct</code> removes genes detected in very few cells, and <code>logfc.threshold</code> removes genes with small average differences between groups. This keeps the analysis focused on the most discriminatory markers.</p>
 <p>Seurat can help you find markers that define clusters via differential expression. By default, it identifies positive and negative markers of a single cluster (specified in <code>ident.1</code>), compared to all other cells. <code><a href="https://satijalab.org/seurat/reference/FindAllMarkers.html">FindAllMarkers()</a></code> automates this process for all clusters, but you can also test groups of clusters vs. each other, or against all cells.</p>
 <p>We use <code>only.pos = TRUE</code> to return only positive markers — genes that are more highly expressed in the cluster than in others. These are the most useful for cell type identification: a gene being <em>switched off</em> in a cluster is harder to interpret than one being <em>switched on</em>.</p>
-<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># find positive markers of cluster 1</span></span>
 <span><span class="va">cluster1.markers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindMarkers.html">FindMarkers</a></span><span class="op">(</span><span class="va">seurat_object</span>, ident.1 <span class="op">=</span> <span class="fl">1</span>, min.pct <span class="op">=</span> <span class="fl">0.25</span>, only.pos <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">cluster1.markers</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
@@ -128,7 +129,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span><span class="co">#&gt; TYROBP       0   3.336681 0.991 0.168         0</span></span>
 <span><span class="co">#&gt; LGALS3       0   4.052179 0.922 0.145         0</span></span>
 <span><span class="co">#&gt; LGALS1       0   3.483122 0.948 0.179         0</span></span></code></pre></div>
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># find markers distinguishing cluster 1 from specific neighbouring clusters 2, 5, 6</span></span>
 <span><span class="va">cluster1.specific.markers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindMarkers.html">FindMarkers</a></span><span class="op">(</span><span class="va">seurat_object</span>, ident.1 <span class="op">=</span> <span class="fl">1</span>, ident.2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span>, <span class="fl">6</span><span class="op">)</span>, min.pct <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">cluster1.specific.markers</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
@@ -138,7 +139,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span><span class="co">#&gt; SOD2         0   5.116777 0.958 0.134         0</span></span>
 <span><span class="co">#&gt; FCER1G       0   3.828477 0.970 0.165         0</span></span>
 <span><span class="co">#&gt; TIMP1        0   5.541923 0.979 0.196         0</span></span></code></pre></div>
-<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># find markers for every cluster compared to all remaining cells, report only the positive ones</span></span>
 <span><span class="va">seurat_object.markers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindAllMarkers.html">FindAllMarkers</a></span><span class="op">(</span><span class="va">seurat_object</span>, only.pos <span class="op">=</span> <span class="cn">TRUE</span>, min.pct <span class="op">=</span> <span class="fl">0.25</span>, logfc.threshold <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Calculating cluster 0</span></span>
@@ -179,7 +180,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <li>
 <code><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot()</a></code> overlays expression onto the UMAP. This is useful for confirming that the distribution of the expression is restricted to the expected cluster.</li>
 </ul>
-<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cluster3_markers</span> <span class="op">&lt;-</span> <span class="va">seurat_object.markers</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">cluster</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html">slice_max</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">4</span>, order_by <span class="op">=</span> <span class="va">avg_log2FC</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
@@ -187,24 +188,23 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span><span class="va">cluster3_markers</span></span>
 <span><span class="co">#&gt; [1] "MS4A1" "CD79A" "IRF8"  "CD83"</span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cluster3_markers</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-57-1.png" width="672"></div>
-<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-56-1.png" width="672"></div>
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># you can plot raw counts as well</span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cluster3_markers</span>, layer <span class="op">=</span> <span class="st">'counts'</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-57-2.png" width="672"></div>
-<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-56-2.png" width="672"></div>
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cluster3_markers</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/markerplots-1.png" width="672"></div>
-<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">cluster2_markers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"GZMA"</span>, <span class="st">"GNLY"</span>, <span class="st">"PRF1"</span>, <span class="st">"CLIC3"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cluster2_markers</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/markerplots-2.png" width="672"></div>
 <p><code><a href="https://satijalab.org/seurat/reference/DoHeatmap.html">DoHeatmap()</a></code> gives a cluster-level overview of the top markers across all clusters at once.</p>
-<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">maxcells</span><span class="op">=</span><span class="fl">1500</span></span>
-<span><span class="va">top10</span> <span class="op">&lt;-</span> <span class="va">seurat_object.markers</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">cluster</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/top_n.html">top_n</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10</span>, wt <span class="op">=</span> <span class="va">avg_log2FC</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://satijalab.org/seurat/reference/DoHeatmap.html">DoHeatmap</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">seurat_object</span>, downsample <span class="op">=</span> <span class="va">maxcells</span><span class="op">)</span>, features <span class="op">=</span> <span class="va">top10</span><span class="op">$</span><span class="va">gene</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">top10</span> <span class="op">&lt;-</span> <span class="va">seurat_object.markers</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">cluster</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/top_n.html">top_n</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">10</span>, wt <span class="op">=</span> <span class="va">avg_log2FC</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://satijalab.org/seurat/reference/DoHeatmap.html">DoHeatmap</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">seurat_object</span>, downsample <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>, features <span class="op">=</span> <span class="va">top10</span><span class="op">$</span><span class="va">gene</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/clusterHeatmap-1.png" width="1440"></div>
 <p><strong>Worked example: confirming NK markers using the Human Protein Atlas</strong></p>
 <p>Cluster 2’s top markers from <code>FindAllMarkers</code> above included <code>GNLY</code>, <code>GZMA</code>, and <code>PRF1</code>. Let’s verify what cells these point to.</p>
@@ -262,7 +262,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span class="header-section-number">12.4.3</span> Step 3: Build the marker list in R and visualise<a class="anchor" aria-label="anchor" href="#step-3-build-the-marker-list-in-r-and-visualise"><i class="fas fa-link"></i></a>
 </h3>
 <p>This is the named list you’d build from Step 2, mapping each expected cell type to its canonical markers:</p>
-<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cell_markers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"CD4 T cells"</span>       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"CD4"</span>, <span class="st">"IL7R"</span><span class="op">)</span>,</span>
 <span>  <span class="st">"CD8 T cells"</span>       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"CD8A"</span>, <span class="st">"CD8B"</span><span class="op">)</span>,</span>
@@ -274,14 +274,14 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span>  <span class="st">"Megakaryocytes"</span>    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"PF4"</span>, <span class="st">"PPBP"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The most informative plot for annotation is a <code>DotPlot</code>: a compact cluster by gene grid showing both the proportion of expressing cells (dot size) and average expression (colour). It lets us read off all markers and all clusters at once.</p>
-<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_markers</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">cell_markers</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Filter to genes actually present in the assay (some symbols may not be in this dataset)</span></span>
 <span><span class="va">features_to_plot</span> <span class="op">&lt;-</span> <span class="va">all_markers</span><span class="op">[</span><span class="va">all_markers</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/DotPlot.html">DotPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">features_to_plot</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">RotatedAxis</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-59-1.png" width="1152"></div>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-58-1.png" width="1152"></div>
 <p>Read the plot column by column: for each marker group, find the cluster (row) where the dots are largest and darkest. That cluster expresses those markers and is likely that cell type.</p>
 </div>
 </div>
@@ -312,14 +312,14 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span class="header-section-number">12.4.4</span> Explore: clusters 6 and 7<a class="anchor" aria-label="anchor" href="#explore-clusters-6-and-7"><i class="fas fa-link"></i></a>
 </h3>
 <p><strong>Cluster 6</strong> has a small CD8A signal on the DotPlot. On the UMAP, CD8+ T cells should occupy a distinct region near the T-cell area, clearly separated from the NK cells (cluster 2). However, on the feature plot it appears only a small proportion of cells in cluster 6 express it. We leave this as an ambiguous cluster</p>
-<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span> <span class="op">|</span></span>
 <span>  <span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cell_markers</span><span class="op">[[</span><span class="st">"CD8 T cells"</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-60-1.png" width="1152"></div>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-59-1.png" width="1152"></div>
 <p><strong>Cluster 7</strong> shows LYZ (a broad myeloid marker) alongside CST3 and FCER1A, which are more specific for dendritic cells. Dendritic cells are a small population - look for a compact region on the UMAP that lights up for both CST3 and FCER1A but is distinct from the monocyte clusters:</p>
-<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cell_markers</span><span class="op">[[</span><span class="st">"Dendritic cells"</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-61-1.png" width="672"></div>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-60-1.png" width="672"></div>
 </div>
 <div id="discuss-cluster-4" class="section level3" number="12.4.5">
 <h3>
@@ -340,7 +340,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <h3>
 <span class="header-section-number">12.4.6</span> Fill in your answers<a class="anchor" aria-label="anchor" href="#fill-in-your-answers"><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">seurat_object</span><span class="op">$</span><span class="va">RNA_snn_res.0.6</span></span>
 <span></span>
 <span><span class="va">new.cluster.ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
@@ -355,10 +355,10 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span><span class="op">)</span></span></code></pre></div>
 <p>If you did not complete the exercise above, open <code>scripts/catchup_script.R</code> and run the <strong>## Cluster markers</strong> section to set <code>new.cluster.ids</code> before continuing.</p>
 <p>Apply your labels and visualise the annotated UMAP:</p>
-<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">seurat_object</span><span class="op">@</span><span class="va">meta.data</span><span class="op">$</span><span class="va">markers</span> <span class="op">&lt;-</span> <span class="va">new.cluster.ids</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">$</span><span class="va">RNA_snn_res.0.6</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span>, group.by <span class="op">=</span> <span class="st">"markers"</span>, label <span class="op">=</span> <span class="cn">TRUE</span>, pt.size <span class="op">=</span> <span class="fl">0.5</span>, label.box <span class="op">=</span> <span class="cn">T</span>, repel <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-63-1.png" width="672"></div>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-62-1.png" width="672"></div>
 </div>
 </div>
 <div id="section-20" class="section level2 unnumbered">
@@ -370,7 +370,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 </h2>
 <p>Visual inspection of a <code>DotPlot</code> is fast, but for ambiguous clusters it helps to get a single quantitative score per cell. <code>AddModuleScore</code> computes the average expression of a marker gene set, minus the average expression of a random set of control genes with similar overall expression levels. The result is a relative score: positive when a cell expresses the marker set more than expected by chance, and robust to overall expression magnitude.</p>
 <p>We’ll use it here to verify the identity of cluster 2.</p>
-<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Reset Idents back to cluster numbers so we can refer to them by number</span></span>
 <span><span class="fu"><a href="https://satijalab.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">seurat_object</span><span class="op">$</span><span class="va">RNA_snn_res.0.6</span></span>
 <span></span>
@@ -403,15 +403,15 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span><span class="co">#&gt; [21] "markers"          "CD8 T cells1"    </span></span>
 <span><span class="co">#&gt; [23] "NK cells1"</span></span></code></pre></div>
 <p>Plot the score on the UMAP. Cells in cluster 2 should have the highest NK signature scores:</p>
-<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span></span>
 <span>  <span class="va">seurat_object</span>, features <span class="op">=</span> <span class="st">"CD8 T cells1"</span>,</span>
 <span>  label <span class="op">=</span> <span class="cn">TRUE</span>, repel <span class="op">=</span> <span class="cn">TRUE</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span></span>
 <span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_colour_gradientn</a></span><span class="op">(</span>colours <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"lightblue"</span>, <span class="st">"beige"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Scale for colour is already present.</span></span>
 <span><span class="co">#&gt; Adding another scale for colour, which will replace the existing scale.</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-65-1.png" width="672"></div>
-<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-64-1.png" width="672"></div>
+<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span></span>
 <span>  <span class="va">seurat_object</span>, features <span class="op">=</span> <span class="st">"NK cells1"</span>,</span>
@@ -419,7 +419,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_colour_gradientn</a></span><span class="op">(</span>colours <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"lightblue"</span>, <span class="st">"beige"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Scale for colour is already present.</span></span>
 <span><span class="co">#&gt; Adding another scale for colour, which will replace the existing scale.</span></span></code></pre></div>
-<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-65-2.png" width="672"></div>
+<div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-64-2.png" width="672"></div>
 <div id="discuss-1" class="section level4 unnumbered challenge">
 <h4>Discuss<a class="anchor" aria-label="anchor" href="#discuss-1"><i class="fas fa-link"></i></a>
 </h4>
@@ -428,7 +428,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <div id="section-21" class="section level4 unnumbered">
 <h4 class="unnumbered"><a class="anchor" aria-label="anchor" href="#section-21"><i class="fas fa-link"></i></a></h4>
 <p>Notice that the <code>AddModuleScore</code> result for cluster 2 shows elevated scores for both NK and CD8 T cell signatures. This suggests this cluster may contain two cell types that were merged together at this resolution. This is a normal finding. scRNAseq annotation is an iterative process: the outcome of annotation frequently reveals whether the clustering resolution needs adjustment. If you suspect a cluster is heterogeneous, the next step is to increase the resolution, re-run <code>FindClusters</code>, and repeat the annotation.</p>
-<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#qs2::qs_save(seurat_object, here("data", "seurat_object_preprocessed.harmony.clustered.markers.qs2"))</span></span></code></pre></div>
 
 </div>
@@ -464,8 +464,8 @@ To interpret them, we need to identify which cell type each cluster represents.<
 
       <div class="book-extra">
         <ul class="list-unstyled">
-<li><a id="book-source" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//blob/master/part2/03_clustermarkers.Rmd">View source <i class="fab fa-gitlab"></i></a></li>
-          <li><a id="book-edit" href="https://monashbioinformaticsplatform.github.io/scRNAseq_Workshop_ABACBS_2024//edit/master/part2/03_clustermarkers.Rmd">Edit this page <i class="fab fa-gitlab"></i></a></li>
+<li><a id="book-source" href="https://github.com/swbioinf/scRNAseq_Workshop/blob/master/part2/03_clustermarkers.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/swbioinf/scRNAseq_Workshop/edit/master/part2/03_clustermarkers.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
 </div>
     </nav>
@@ -477,7 +477,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by . It was last built on Compiled: June 24, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP). It was last built on Compiled: June 26, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

@@ -4,7 +4,6 @@ set-up
 recommended-computer-requirements
 get-the-workshop-material-and-data
 package-installation
-raw-data
 schedule
 load
 learning-outcomes
