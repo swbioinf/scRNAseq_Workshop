@@ -15,7 +15,7 @@ seurat_object <- readRDS(here("data", "kang2018.rds"))
 
 Lets take a look at the seurat object we have just created in R, `seurat_object`
 
-To accomodate the complexity of data arising from a single cell RNA seq experiment, the seurat object keeps this as a container of multiple data tables that are linked.
+To accommodate the complexity of data arising from a single cell RNA seq experiment, the seurat object keeps this as a container of multiple data tables that are linked.
 
 ![](images/seuratobject.png){width=80%}
 

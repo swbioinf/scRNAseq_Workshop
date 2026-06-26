@@ -28,7 +28,7 @@ Identifying the most variable features allows retaining the real biological vari
 
 We next calculate a subset of features that exhibit high cell-to-cell variation in the dataset (i.e, they are highly expressed in some cells, and lowly expressed in others). The Seurat authors and [others](https://www.nature.com/articles/nmeth.2645) have found that focusing on these genes in downstream analysis helps to highlight biological signal in single-cell datasets.
 
-The procedure in Seurat is described in detail [here](https://doi.org/10.1016/j.cell.2019.05.031), and improves on previous versions by directly modeling the mean-variance relationship inherent in single-cell data, and is implemented in the `FindVariableFeatures()` function. By default, Seurat returns 2,000 features per dataset. These will be used in downstream analysis, like PCA.
+The procedure in Seurat is described in detail [here](https://doi.org/10.1016/j.cell.2019.05.031), and improves on previous versions by directly modelling the mean-variance relationship inherent in single-cell data, and is implemented in the `FindVariableFeatures()` function. By default, Seurat returns 2,000 features per dataset. These will be used in downstream analysis, like PCA.
 
 ```{r var_features}
 seurat_object <- FindVariableFeatures(seurat_object, selection.method = 'vst', nfeatures = 2000)
@@ -51,7 +51,7 @@ plot2
 
 #### Why do we need to do this? {- .rational}
 
-Highly expresed genes can overpower the signal of other less expresed genes with equal importance. Within the same cell the assumption is that the underlying RNA content is constant. Aditionally, If variables are provided in vars.to.regress, they are individually regressed against each feature, and the resulting residuals are then scaled and centered. This step allows controling for cell cycle and other factors that may bias your clustering.
+Highly expressed genes can overpower the signal of other less expressed genes with equal importance. Within the same cell the assumption is that the underlying RNA content is constant. Additionally, If variables are provided in vars.to.regress, they are individually regressed against each feature, and the resulting residuals are then scaled and centred. This step allows controlling for cell cycle and other factors that may bias your clustering.
 
 
 ####  {-}

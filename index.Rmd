@@ -1,5 +1,6 @@
 --- 
 title: "scRNAseq Analysis in R with Seurat"
+author: 'Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP)'
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 site: bookdown::bookdown_site
 documentclass: book
