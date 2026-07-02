@@ -1,6 +1,8 @@
 
 # The Seurat object {#structure}
 
+
+
 ## Load an existing Seurat object
 
 And here's the one we prepared earlier. Seurat objects are usually saved as '.rds' files, which is an R format for storing binary data (not-text or human-readable). The functions `readRDS()` can load it.
@@ -73,7 +75,7 @@ Where is our count data within the Seurat object?
 
 
 
-
+NB: A more detailed explanation of this format is here [biostats squid Seurat Objects explained]( https://biostatsquid.com/seurat-objects-explained/)
 
 
 ## What's in there?
@@ -102,5 +104,36 @@ But the raw counts data is accessible too.
 ```{r}
 GetAssayData(seurat_object, layer='counts')[1:15,1:2]
 ```
+
+
+
+
+## Multiple counts layers?
+
+When you first load a dataset with multiple samples you might notice *multiple* numbered counts layers - one for each sample.
+
+This is a way for Seurat to smartly handle multiple samples during preprocessing (e.g. find Variable genes within samples, not across them). 
+
+But some analyses need to be run on everything combined, and you'll need to run the 'JoinLayers' function to merge them back. Helpfully, you'll get an error when this is necessary: Like this one from _FindMarkers()_
+
+```
+data layers are not joined. Please run JoinLayers
+```
+
+```{r eval=FALSE}
+seurat_object <- JoinLayers(seurat_object)
+```
+
+You can undo that with the split function
+
+```{r eval=FALSE}
+seurat_object <- split(seurat_object, seurat_object$sample)
+```
+
+These commands for working with layers were introduced with Seurat 5, and described [here](https://satijalab.org/seurat/articles/seurat5_essential_commands.html)
+
+
+
+
 
 
