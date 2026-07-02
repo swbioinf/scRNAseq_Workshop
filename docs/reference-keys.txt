@@ -83,6 +83,7 @@ CellCycle
 structure
 load-an-existing-seurat-object
 whats-in-there
+multiple-counts-layers
 resources
 suggested-further-reading-material
 useful-links-arising-from-the-discussion-during-the-previous-workshop

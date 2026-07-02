@@ -117,6 +117,7 @@ The ways to access the slots can be through methods for the class (functions) or
 <p>Use <code>str</code> to look at the structure of the Seurat object <code>seurat_object</code>.</p>
 <p>What is in the <code>meta.data</code> slot within your Seurat object currently? What type of data is contained here?</p>
 <p>Where is our count data within the Seurat object?</p>
+<p>NB: A more detailed explanation of this format is here <a href="https://biostatsquid.com/seurat-objects-explained/">biostats squid Seurat Objects explained</a></p>
 </div>
 </div>
 <div id="whats-in-there" class="section level2" number="17.2">
@@ -184,6 +185,21 @@ The Assay structure has some nuances (see discussion below), but there are funct
 <span><span class="co">#&gt; RP5-857K21.15                .                .</span></span>
 <span><span class="co">#&gt; RP5-857K21.1                 .                .</span></span>
 <span><span class="co">#&gt; RP5-857K21.2                 .                .</span></span></code></pre></div>
+</div>
+<div id="multiple-counts-layers" class="section level2" number="17.3">
+<h2>
+<span class="header-section-number">17.3</span> Multiple counts layers?<a class="anchor" aria-label="anchor" href="#multiple-counts-layers"><i class="fas fa-link"></i></a>
+</h2>
+<p>When you first load a dataset with multiple samples you might notice <em>multiple</em> numbered counts layers - one for each sample.</p>
+<p>This is a way for Seurat to smartly handle multiple samples during preprocessing (e.g. find Variable genes within samples, not across them).</p>
+<p>But some analyses need to be run on everything combined, and you’ll need to run the ‘JoinLayers’ function to merge them back. Helpfully, you’ll get an error when this is necessary: Like this one from <em>FindMarkers()</em></p>
+<pre><code>data layers are not joined. Please run JoinLayers</code></pre>
+<div class="sourceCode" id="cb138"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.github.io/seurat-object/reference/SplitLayers.html">JoinLayers</a></span><span class="op">(</span><span class="va">seurat_object</span><span class="op">)</span></span></code></pre></div>
+<p>You can undo that with the split function</p>
+<div class="sourceCode" id="cb139"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">seurat_object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html">split</a></span><span class="op">(</span><span class="va">seurat_object</span>, <span class="va">seurat_object</span><span class="op">$</span><span class="va">sample</span><span class="op">)</span></span></code></pre></div>
+<p>These commands for working with layers were introduced with Seurat 5, and described <a href="https://satijalab.org/seurat/articles/seurat5_essential_commands.html">here</a></p>
 
 </div>
 </div>
@@ -196,6 +212,7 @@ The Assay structure has some nuances (see discussion below), but there are funct
 <li><a class="nav-link" href="#structure"><span class="header-section-number">17</span> The Seurat object</a></li>
 <li><a class="nav-link" href="#load-an-existing-seurat-object"><span class="header-section-number">17.1</span> Load an existing Seurat object</a></li>
 <li><a class="nav-link" href="#whats-in-there"><span class="header-section-number">17.2</span> What’s in there?</a></li>
+<li><a class="nav-link" href="#multiple-counts-layers"><span class="header-section-number">17.3</span> Multiple counts layers?</a></li>
 </ul>
 
       <div class="book-extra">
@@ -213,7 +230,7 @@ The Assay structure has some nuances (see discussion below), but there are funct
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP). It was last built on Compiled: June 26, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP). It was last built on Compiled: July 02, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
