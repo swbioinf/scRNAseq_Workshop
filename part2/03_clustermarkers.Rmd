@@ -187,7 +187,9 @@ DimPlot(seurat_object, reduction = "umap_harmony") |
   FeaturePlot(seurat_object, features = cell_markers[["CD8 T cells"]], reduction = "umap_harmony")
 ```
 
-**Cluster 7** shows LYZ (a broad myeloid marker) alongside CST3 and FCER1A, which are more specific for dendritic cells. Dendritic cells are a small population - look for a compact region on the UMAP that lights up for both CST3 and FCER1A but is distinct from the monocyte clusters:
+Note: IL7R also shows signal in cluster 6. IL7R is a T-lineage marker rather than CD4-specific, so this doesn't contradict a CD8 T cell call - it's consistent with cluster 6 being T cells.
+
+**Cluster 7** shows LYZ (a broad myeloid marker) alongside CST3 and FCER1A, which are more specific for dendritic cells. Dendritic cells are a small population - look for a compact region on the UMAP that lights up for both CST3 and FCER1A but is distinct from the monocyte clusters. The absence of IL7R signal here reinforces that cluster 7 is myeloid rather than T-lineage:
 
 ```{r}
 FeaturePlot(seurat_object, features = cell_markers[["Dendritic cells"]], reduction = "umap_harmony")
