@@ -316,7 +316,8 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span> <span class="op">|</span></span>
 <span>  <span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cell_markers</span><span class="op">[[</span><span class="st">"CD8 T cells"</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-59-1.png" width="1152"></div>
-<p><strong>Cluster 7</strong> shows LYZ (a broad myeloid marker) alongside CST3 and FCER1A, which are more specific for dendritic cells. Dendritic cells are a small population - look for a compact region on the UMAP that lights up for both CST3 and FCER1A but is distinct from the monocyte clusters:</p>
+<p>Note: IL7R also shows signal in cluster 6. IL7R is a T-lineage marker rather than CD4-specific, so this doesn’t contradict a CD8 T cell call - it’s consistent with cluster 6 being T cells.</p>
+<p><strong>Cluster 7</strong> shows LYZ (a broad myeloid marker) alongside CST3 and FCER1A, which are more specific for dendritic cells. Dendritic cells are a small population - look for a compact region on the UMAP that lights up for both CST3 and FCER1A but is distinct from the monocyte clusters. The absence of IL7R signal here reinforces that cluster 7 is myeloid rather than T-lineage:</p>
 <div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">seurat_object</span>, features <span class="op">=</span> <span class="va">cell_markers</span><span class="op">[[</span><span class="st">"Dendritic cells"</span><span class="op">]</span><span class="op">]</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-60-1.png" width="672"></div>
@@ -409,7 +410,8 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span>  label <span class="op">=</span> <span class="cn">TRUE</span>, repel <span class="op">=</span> <span class="cn">TRUE</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span></span>
 <span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_colour_gradientn</a></span><span class="op">(</span>colours <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"lightblue"</span>, <span class="st">"beige"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Scale for colour is already present.</span></span>
-<span><span class="co">#&gt; Adding another scale for colour, which will replace the existing scale.</span></span></code></pre></div>
+<span><span class="co">#&gt; Adding another scale for colour, which will replace the existing</span></span>
+<span><span class="co">#&gt; scale.</span></span></code></pre></div>
 <div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-64-1.png" width="672"></div>
 <div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -418,7 +420,8 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <span>  label <span class="op">=</span> <span class="cn">TRUE</span>, repel <span class="op">=</span> <span class="cn">TRUE</span>, reduction <span class="op">=</span> <span class="st">"umap_harmony"</span></span>
 <span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_colour_gradientn</a></span><span class="op">(</span>colours <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"lightblue"</span>, <span class="st">"beige"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Scale for colour is already present.</span></span>
-<span><span class="co">#&gt; Adding another scale for colour, which will replace the existing scale.</span></span></code></pre></div>
+<span><span class="co">#&gt; Adding another scale for colour, which will replace the existing</span></span>
+<span><span class="co">#&gt; scale.</span></span></code></pre></div>
 <div class="inline-figure"><img src="Single-cell-RNAseq-analysis-in-R-2026_files/figure-html/unnamed-chunk-64-2.png" width="672"></div>
 <div id="discuss-1" class="section level4 unnumbered challenge">
 <h4>Discuss<a class="anchor" aria-label="anchor" href="#discuss-1"><i class="fas fa-link"></i></a>
@@ -477,7 +480,7 @@ To interpret them, we need to identify which cell type each cluster represents.<
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP). It was last built on Compiled: July 02, 2026.</p>
+    <p>"<strong>scRNAseq Analysis in R with Seurat</strong>" was written by Teams at QCIF bioinformatics, Sydney Informatics Hub (SIH), Monash Genomics and Bioinformatics Platform (MGBP). It was last built on Compiled: July 27, 2026.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
