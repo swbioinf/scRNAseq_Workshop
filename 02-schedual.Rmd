@@ -1,21 +1,6 @@
 # Schedule {#schedule}
 
 
-This workshop delivered across two afternoons:
-
-* 1:00pm - 4:30pm AEST Tuesday 28th July 
-* 1:00pm - 4:30pm AEST Wednesday 29th July
-
-
-Trainers
-
-* Sarah Williams (Lead trainer): QCIF Bioinformatics
-* Frederick Jaya (Lead trainer): Sydney Informatics HUB (SIH)
-* Adele Barugahare : Monash Genomics and Bioinformatics Platform (MGBP)
-* Paul Harrison : Monash Genomics and Bioinformatics Platform (MGBP)
-
-
-
 | **Day 1**                |
 |----------------------------------|
 | Welcome and Housekeeping         |
