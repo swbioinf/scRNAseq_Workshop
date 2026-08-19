@@ -10,8 +10,6 @@
 
 #### Why do we need to do this? {- .rational}
 
-[Slides](https://docs.google.com/presentation/d/1iTfkc2KgGy3d6yT9zCALZzk993pWwT9D/edit#slide=id.p1)
-
 Differential expression (DE) analysis is the payoff for all the preprocessing steps: clustering, integration, and annotation have prepared us to ask a specific biological question. Here, we want to know which genes change in response to IFN-beta stimulation, and whether those changes are specific to particular cell types or broadly shared.
 
 There are many methods for DE analysis in scRNA-seq. We will use a **pseudobulk** approach, which is currently considered best practice when biological replicates are available.
